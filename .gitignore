@@ -1,1 +1,7 @@
 *.pyc
+.venv/
+venv/
+__pycache__/
+.env
+confidenceinterval.egg-info/
+

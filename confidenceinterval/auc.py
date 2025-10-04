@@ -4,7 +4,7 @@ from .delong import delong_roc_variance
 import sklearn.metrics
 from scipy.stats import norm
 
-from confidenceinterval.bootstrap import bootstrap_ci, bootstrap_methods
+from .methods import bootstrap_ci, bootstrap_methods
 
 
 def roc_auc_score_bootstrap(y_true: List,

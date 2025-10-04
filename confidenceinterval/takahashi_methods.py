@@ -7,9 +7,9 @@ from typing import List, Callable, Tuple, Union, Optional
 from functools import partial
 import numpy as np
 from scipy.stats import norm
-from confidenceinterval.utils import get_positive_negative_counts
-from confidenceinterval.bootstrap import bootstrap_ci, bootstrap_methods, BootstrapParams
-from confidenceinterval.binary_metrics import tpr_score, ppv_score
+from .utils import get_positive_negative_counts
+from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
+from .binary_metrics import tpr_score, ppv_score
 
 from sklearn.metrics import confusion_matrix
 

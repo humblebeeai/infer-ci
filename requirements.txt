@@ -4,3 +4,7 @@ scipy
 numpy
 setuptools~=68.2.0
 pandas
+pytest
+xgboost
+matplotlib
+seaborn

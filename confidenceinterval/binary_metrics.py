@@ -6,8 +6,8 @@ from statsmodels.stats.proportion import proportion_confint
 from typing import List, Callable, Tuple, Union, Optional
 from functools import partial
 import numpy as np
-from confidenceinterval.utils import get_positive_negative_counts
-from confidenceinterval.bootstrap import bootstrap_ci, bootstrap_methods, BootstrapParams
+from .utils import get_positive_negative_counts
+from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
 
 proportion_conf_methods: List[str] = [
     'wilson',

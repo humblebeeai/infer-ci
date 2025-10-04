@@ -5,7 +5,7 @@ from typing import List, Dict, Optional
 
 import pandas as pd
 import numpy as np
-from confidenceinterval.takahashi_methods import  precision_score,recall_score, f1_score
+from .takahashi_methods import precision_score, recall_score, f1_score
 
 def round_tuple(t, decimals=3):
     return tuple(round(num, decimals) for num in t)
