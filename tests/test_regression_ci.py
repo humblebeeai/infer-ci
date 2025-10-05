@@ -123,28 +123,48 @@ def test_regression_ci_single_experiment(x, y, dataset_name="Dataset"):
     print("CONFIDENCE INTERVAL VALIDATION RESULTS")
     print('='*50)
     
+    # Evaluate all metrics at once for Linear Regression
+    lr_results = evaluate.evaluate_multiple(
+        y_true=y_test_single,
+        y_pred=y_test_pred_lr_single,
+        task='regression',
+        metrics=metrics,
+        method='bootstrap_bca'
+    )
+    
+    # Evaluate all metrics at once for XGBoost
+    xgb_results = evaluate.evaluate_multiple(
+        y_true=y_test_single,
+        y_pred=y_test_pred_xgb_single,
+        task='regression',
+        metrics=metrics,
+        method='bootstrap_bca'
+    )
+    
+    # Evaluate all metrics for Linear Regression validation data (without CI)
+    lr_val_results = evaluate.evaluate_multiple(
+        y_true=y_val_single,
+        y_pred=y_val_pred_lr_single,
+        task='regression',
+        metrics=metrics,
+        compute_ci=False
+    )
+    
+    # Evaluate all metrics for XGBoost validation data (without CI)
+    xgb_val_results = evaluate.evaluate_multiple(
+        y_true=y_val_single,
+        y_pred=y_val_pred_xgb_single,
+        task='regression',
+        metrics=metrics,
+        compute_ci=False
+    )
+    
     for metric in metrics:
         print(f"\n=== {metric.upper()} METRIC ===")
         
-        # Linear Regression evaluation
-        lr_result = evaluate.evaluate(
-            y_true=y_test_single, 
-            y_pred=y_test_pred_lr_single, 
-            task='regression', 
-            metric=metric
-        )
-        lr_test_value, (lr_ci_lower, lr_ci_upper) = lr_result
-        
-        # Compute validation metric value
-        if metric == 'r2':
-            lr_val_actual = evaluate.r2_score(y_val_single, y_val_pred_lr_single, compute_ci=False)
-        elif metric == 'mse':
-            lr_val_actual = evaluate.mse(y_val_single, y_val_pred_lr_single, compute_ci=False)
-        elif metric == 'mae':
-            lr_val_actual = evaluate.mae(y_val_single, y_val_pred_lr_single, compute_ci=False)
-        elif metric == 'rmse':
-            lr_val_actual = evaluate.rmse(y_val_single, y_val_pred_lr_single, compute_ci=False)
-        
+        # Extract Linear Regression results
+        lr_test_value, (lr_ci_lower, lr_ci_upper) = lr_results[metric]
+        lr_val_actual = lr_val_results[metric]
         lr_coverage = lr_ci_lower <= lr_val_actual <= lr_ci_upper
         
         print(f"Linear Regression:")
@@ -153,25 +173,9 @@ def test_regression_ci_single_experiment(x, y, dataset_name="Dataset"):
         print(f"  Validation {metric}: {lr_val_actual:.4f}")
         print(f"  CI Contains Validation: {lr_coverage}")
         
-        # XGBoost evaluation
-        xgb_result = evaluate.evaluate(
-            y_true=y_test_single, 
-            y_pred=y_test_pred_xgb_single, 
-            task='regression', 
-            metric=metric
-        )
-        xgb_test_value, (xgb_ci_lower, xgb_ci_upper) = xgb_result
-        
-        # Compute validation metric value
-        if metric == 'r2':
-            xgb_val_actual = evaluate.r2_score(y_val_single, y_val_pred_xgb_single, compute_ci=False)
-        elif metric == 'mse':
-            xgb_val_actual = evaluate.mse(y_val_single, y_val_pred_xgb_single, compute_ci=False)
-        elif metric == 'mae':
-            xgb_val_actual = evaluate.mae(y_val_single, y_val_pred_xgb_single, compute_ci=False)
-        elif metric == 'rmse':
-            xgb_val_actual = evaluate.rmse(y_val_single, y_val_pred_xgb_single, compute_ci=False)
-        
+        # Extract XGBoost results
+        xgb_test_value, (xgb_ci_lower, xgb_ci_upper) = xgb_results[metric]
+        xgb_val_actual = xgb_val_results[metric]
         xgb_coverage = xgb_ci_lower <= xgb_val_actual <= xgb_ci_upper
         
         print(f"XGBoost:")
@@ -217,7 +221,20 @@ def test_regression_ci_single_experiment(x, y, dataset_name="Dataset"):
     
     success_rate = (success_count / total_count) * 100
     print(f"\nOverall Success Rate: {success_count}/{total_count} ({success_rate:.1f}%)")
-    
+    classification_metrics = evaluate.get_available_metrics('classification')
+    regression_metrics = evaluate.get_available_metrics('regression')
+
+    print("Classification metrics:", classification_metrics)
+    print("Regression metrics:", regression_metrics)
+    evaluate.print_info()
+
+    # Get available methods
+    classification_methods = evaluate.get_available_methods('classification')
+    regression_methods = evaluate.get_available_methods('regression')
+
+    print("Classification methods:", classification_methods)
+    print("Regression methods:", regression_methods)
+        
     return all_coverage_success, results
 
 
