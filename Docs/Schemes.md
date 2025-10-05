@@ -29,7 +29,7 @@ By following this guide, users can choose the correct CI method automatically ba
 **Example:**
 ```python
 res = eval_ci(y_true, y_pred, metric="accuracy", scheme="holdout")
-
+```
 
 # Cross-Validation (k-fold)
 
@@ -56,37 +56,7 @@ res = eval_ci(
     fold_scores=fold_scores,
     kfold_k=5
 )
-
-
-# Repeated Cross-Validation
-
-**When:**  
-- Cross-validation is repeated *r* times with different random splits.  
-- Each run produces k validation folds, giving a total of r × k scores.  
-- The metric is usually reported as the average over all folds.  
-
-**Data:**  
-- Even stronger dependence than plain k-fold CV:  
-  - Folds within a run overlap.  
-  - Folds across different runs also overlap.  
-- Naïve variance severely underestimates uncertainty.  
-
-**CI methods:**  
-- Use **Bouckaert–Frank correction**, which extends the Nadeau–Bengio method to repeated CV.  
-- This accounts for both within-run and across-run dependence.  
-
-**Example:**
-```python
-res = eval_ci(
-    y_true=None,
-    y_pred=None,
-    metric="accuracy",
-    scheme="repeated_cv",
-    fold_scores=fold_scores,  # length = r × k
-    kfold_k=5,
-    r_repeats=3
-)
-
+```
 
 # Repeated Cross-Validation
 
@@ -116,7 +86,37 @@ res = eval_ci(
     kfold_k=5,
     r_repeats=3
 )
+```
 
+# Repeated Cross-Validation
+
+**When:**  
+- Cross-validation is repeated *r* times with different random splits.  
+- Each run produces k validation folds, giving a total of r × k scores.  
+- The metric is usually reported as the average over all folds.  
+
+**Data:**  
+- Even stronger dependence than plain k-fold CV:  
+  - Folds within a run overlap.  
+  - Folds across different runs also overlap.  
+- Naïve variance severely underestimates uncertainty.  
+
+**CI methods:**  
+- Use **Bouckaert–Frank correction**, which extends the Nadeau–Bengio method to repeated CV.  
+- This accounts for both within-run and across-run dependence.  
+
+**Example:**
+```python
+res = eval_ci(
+    y_true=None,
+    y_pred=None,
+    metric="accuracy",
+    scheme="repeated_cv",
+    fold_scores=fold_scores,  # length = r × k
+    kfold_k=5,
+    r_repeats=3
+)
+```
 
 # Time-Series (Blocked / Rolling CV)
 
@@ -148,7 +148,7 @@ res = eval_ci(
     block_length=None,  # defaults to n^(1/3) if not given
     seed=42
 )
-
+```
 
 # Stratified Bootstrap (Imbalanced Data)
 
@@ -179,7 +179,7 @@ res = eval_ci(
     B=3000,
     seed=7
 )
-
+```
 
 # Ranking / IR Metrics (Query-level Bootstrap)
 
@@ -210,7 +210,7 @@ res = eval_ci(
     B=2000,
     seed=22
 )
-
+```
 
 # Calibration Metrics (ECE, MCE, Brier)
 
@@ -243,7 +243,7 @@ res = eval_ci(
     B=2000,
     seed=7
 )
-
+```
 
 # Summary: Evaluation Schemes and CI Methods
 

@@ -38,9 +38,6 @@ The goal is to create a clear, practical reference for selecting the right metri
 
 - [📊 Master Summary Table of ML Metrics](#-master-summary-table-of-ml-metrics)  
 
----
-
-
 
 # Regression Metrics
 
@@ -54,14 +51,15 @@ The **Mean Absolute Error (MAE)** measures the average magnitude of errors betwe
 It is one of the most intuitive regression metrics, as it represents the average distance between predictions and ground truth.
 
 ## 2. Formula
-$$
-\text{MAE} = \frac{1}{n} \sum_{i=1}^n \left| y_i - \hat{y}_i \right|
-$$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+
+$MAE$ = $(1/n)$ × $Σ|yi - ŷi|$
+
+
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations  
 
 ## 3. Interpretation
 - **MAE = 0** → Perfect predictions (no error).  
@@ -94,10 +92,11 @@ $$
 \text{MSE} = \frac{1}{n} \sum_{i=1}^n \left( y_i - \hat{y}_i \right)^2
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+Where:
+
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations
 
 ## 3. Interpretation
 - **MSE = 0** → Perfect predictions.  
@@ -130,10 +129,10 @@ $$
 \text{RMSE} = \sqrt{ \frac{1}{n} \sum_{i=1}^n \left( y_i - \hat{y}_i \right)^2 }
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations
 
 ## 3. Interpretation
 - **RMSE = 0** → Perfect predictions.  
@@ -167,16 +166,16 @@ $$
 R^2 = 1 - \frac{\sum_{i=1}^n (y_i - \hat{y}_i)^2}{\sum_{i=1}^n (y_i - \bar{y})^2}
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( \bar{y} \) = mean of actual values  
-- \( n \) = number of observations  
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $\bar{y}$ = mean of actual values
+- $n$ = number of observations
 
 ## 3. Interpretation
-- \( R^2 = 1 \) → Perfect fit (all variance explained).  
-- \( R^2 = 0 \) → Model is no better than simply predicting the mean.  
-- \( R^2 < 0 \) → Model performs worse than predicting the mean.  
+- $R^2 = 1$ → Perfect fit (all variance explained).  
+- $R^2 = 0$ → Model is no better than simply predicting the mean.  
+- $R^2 < 0$ → Model performs worse than predicting the mean.  
 
 ## 4. Advantages
 - Intuitive interpretation: proportion of variance explained by the model.  
@@ -205,10 +204,10 @@ $$
 \text{Adjusted } R^2 = 1 - \left(1 - R^2 \right) \cdot \frac{n - 1}{n - p - 1}
 $$
 
-Where:  
-- \( R^2 \) = coefficient of determination  
-- \( n \) = number of observations  
-- \( p \) = number of predictors/features  
+Where:
+- $R^2$ = coefficient of determination
+- $n$ = number of observations
+- $p$ = number of predictors/features
 
 ## 3. Interpretation
 - Adjusted R² increases only if the new predictor improves the model more than would be expected by chance.  
@@ -242,10 +241,10 @@ $$
 \text{MAPE} = \frac{100}{n} \sum_{i=1}^n \left| \frac{y_i - \hat{y}_i}{y_i} \right|
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations
 
 ## 3. Interpretation
 - **MAPE = 0%** → Perfect predictions.  
@@ -258,7 +257,7 @@ Where:
 - Popular in business and forecasting contexts.  
 
 ## 5. Limitations
-- Undefined when \( y_i = 0 \) (division by zero issue).  
+- Undefined when $y_i = 0$ (division by zero issue).  
 - Can be heavily biased when actual values are close to zero.  
 - Asymmetric: over- and under-predictions impact the percentage differently.  
 
@@ -279,10 +278,10 @@ $$
 \text{SMAPE} = \frac{100}{n} \sum_{i=1}^n \frac{\left| y_i - \hat{y}_i \right|}{\frac{|y_i| + |\hat{y}_i|}{2}}
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations
 
 ## 3. Interpretation
 - **SMAPE = 0%** → Perfect predictions.  
@@ -316,10 +315,10 @@ $$
 \text{RMSLE} = \sqrt{ \frac{1}{n} \sum_{i=1}^n \left( \log(1 + \hat{y}_i) - \log(1 + y_i) \right)^2 }
 $$
 
-Where:  
-- \( y_i \) = actual value  
-- \( \hat{y}_i \) = predicted value  
-- \( n \) = number of observations  
+Where:
+- $y_i$ = actual value
+- $\hat{y}_i$ = predicted value
+- $n$ = number of observations
 
 ## 3. Interpretation
 - **RMSLE = 0** → Perfect predictions.  
@@ -332,7 +331,7 @@ Where:
 - Good for percentage growth-like problems (e.g., exponential growth).  
 
 ## 5. Limitations
-- Requires non-negative target values (\( y_i \geq 0 \)).  
+- Requires non-negative target values $y_i \geq 0$.  
 - Interpretation is less intuitive than MAE/RMSE.  
 - Penalizes underestimation more than overestimation, which may not always be desired.  
 
@@ -388,7 +387,7 @@ L_\delta(y, \hat{y}) =
 $$
 
 Where:  
-- \( \delta \) = threshold parameter.  
+- $\delta$ = threshold parameter.  
 
 ## 3. Interpretation
 - Small errors penalized quadratically.  
@@ -399,7 +398,7 @@ Where:
 - Differentiable everywhere.  
 
 ## 5. Limitations
-- Requires tuning parameter \( \delta \).  
+- Requires tuning parameter $\delta$.  
 - Less common for reporting, more for training.  
 
 ## 6. Use Cases
@@ -418,10 +417,10 @@ $$
 \text{Explained Variance} = 1 - \frac{\text{Var}(y - \hat{y})}{\text{Var}(y)}
 $$
 
-Where:  
-- \( y \) = actual values  
-- \( \hat{y} \) = predicted values  
-- \( \text{Var} \) = variance  
+Where:
+- $y$ = actual values
+- $\hat{y}$ = predicted values
+- $\text{Var}$ = variance
 
 ## 3. Interpretation
 - Score = 1 → Perfect prediction (all variance explained).  
@@ -476,7 +475,7 @@ The **Quantile Loss (Pinball Loss)** is used when predicting quantiles instead o
 It measures how well predicted quantiles match actual values, making it common in **quantile regression** and **uncertainty estimation**.
 
 ## 2. Formula
-For a quantile \( q \in (0,1) \):
+For a quantile $q \in (0,1)$:
 $$
 L_q(y, \hat{y}) =
 \begin{cases}
@@ -486,8 +485,8 @@ q \cdot (y - \hat{y}) & \text{if } y \geq \hat{y} \\
 $$
 
 ## 3. Interpretation
-- Penalizes underestimates and overestimates differently depending on quantile \( q \).  
-- Example: \( q = 0.9 \) → focuses on upper-bound errors.  
+- Penalizes underestimates and overestimates differently depending on quantile $q$.  
+- Example: $q = 0.9$ → focuses on upper-bound errors.  
 
 ## 4. Advantages
 - Allows probabilistic forecasting (predicting intervals, not just averages).  
@@ -495,7 +494,7 @@ $$
 
 ## 5. Limitations
 - Less intuitive than MAE/MSE.  
-- Requires choosing a quantile \( q \).  
+- Requires choosing a quantile $q$.  
 
 ## 6. Use Cases
 - Forecasting with uncertainty (e.g., energy demand, stock price ranges).  
@@ -523,7 +522,7 @@ $$
 - Reduces the impact of very large values compared to MSE.  
 
 ## 5. Limitations
-- Requires non-negative values (\( y_i \geq 0 \)).  
+- Requires non-negative values ($y_i \geq 0$).  
 - Less intuitive than MAE/MSE.  
 
 ## 6. Use Cases
@@ -551,7 +550,7 @@ $$
 - Proper scoring rule (encourages honest probability predictions).  
 
 ## 5. Limitations
-- Only valid when \( y_i \geq 0 \) and \( \hat{y}_i > 0 \).  
+- Only valid when ($y_i \geq 0$) and ($\hat{y}_i > 0$).  
 - Sensitive to zero or near-zero predictions.  
 
 ## 6. Use Cases
@@ -579,7 +578,7 @@ $$
 - Works with generalized linear models (GLMs).  
 
 ## 5. Limitations
-- Only valid when \( y_i > 0 \) and \( \hat{y}_i > 0 \).  
+- Only valid when $y_i > 0$ and $\hat{y}_i > 0$.  
 - Less intuitive to explain.  
 
 ## 6. Use Cases
@@ -600,10 +599,10 @@ D_{\text{Tweedie}}(p) = \frac{2}{n} \sum_{i=1}^n \left( \frac{y_i^{2-p}}{(1-p)(2
 $$
 
 Where:  
-- \( p = 0 \) → Normal distribution (MSE).  
-- \( p = 1 \) → Poisson distribution.  
-- \( p = 2 \) → Gamma distribution.  
-- \( 1 < p < 2 \) → Compound Poisson–Gamma (insurance, rainfall).  
+- $p = 0$ → Normal distribution (MSE).  
+- $p = 1$ → Poisson distribution.  
+- $p = 2$ → Gamma distribution.  
+- $1 < p < 2$ → Compound Poisson–Gamma (insurance, rainfall).  
 
 ## 3. Interpretation
 - Lower deviance → better fit.  
@@ -614,7 +613,7 @@ Where:
 - Covers Normal, Poisson, Gamma, and in-between.  
 
 ## 5. Limitations
-- Requires tuning parameter \( p \).  
+- Requires tuning parameter $p$.  
 - Interpretation is less straightforward.  
 
 ## 6. Use Cases
@@ -635,7 +634,7 @@ $$
 $$
 
 Where:  
-- \( \bar{y} \) = mean of actual values.  
+- $\bar{y}$ = mean of actual values.  
 
 ## 3. Interpretation
 - CV(RMSE) = 10% → RMSE is 10% of the average actual value.  
@@ -671,11 +670,11 @@ $$
 \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
 $$
 
-Where:  
-- \( TP \) = True Positives  
-- \( TN \) = True Negatives  
-- \( FP \) = False Positives  
-- \( FN \) = False Negatives  
+Where:
+- $TP$ = True Positives
+- $TN$ = True Negatives
+- $FP$ = False Positives
+- $FN$ = False Negatives
 
 ## 3. Interpretation
 - Accuracy = 1 → Perfect classification.  
@@ -734,9 +733,9 @@ $$
 \text{Recall} = \frac{TP}{TP + FN}
 $$
 
-Where:  
-- \( TP \) = True Positives  
-- \( FN \) = False Negatives  
+Where:
+- $TP$ = True Positives
+- $FN$ = False Negatives
 
 ## 3. Interpretation
 - High recall → Few false negatives (model rarely misses positives).  
@@ -768,8 +767,8 @@ F1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \tex
 $$
 
 Where:  
-- Precision = \( \frac{TP}{TP + FP} \)  
-- Recall = \( \frac{TP}{TP + FN} \)  
+- Precision = ($\frac{TP}{TP + FP}$)  
+- Recall = $\frac{TP}{TP + FN}$)  
 
 ## 3. Interpretation
 - F1 = 1 → Perfect Precision and Recall.  
@@ -804,8 +803,8 @@ $$
 $$
 
 Where:  
-- \( TN \) = True Negatives  
-- \( FP \) = False Positives  
+- $TN$ = True Negatives  
+- $FP$ = False Positives  
 
 ## 3. Interpretation
 - High specificity → Few false positives (negatives rarely misclassified as positives).  
@@ -926,8 +925,8 @@ AP = \sum_n (R_n - R_{n-1}) \cdot P_n
 $$
 
 Where:  
-- \( P_n \) = Precision at threshold \( n \)  
-- \( R_n \) = Recall at threshold \( n \)  
+- $P_n$ = Precision at threshold $n$  
+- $R_n$ = Recall at threshold $n$  
 
 ## 3. Interpretation
 - High area under PR curve → Model has both high Precision and Recall.  
@@ -962,8 +961,8 @@ $$
 $$
 
 Where:  
-- \( y_i \in \{0, 1\} \) = actual label  
-- \( \hat{p}_i \) = predicted probability of class 1  
+- $y_i \in \{0, 1\}$ = actual label  
+- $\hat{p}_i$ = predicted probability of class 1  
 
 For multi-class:
 $$
@@ -1003,8 +1002,8 @@ L(y_i, \hat{y}_i) = \max(0, 1 - y_i \cdot \hat{y}_i)
 $$
 
 Where:  
-- \( y_i \) = true class label (\(-1\) or \(+1\))  
-- \( \hat{y}_i \) = raw predicted score (before applying sign function)  
+- $y_i$ = true class label ($-1$ or $+1$)  
+- $\hat{y}_i$ = raw predicted score (before applying sign function)  
 
 ## 3. Interpretation
 - Loss = 0 → Correct classification with a margin ≥ 1.  
@@ -1038,10 +1037,10 @@ $$
 $$
 
 Where:  
-- \( TP \) = True Positives  
-- \( TN \) = True Negatives  
-- \( FP \) = False Positives  
-- \( FN \) = False Negatives  
+- $TP$ = True Positives  
+- $TN$ = True Negatives  
+- $FP$ = False Positives  
+- $FN$ = False Negatives  
 
 ## 3. Interpretation
 - **MCC = +1** → Perfect classification.  
@@ -1075,13 +1074,13 @@ $$
 $$
 
 Where:  
-- \( p_o \) = observed agreement = \( \frac{TP + TN}{TP + TN + FP + FN} \)  
-- \( p_e \) = expected agreement by chance, calculated from marginal probabilities.  
+- $p_o$ = observed agreement = $\frac{TP + TN}{TP + TN + FP + FN}$  
+- $p_e$ = expected agreement by chance, calculated from marginal probabilities.  
 
 ## 3. Interpretation
-- \( \kappa = 1 \) → Perfect agreement.  
-- \( \kappa = 0 \) → Agreement is no better than chance.  
-- \( \kappa < 0 \) → Worse than chance (systematic disagreement).  
+- $\kappa = 1$ → Perfect agreement.  
+- $\kappa = 0$ → Agreement is no better than chance.  
+- $\kappa < 0$ → Worse than chance (systematic disagreement).  
 
 ## 4. Advantages
 - Adjusts for chance agreement.  
@@ -1111,8 +1110,8 @@ $$
 $$
 
 Where:  
-- Sensitivity (Recall) = \( \frac{TP}{TP + FN} \)  
-- Specificity = \( \frac{TN}{TN + FP} \)  
+- Sensitivity (Recall) = $\frac{TP}{TP + FN}$  
+- Specificity = $\frac{TN}{TN + FP}$
 
 ## 3. Interpretation
 - Balanced Accuracy = 1 → Perfect classification.  
@@ -1138,10 +1137,10 @@ Where:
 
 ## 1. What it is
 The **Fβ-Score** is a generalization of the F1-Score that allows you to put more weight on either Precision or Recall.  
-The parameter \( \beta \) controls the balance:  
-- \( \beta > 1 \) → Recall is more important.  
-- \( \beta < 1 \) → Precision is more important.  
-- \( \beta = 1 \) → Equal weight (F1-Score).  
+The parameter $\beta $ controls the balance:  
+- $\beta > 1$ → Recall is more important.  
+- $\beta < 1$ → Precision is more important.  
+- $\beta = 1$ → Equal weight (F1-Score).  
 
 ## 2. Formula
 $$
@@ -1184,8 +1183,8 @@ $$
 $$
 
 Where:  
-- \( y_i \in \{0, 1\} \) = actual label  
-- \( \hat{p}_i \) = predicted probability for the positive class  
+- $y_i \in \{0, 1\}$ = actual label  
+- $\hat{p}_i$ = predicted probability for the positive class  
 
 For multi-class classification:
 $$
@@ -1229,9 +1228,9 @@ $$
 $$
 
 Where:  
-- \( n \) = number of samples  
-- \( \hat{p}_i \) = predicted probability distribution for sample \( i \)  
-- \( \mathbf{1}\{\cdot\} \) = indicator function (1 if true, 0 otherwise)  
+- $n$ = number of samples  
+- $\hat{p}_i$ = predicted probability distribution for sample $i$  
+- $\mathbf{1}\{\cdot\}$ = indicator function (1 if true, 0 otherwise)  
 
 ## 3. Interpretation
 - Top-1 Accuracy = standard Accuracy.  
@@ -1265,9 +1264,9 @@ $$
 $$
 
 Where:  
-- \( y_{i,j} \in \{0,1\} \) = true label for class \( j \) in sample \( i \)  
-- \( \hat{y}_{i,j} \in \{0,1\} \) = predicted label  
-- \( \mathbf{1}\{\cdot\} \) = indicator function  
+- $y_{i,j} \in \{0,1\}$ = true label for class $j$ in sample $i$  
+- $\hat{y}_{i,j} \in \{0,1\}$ = predicted label  
+- $\mathbf{1}\{\cdot\}$ = indicator function  
 
 ## 3. Interpretation
 - Hamming Loss = 0 → Perfect classification.  
@@ -1337,8 +1336,8 @@ $$
 $$
 
 Where:  
-- Sensitivity (Recall) = \( \frac{TP}{TP + FN} \)  
-- Specificity = \( \frac{TN}{TN + FP} \)  
+- Sensitivity (Recall) = $\frac{TP}{TP + FN}$  
+- Specificity = $\frac{TN}{TN + FP}$
 
 ## 3. Interpretation
 - G-Mean = 1 → Perfect classification (both classes predicted well).  
@@ -1384,8 +1383,8 @@ $$
 $$
 
 Where:  
-- \( C \) = number of classes  
-- \( n_c \) = number of samples in class \( c \)  
+- $C$ = number of classes  
+- $n_c$ = number of samples in class $c$  
 
 ## 3. Interpretation
 - **Macro**: Good for imbalanced data if you want all classes to matter equally.  
@@ -1455,14 +1454,14 @@ FL(p_t) = - \alpha \cdot (1 - p_t)^\gamma \cdot \log(p_t)
 $$
 
 Where:  
-- \( p_t \) = predicted probability for the true class  
-- \( \alpha \) = balancing factor between classes (0 < α < 1)  
-- \( \gamma \) = focusing parameter (γ ≥ 0)  
+- $p_t$ = predicted probability for the true class  
+- $\alpha$ = balancing factor between classes (0 < α < 1)  
+- $\gamma$ = focusing parameter (γ ≥ 0)  
 
 ## 3. Interpretation
-- When \( p_t \) is high (easy example), the loss is down-weighted.  
-- When \( p_t \) is low (hard example), the loss is amplified.  
-- \( \gamma \) controls how much to focus on hard examples.  
+- When $p_t$ is high (easy example), the loss is down-weighted.  
+- When $p_t$ is low (hard example), the loss is amplified.  
+- $\gamma$ controls how much to focus on hard examples.  
 
 ## 4. Advantages
 - Effective for imbalanced datasets.  
@@ -1535,10 +1534,10 @@ ECE = \sum_{m=1}^M \frac{|B_m|}{n} \; \big| \text{acc}(B_m) - \text{conf}(B_m) \
 $$
 
 Where:  
-- \( B_m \) = set of samples in bin \( m \)  
-- \( n \) = total number of samples  
-- \( \text{acc}(B_m) \) = accuracy in bin \( m \)  
-- \( \text{conf}(B_m) \) = average predicted confidence in bin \( m \)  
+- $B_m$ = set of samples in bin $m$  
+- $n$ = total number of samples  
+- $\text{acc}(B_m)$ = accuracy in bin $m$  
+- $\text{conf}(B_m)$ = average predicted confidence in bin $m$  
 
 ## 3. Interpretation
 - ECE = 0 → Perfect calibration.  
@@ -1572,8 +1571,8 @@ KS = \max_x \big| F_{1}(x) - F_{0}(x) \big|
 $$
 
 Where:  
-- \( F_{1}(x) \) = cumulative distribution of predicted probabilities for positives  
-- \( F_{0}(x) \) = cumulative distribution of predicted probabilities for negatives  
+- $F_{1}(x)$ = cumulative distribution of predicted probabilities for positives  
+- $F_{0}(x)$ = cumulative distribution of predicted probabilities for negatives  
 
 ## 3. Interpretation
 - KS = 0 → No separation (model cannot distinguish classes).  
@@ -1643,8 +1642,8 @@ J = \text{Sensitivity} + \text{Specificity} - 1
 $$
 
 Where:  
-- Sensitivity = \( \frac{TP}{TP + FN} \)  
-- Specificity = \( \frac{TN}{TN + FP} \)  
+- Sensitivity = $ \frac{TP}{TP + FN} $  
+- Specificity = $ \frac{TN}{TN + FP} $  
 
 ## 3. Interpretation
 - J = 1 → Perfect classifier.  
@@ -1679,8 +1678,8 @@ $$
 $$
 
 Where:  
-- \( FP \) = False Positives  
-- \( TN \) = True Negatives  
+- $FP$ = False Positives  
+- $TN$ = True Negatives  
 
 ## 3. Interpretation
 - FPR = 0 → No negatives misclassified as positives.  
@@ -1712,8 +1711,8 @@ $$
 $$
 
 Where:  
-- \( FN \) = False Negatives  
-- \( TP \) = True Positives  
+- $FN$ = False Negatives  
+- $TP$ = True Positives  
 
 ## 3. Interpretation
 - FNR = 0 → No positives misclassified as negatives.  
@@ -1750,8 +1749,8 @@ $$
 $$
 
 Where:  
-- Sensitivity = Recall = \( \frac{TP}{TP + FN} \)  
-- Specificity = \( \frac{TN}{TN + FP} \)  
+- Sensitivity = Recall = $\frac{TP}{TP + FN}$  
+- Specificity = $\frac{TN}{TN + FP}$ 
 
 ## 3. Interpretation
 - BER = 0 → Perfect classification.  
@@ -1812,9 +1811,9 @@ F1_{weighted} = \frac{\sum_{c=1}^C n_c \cdot F1_c}{\sum_{c=1}^C n_c}
 $$
 
 Where:  
-- \( C \) = number of classes  
-- \( n_c \) = number of true instances in class \( c \)  
-- \( F1_c \) = class-specific F1 score  
+- $C$ = number of classes  
+- $n_c$ = number of true instances in class $c$  
+- $F1_c$ = class-specific F1 score  
 
 ## 3. Interpretation
 - Weighted metrics give more influence to frequent classes.  
@@ -1845,8 +1844,8 @@ $$
 $$
 
 Where:  
-- \( \frac{TP}{TP + FP} \) = Precision  
-- \( \frac{TP}{TP + FN} \) = Recall  
+- $\frac{TP}{TP + FP}$= Precision  
+- $\frac{TP}{TP + FN}$ = Recall  
 
 ## 3. Interpretation
 - FMI = 1 → Perfect Precision and Recall.  
@@ -1877,8 +1876,8 @@ $$
 $$
 
 Where:  
-- \( \bar{P} \) = observed average agreement  
-- \( \bar{P}_e \) = expected agreement by chance  
+- $\bar{P}$ = observed average agreement  
+- $\bar{P}_e$ = expected agreement by chance  
 
 ## 3. Interpretation
 - κ = 1 → Perfect agreement.  
@@ -1944,9 +1943,9 @@ $$
 $$
 
 Where:  
-- \( t_k \) = number of true samples of class \( k \)  
-- \( p_k \) = number of predicted samples of class \( k \)  
-- \( n_k, m_k \) = derived counts across classes  
+- $t_k$ = number of true samples of class \( k \)  
+- $p_k$ = number of predicted samples of class \( k \)  
+- $n_k, m_k$ = derived counts across classes  
 
 ## 3. Interpretation
 - MCC = 1 → Perfect classification.  
@@ -1979,8 +1978,8 @@ LRAP = \frac{1}{n} \sum_{i=1}^n \frac{1}{|Y_i|} \sum_{y \in Y_i} \frac{|\{ y' \i
 $$
 
 Where:  
-- \( Y_i \) = set of true labels for sample \( i \)  
-- \( \hat{p}_{i,y} \) = predicted probability for label \( y \)  
+- $Y_i$ = set of true labels for sample $i$  
+- $\hat{p}_{i,y}$ = predicted probability for label $y$  
 
 ## 3. Interpretation
 - LRAP = 1 → Perfect ranking (all true labels ranked above false ones).  
@@ -2078,9 +2077,9 @@ AP = \frac{1}{R} \sum_{k=1}^n P(k) \cdot rel(k)
 $$
 
 Where:  
-- \( R \) = number of relevant items  
-- \( P(k) \) = Precision@k  
-- \( rel(k) = 1 \) if the item at rank \( k \) is relevant, else 0  
+- $R$ = number of relevant items  
+- $P(k)$= Precision@k  
+- $rel(k) = 1$ if the item at rank \( k \) is relevant, else 0  
 
 MAP across all queries:
 $$
@@ -2123,8 +2122,8 @@ NDCG@k = \frac{DCG@k}{IDCG@k}
 $$
 
 Where:  
-- \( rel_i \) = relevance score of item at position \( i \)  
-- \( IDCG@k \) = DCG of the ideal (perfect) ranking  
+- $rel_i$ = relevance score of item at position \( i \)  
+- $IDCG@k$ = DCG of the ideal (perfect) ranking  
 
 ## 3. Interpretation
 - NDCG = 1 → Perfect ranking.  
@@ -2215,7 +2214,7 @@ $$
 Lower values are better.
 
 ## 2. Formula
-For \( R_i \) = rank of relevant item in query \( i \):
+For $R_i$ = rank of relevant item in query $i$:
 $$
 MR = \frac{1}{n} \sum_{i=1}^n R_i
 $$
@@ -2431,9 +2430,9 @@ The **Davies–Bouldin Index (DBI)** measures the average similarity between eac
 It evaluates clustering quality based on **intra-cluster similarity** and **inter-cluster separation**.
 
 ## 2. Formula
-For cluster \( i \):  
-- \( S_i \) = average distance of points in cluster \( i \) to its centroid.  
-- \( M_{ij} \) = distance between centroids of clusters \( i \) and \( j \).  
+For cluster $i$:  
+- $S_i$ = average distance of points in cluster \( i \) to its centroid.  
+- $M_{ij}$ = distance between centroids of clusters \( i \) and \( j \).  
 
 Cluster similarity:
 $$
@@ -2475,8 +2474,8 @@ CH = \frac{\text{Tr}(B_k)}{\text{Tr}(W_k)} \cdot \frac{n - k}{k - 1}
 $$
 
 Where:  
-- \( B_k \) = between-cluster dispersion matrix  
-- \( W_k \) = within-cluster dispersion matrix  
+- $B_k$= between-cluster dispersion matrix  
+- $W_k$ = within-cluster dispersion matrix  
 
 ## 3. Interpretation
 - Higher CH → Better-defined clusters.  
@@ -2506,8 +2505,8 @@ D = \frac{\min_{i \neq j} d(C_i, C_j)}{\max_{k} \text{diam}(C_k)}
 $$
 
 Where:  
-- \( d(C_i, C_j) \) = distance between clusters \( i \) and \( j \)  
-- \( \text{diam}(C_k) \) = maximum distance between points in cluster \( k \)  
+- $d(C_i, C_j)$ = distance between clusters \( i \) and \( j \)  
+- $\text{diam}(C_k)$ = maximum distance between points in cluster \( k \)  
 
 ## 3. Interpretation
 - Higher Dunn Index → Better clustering (well-separated, compact clusters).  
@@ -2538,8 +2537,8 @@ ARI = \frac{RI - E[RI]}{\max(RI) - E[RI]}
 $$
 
 Where:  
-- RI = Rand Index (proportion of correct pairwise agreements)  
-- \( E[RI] \) = expected RI under random labeling  
+- $RI$ = Rand Index (proportion of correct pairwise agreements)  
+- $E[RI]$ = expected RI under random labeling  
 
 ## 3. Interpretation
 - ARI = 1 → Perfect agreement.  
@@ -2571,8 +2570,8 @@ NMI = \frac{2 \cdot I(Y; C)}{H(Y) + H(C)}
 $$
 
 Where:  
-- \( I(Y; C) \) = mutual information between true labels \( Y \) and clusters \( C \)  
-- \( H(\cdot) \) = entropy  
+- $I(Y; C)$ = mutual information between true labels \( Y \) and clusters \( C \)  
+- $H(\cdot)$ = entropy  
 
 ## 3. Interpretation
 - NMI = 1 → Perfect match.  
@@ -2645,8 +2644,8 @@ $$
 $$
 
 Where:  
-- \( C_k \) = cluster \( k \)  
-- \( Y_j \) = ground-truth class \( j \)  
+- $C_k$ = cluster $k$  
+- $Y_j$ = ground-truth class $j$  
 
 ## 3. Interpretation
 - Purity = 1 → Perfect clustering.  
@@ -2676,10 +2675,10 @@ Q = \frac{1}{2m} \sum_{i,j} \Big[ A_{ij} - \frac{k_i k_j}{2m} \Big] \delta(c_i, 
 $$
 
 Where:  
-- \( A_{ij} \) = adjacency matrix (1 if edge exists, 0 otherwise)  
-- \( k_i \) = degree of node \( i \)  
-- \( m \) = total number of edges  
-- \( \delta(c_i, c_j) = 1 \) if nodes \( i, j \) in same cluster, else 0  
+- $A_{ij}$ = adjacency matrix (1 if edge exists, 0 otherwise)  
+- $k_i$ = degree of node $i$
+- $m$ = total number of edges  
+- $\delta(c_i, c_j) = 1$ if nodes $i, j$ in same cluster, else 0  
 
 ## 3. Interpretation
 - Modularity close to 1 → Strong community structure.  
@@ -2717,9 +2716,9 @@ BIC = k \ln(n) - 2\ln(L)
 $$
 
 Where:  
-- \( k \) = number of parameters  
-- \( n \) = number of samples  
-- \( L \) = likelihood  
+- $k $ = number of parameters  
+- $n$ = number of samples  
+- $L$ = likelihood  
 
 ## 3. Interpretation
 - Lower AIC/BIC → Better model.  
@@ -2745,7 +2744,7 @@ Where:
 It evaluates how “pure” clusters are with respect to ground-truth labels.
 
 ## 2. Formula
-For cluster \( C_k \):
+For cluster $C_k$:
 $$
 H(C_k) = - \sum_j p_{k,j} \log(p_{k,j})
 $$
@@ -2756,7 +2755,7 @@ H = \sum_k \frac{|C_k|}{n} H(C_k)
 $$
 
 Where:  
-- \( p_{k,j} \) = proportion of class \( j \) in cluster \( k \).  
+- $p_{k,j}$ = proportion of class $j$ in cluster $k$.  
 
 ## 3. Interpretation
 - Lower entropy → More homogeneous clusters.  
@@ -2781,14 +2780,14 @@ Where:
 The **Gap Statistic** helps determine the optimal number of clusters by comparing within-cluster dispersion to that of a reference (random) dataset.
 
 ## 2. Formula
-For cluster number \( k \):
+For cluster number $k$:
 $$
 Gap(k) = E^*[\log(W_k)] - \log(W_k)
 $$
 
 Where:  
-- \( W_k \) = within-cluster dispersion for \( k \) clusters  
-- \( E^* \) = expectation under reference distribution  
+- $W_k$ = within-cluster dispersion for \( k \) clusters  
+- $E^*$ = expectation under reference distribution  
 
 ## 3. Interpretation
 - Larger Gap(k) → Better clustering compared to random.  
@@ -2826,8 +2825,8 @@ MAE = \frac{1}{n} \sum_{t=1}^n |y_t - \hat{y}_t|
 $$
 
 Where:  
-- \( y_t \) = actual value at time \( t \)  
-- \( \hat{y}_t \) = predicted value  
+- $y_t$ = actual value at time $t$  
+- $hat{y}_t$ = predicted value  
 
 ## 3. Interpretation
 - MAE = 0 → Perfect forecast.  
@@ -2935,7 +2934,7 @@ $$
 
 ## 1. What it is
 The **sMAPE** modifies MAPE to be symmetric and bounded between 0% and 200%.  
-It avoids issues when \( y_t \) is close to 0.
+It avoids issues when $y_t$ is close to 0.
 
 ## 2. Formula
 $$
@@ -2943,8 +2942,8 @@ sMAPE = \frac{100}{n} \sum_{t=1}^n \frac{|y_t - \hat{y}_t|}{(|y_t| + |\hat{y}_t|
 $$
 
 ## 3. Interpretation
-- sMAPE = 0% → Perfect forecast.  
-- Bounded: 0% ≤ sMAPE ≤ 200%.  
+- $sMAPE$ = 0% → Perfect forecast.  
+- Bounded: 0% ≤ $sMAPE$ ≤ 200%.  
 
 ## 4. Advantages
 - More stable than MAPE.  
@@ -3139,7 +3138,7 @@ $$
 - More sensitive to large percentage errors.  
 
 ## 4. Limitations
-- Undefined when \( y_t = 0 \).  
+- Undefined when $y_t = 0$.  
 - More affected by small denominators than MAPE.  
 
 ## 5. Use Cases
@@ -3161,7 +3160,7 @@ $$
 - More sensitive to large percentage errors.  
 
 ## 4. Limitations
-- Undefined when \( y_t = 0 \).  
+- Undefined when $y_t = 0$.  
 - More affected by small denominators than MAPE.  
 
 ## 5. Use Cases
@@ -3221,7 +3220,7 @@ $$
 It’s the standard loss for probabilistic forecasts.
 
 ## 2. Formula
-For quantile \( \tau \):
+For quantile $\tau $:
 $$
 L_\tau(y_t, \hat{y}_t) = 
 \begin{cases} 
@@ -3253,7 +3252,7 @@ PICP = \frac{1}{n} \sum_{t=1}^n \mathbf{1}\{ y_t \in [L_t, U_t] \}
 $$
 
 Where:  
-- \( L_t, U_t \) = lower and upper bounds of prediction interval.  
+- $L_t, U_t$ = lower and upper bounds of prediction interval.  
 
 ## 3. Advantages
 - Evaluates reliability of uncertainty estimates.  
@@ -3272,7 +3271,7 @@ Where:
 The **Interval Score** balances interval width and coverage, rewarding narrow but reliable prediction intervals.
 
 ## 2. Formula
-For interval \([L_t, U_t]\) at level \( 1 - \alpha \):
+For interval $[L_t, U_t]$ at level $1 - \alpha$:
 $$
 IS = (U_t - L_t) + \frac{2}{\alpha} (L_t - y_t) \mathbf{1}\{y_t < L_t\} + \frac{2}{\alpha} (y_t - U_t) \mathbf{1}\{y_t > U_t\}
 $$
@@ -3306,8 +3305,8 @@ IoU = \frac{|A \cap B|}{|A \cup B|}
 $$
 
 Where:  
-- \( A \) = predicted region  
-- \( B \) = ground-truth region  
+- $A$ = predicted region  
+- $B$ = ground-truth region  
 
 ## 3. Interpretation
 - IoU = 1 → Perfect overlap.  
@@ -3372,8 +3371,8 @@ mAP = \frac{1}{C} \sum_{c=1}^C AP_c
 $$
 
 Where:  
-- \( P_c(R) \) = precision-recall curve for class \( c \)  
-- \( C \) = number of classes  
+- $P_c(R)$ = precision-recall curve for class \( c \)  
+- $C$ = number of classes  
 
 ## 3. Interpretation
 - mAP = 1 → Perfect detection across all classes.  
@@ -3433,9 +3432,9 @@ SSIM(x,y) = \frac{(2\mu_x \mu_y + C_1)(2\sigma_{xy} + C_2)}{(\mu_x^2 + \mu_y^2 +
 $$
 
 Where:  
-- \( \mu \) = mean intensity  
-- \( \sigma \) = variance  
-- \( \sigma_{xy} \) = covariance  
+- $\mu$ = mean intensity  
+- $\sigma$ = variance  
+- $\sigma_{xy}$ = covariance  
 
 ## 3. Interpretation
 - SSIM = 1 → Identical images.  
@@ -3466,8 +3465,8 @@ FID = ||\mu_r - \mu_g||^2 + Tr(\Sigma_r + \Sigma_g - 2(\Sigma_r \Sigma_g)^{1/2})
 $$
 
 Where:  
-- \( \mu_r, \Sigma_r \) = mean and covariance of real images  
-- \( \mu_g, \Sigma_g \) = mean and covariance of generated images  
+- $\mu_r, \Sigma_r$ = mean and covariance of real images  
+- $\mu_g, \Sigma_g$ = mean and covariance of generated images  
 
 ## 3. Interpretation
 - Lower FID = Better quality and diversity.  
@@ -3496,8 +3495,8 @@ IS = \exp \left( \mathbb{E}_x \, KL(p(y|x) \| p(y)) \right)
 $$
 
 Where:  
-- \( p(y|x) \) = label distribution for generated image \( x \)  
-- \( p(y) \) = marginal label distribution  
+- $p(y|x)$ = label distribution for generated image \( x \)  
+- $p(y)$ = marginal label distribution  
 
 ## 3. Interpretation
 - Higher IS = Clear, diverse images.  
@@ -3609,9 +3608,9 @@ PQ = \frac{\sum_{(p,g) \in TP} IoU(p,g)}{|TP| + \tfrac{1}{2}|FP| + \tfrac{1}{2}|
 $$
 
 Where:  
-- \( p \) = predicted segments  
-- \( g \) = ground-truth segments  
-- TP, FP, FN = true/false positives/negatives  
+- $p$ = predicted segments  
+- $g$ = ground-truth segments  
+- $TP, FP, FN$ = true/false positives/negatives  
 
 ## 3. Advantages
 - Unified metric for detection + segmentation.  
@@ -3700,8 +3699,8 @@ BLEU = BP \cdot \exp \left( \sum_{n=1}^N w_n \log p_n \right)
 $$
 
 Where:  
-- \( BP \) = brevity penalty (to penalize short outputs)  
-- \( w_n \) = weight for n-grams (usually uniform)  
+- $BP$ = brevity penalty (to penalize short outputs)  
+- $w_n$ = weight for n-grams (usually uniform)  
 
 ## 3. Interpretation
 - BLEU = 1 → Perfect match with reference.  
@@ -3938,10 +3937,10 @@ WER = \frac{S + D + I}{N}
 $$
 
 Where:  
-- \( S \) = substitutions  
-- \( D \) = deletions  
-- \( I \) = insertions  
-- \( N \) = total words in reference  
+- $S$ = substitutions  
+- $D$ = deletions  
+- $I$ = insertions  
+- $N$ = total words in reference  
 
 ## 3. Advantages
 - Standard in ASR benchmarks.  
@@ -4107,7 +4106,7 @@ $$
 \bar{R} = \frac{1}{N} \sum_{i=1}^N R_i
 $$
 
-Where \( R_i \) = cumulative reward for episode \( i \).  
+Where $R_i$ = cumulative reward for episode \( i \).  
 
 ## 3. Advantages
 - Normalized comparison across episodes.  
