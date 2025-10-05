@@ -1,64 +1,50 @@
-"""
-Binary Classification Confidence Interval Validation Test
-
-This test replicates the functionality from example_binary.ipynb to validate
-confidence intervals for binary classification metrics using breast cancer dataset.
-
-Tests both Logistic Regression and XGBoost models across multiple metrics:
-- Accuracy
-- Precision (PPV)
-- Recall (TPR)
-- F1 Score
-
-The test validates that confidence intervals computed from test data contain
-the actual metric values computed on validation data.
-"""
-
-import sys
-import os
-import warnings
-warnings.filterwarnings('ignore')
-
-# Add the main module to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'main'))
-
 import pandas as pd
 import numpy as np
-from sklearn.datasets import load_breast_cancer
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from confidenceinterval import MetricEvaluator
+import warnings 
+warnings.filterwarnings('ignore')
 from sklearn.model_selection import train_test_split
-import xgboost as xgb
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import xgboost as xgb 
 
-from confidenceinterval import MetricEvaluator 
 
+def load_data(path, ground_truth):
+    """
+    This function tests the binary classification pipeline on a given dataset.
+    It includes data loading, model training with Logistic Regression and XGBoost,
+    and evaluation of binary classification metrics with confidence intervals.
 
-def load_and_prepare_data():
-    """Load and prepare breast cancer dataset."""
-    print("Loading breast cancer dataset...")
-    df = load_breast_cancer(as_frame=True).frame
-    
+    Parameters:
+    - path: str, the file path to the dataset
+    - ground_truth: str, the name of the ground truth column
+
+    Returns:
+    - results: dict, containing coverage and CI width for each metric and model     
+    """
+    # Load dataset
+    df = pd.read_csv(path)
+
+    # Get features and target
     print(f"Dataset shape: {df.shape}")
-    print(f"Null values: {df.isnull().sum().sum()}")
-    
-    # Select features with high correlation to target
+    print(f"Ground truth column: {ground_truth}")
+
     corr_matrix = df.corr()
-    high_corr_features = corr_matrix.index[abs(corr_matrix['target']) > 0.5].to_list()
-    high_corr_features.remove('target')
-    
+    high_corr_features = corr_matrix.index[abs(corr_matrix[ground_truth]) > 0.5].to_list()
+    high_corr_features.remove(ground_truth)
+
     print(f"Selected {len(high_corr_features)} highly correlated features")
     print(f"Features: {high_corr_features}")
-    
-    y = df['target']
+
+    y = df[ground_truth]
     x = df[high_corr_features]
     
     print(f"Class distribution:")
     print(y.value_counts())
-    
+
     return x, y
-
-
-def test_binary_classification_ci():
+    
+def test_binary_classification_ci(path, ground_truth):
     """
     Test confidence intervals for binary classification metrics.
     
@@ -66,7 +52,7 @@ def test_binary_classification_ci():
     """
     
     # Load and prepare data
-    x, y = load_and_prepare_data()
+    x, y = load_data(path, ground_truth)
     
     # Initialize evaluator
     evaluate = MetricEvaluator()
@@ -117,7 +103,6 @@ def test_binary_classification_ci():
     y_test_pred_xgb = xgb_model.predict(x_test_exp)
     y_val_pred_xgb = xgb_model.predict(x_val_exp)
     
-    print("Models trained successfully!")
     
     # Evaluate each metric for both models
     results = {}
@@ -125,7 +110,6 @@ def test_binary_classification_ci():
     
     
     for metric in metrics:
-        print(f"\n=== {metric.upper()} METRIC ===")
         
         # Logistic Regression evaluation
         lr_result = evaluate.evaluate(
@@ -221,6 +205,6 @@ def test_binary_classification_ci():
     print(f"\nOverall Success Rate: {success_count}/{total_count} ({success_rate:.1f}%)")
 
 if __name__ == "__main__":
-    
-    test_passed = test_binary_classification_ci()
-       
+    path = '/home/diyorbek/Downloads/breast_cancer.csv'
+    ground_truth = 'target'
+    test_passed = test_binary_classification_ci(path, ground_truth)
