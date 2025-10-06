@@ -41,7 +41,7 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
         Path to the saved plot
     """
     # Create Results directory if it doesn't exist
-    results_dir = "Results"
+    results_dir = "results"
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     
