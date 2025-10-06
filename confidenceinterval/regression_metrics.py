@@ -4,8 +4,11 @@ from typing import List, Callable, Tuple, Union, Optional
 from ast import Call
 import numpy as np
 from functools import partial
+import os
+import matplotlib.pyplot as plt
+from datetime import datetime
 from .methods import bootstrap_ci, bootstrap_methods, jackknife_ci, regression_conf_methods
-
+from .visualize import bootstrap_with_plot
 
 
 # Defining the confidence interval computation function
@@ -15,7 +18,8 @@ def _compute_confidence_interval(y_true: List[float],
                                  metric_func: Callable,
                                  confidence_level: float = 0.95,
                                  method: str = 'bootstrap_bca',
-                                 **kwargs) -> Tuple[float, Tuple[float, float]]:
+                                 return_samples: bool = False,
+                                 **kwargs) -> Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]:
     """
     Generic helper function to compute confidence intervals for any metric.
     
@@ -31,13 +35,15 @@ def _compute_confidence_interval(y_true: List[float],
         The confidence interval level, by default 0.95
     method : str, optional
         The method to use ('jackknife' or bootstrap methods), by default 'bootstrap_bca'
+    return_samples : bool, optional
+        Whether to return bootstrap samples for plotting, by default False
     **kwargs
         Additional arguments passed to bootstrap_ci
         
     Returns
     -------
-    Tuple[float, Tuple[float, float]]
-        The metric value and confidence interval (lower, upper)
+    Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]
+        The metric value and confidence interval (lower, upper), optionally with bootstrap samples
     """
     if method == 'jackknife':
         return jackknife_ci(y_true, y_pred, metric_func, confidence_level)
@@ -48,7 +54,8 @@ def _compute_confidence_interval(y_true: List[float],
                             confidence_level=confidence_level,
                             n_resamples=kwargs.get('n_resamples', 9999),
                             method=method,
-                            random_state=kwargs.get('random_state', None))
+                            random_state=kwargs.get('random_state', None),
+                            return_samples=return_samples)
     else:
         raise ValueError(f"Unknown method: {method}. Available methods: {regression_conf_methods}")
 
@@ -59,6 +66,8 @@ def _compute_metric_with_optional_ci(y_true: List[float],
                                      confidence_level: float = 0.95,
                                      method: str = 'bootstrap_bca',
                                      compute_ci: bool = True,
+                                     plot: bool = False,
+                                     metric_name: str = "metric",
                                      **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Generic function to compute a metric with optional confidence interval.
@@ -77,6 +86,10 @@ def _compute_metric_with_optional_ci(y_true: List[float],
         The method to use, by default 'bootstrap_bca'
     compute_ci : bool, optional
         Whether to compute confidence interval, by default True
+    plot : bool, optional
+        Whether to create histogram plot (only for bootstrap methods), by default False
+    metric_name : str, optional
+        Name of the metric for plot labeling, by default "metric"
     **kwargs
         Additional arguments passed to bootstrap_ci
         
@@ -86,7 +99,27 @@ def _compute_metric_with_optional_ci(y_true: List[float],
         The metric value or (metric_value, (lower, upper)) if compute_ci=True
     """
     if compute_ci:
-        return _compute_confidence_interval(y_true, y_pred, metric_func, confidence_level, method, **kwargs)
+        # Check if plotting is requested and method is bootstrap
+        if plot and method.startswith('bootstrap'):
+            # Use the new bootstrap_with_plot helper
+            from .visualize import create_bootstrap_histogram_plot
+            
+            # Get bootstrap samples for plotting
+            result_with_samples = _compute_confidence_interval(
+                y_true, y_pred, metric_func, confidence_level, method, 
+                return_samples=True, **kwargs
+            )
+            metric_value, ci, bootstrap_samples = result_with_samples
+            
+            # Create and save the histogram plot using the new visualization system
+            plot_path = create_bootstrap_histogram_plot(
+                bootstrap_samples, metric_value, ci, metric_name, method, confidence_level, "regression"
+            )
+            print(f"Histogram plot saved to: {plot_path}")
+            
+            return metric_value, ci
+        else:
+            return _compute_confidence_interval(y_true, y_pred, metric_func, confidence_level, method, **kwargs)
     else:
         return metric_func(y_true, y_pred)
 
@@ -96,6 +129,7 @@ def mae(y_true: List[float],
         confidence_level: float = 0.95,
         method: str = 'bootstrap_bca',
         compute_ci: bool = True,
+        plot: bool = False,
         **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Compute the Mean Absolute Error and optionally the confidence interval.
@@ -112,6 +146,8 @@ def mae(y_true: List[float],
         The bootstrap method, by default 'bootstrap_bca'
     compute_ci : bool, optional
         If true return the confidence interval as well as the MAE score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
     Returns
     -------
@@ -128,6 +164,8 @@ def mae(y_true: List[float],
         confidence_level=confidence_level,
         method=method,
         compute_ci=compute_ci,
+        plot=plot,
+        metric_name="mae",
         **kwargs
     )
 
@@ -137,6 +175,7 @@ def mse(y_true: List[float],
         confidence_level: float = 0.95,
         method: str = 'bootstrap_bca',
         compute_ci: bool = True,
+        plot: bool = False,
         **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Compute the Mean Squared Error and optionally the confidence interval.
@@ -153,6 +192,8 @@ def mse(y_true: List[float],
         The bootstrap method, by default 'bootstrap_bca'
     compute_ci : bool, optional
         If true return the confidence interval as well as the MSE score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
     Returns
     -------
@@ -169,6 +210,8 @@ def mse(y_true: List[float],
         confidence_level=confidence_level,
         method=method,
         compute_ci=compute_ci,
+        plot=plot,
+        metric_name="mse",
         **kwargs
     )
 
@@ -178,6 +221,7 @@ def rmse(y_true: List[float],
          confidence_level: float = 0.95,
          method: str = 'bootstrap_bca',
          compute_ci: bool = True,
+         plot: bool = False,
          **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Compute the Root Mean Squared Error and optionally the confidence interval.
@@ -194,6 +238,8 @@ def rmse(y_true: List[float],
         The bootstrap method, by default 'bootstrap_bca'
     compute_ci : bool, optional
         If true return the confidence interval as well as the RMSE score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
     Returns
     -------
@@ -210,6 +256,8 @@ def rmse(y_true: List[float],
         confidence_level=confidence_level,
         method=method,
         compute_ci=compute_ci,
+        plot=plot,
+        metric_name="rmse",
         **kwargs
     )
 
@@ -218,6 +266,7 @@ def r2_score(y_true: List[float],
              confidence_level: float = 0.95,
              method: str = 'bootstrap_bca',
              compute_ci: bool = True,
+             plot: bool = False,
              **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Compute the Coefficient of Determination (R²) and optionally the confidence interval.
@@ -234,6 +283,8 @@ def r2_score(y_true: List[float],
         The bootstrap method, by default 'bootstrap_bca'
     compute_ci : bool, optional
         If true return the confidence interval as well as the R² score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
     Returns
     -------
@@ -254,6 +305,8 @@ def r2_score(y_true: List[float],
         confidence_level=confidence_level,
         method=method,
         compute_ci=compute_ci,
+        plot=plot,
+        metric_name="r2",
         **kwargs
     )
 
@@ -263,6 +316,7 @@ def mape(y_true: List[float],
          confidence_level: float = 0.95,
          method: str = 'bootstrap_bca',
          compute_ci: bool = True,
+         plot: bool = False,
          **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Compute the Mean Absolute Percentage Error and optionally the confidence interval.
@@ -279,6 +333,8 @@ def mape(y_true: List[float],
         The bootstrap method, by default 'bootstrap_bca'
     compute_ci : bool, optional
         If true return the confidence interval as well as the MAPE score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
     Returns
     -------
@@ -297,6 +353,8 @@ def mape(y_true: List[float],
         confidence_level=confidence_level,
         method=method,
         compute_ci=compute_ci,
+        plot=plot,
+        metric_name="mape",
         **kwargs
     )
 

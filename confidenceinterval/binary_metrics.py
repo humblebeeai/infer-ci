@@ -6,8 +6,12 @@ from statsmodels.stats.proportion import proportion_confint
 from typing import List, Callable, Tuple, Union, Optional
 from functools import partial
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+from datetime import datetime
 from .utils import get_positive_negative_counts
 from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
+from .visualize import bootstrap_with_plot
 
 proportion_conf_methods: List[str] = [
     'wilson',
@@ -16,6 +20,9 @@ proportion_conf_methods: List[str] = [
     'beta',
     'jeffreys',
     'binom_test']
+
+
+
 
 
 def accuracy_score_binomial_ci(y_true: List[int],
@@ -69,7 +76,8 @@ def accuracy_score_bootstrap(y_true: List[int],
                              confidence_level: float = 0.95,
                              method: str = 'bootstrap_bca',
                              n_resamples: int = 9999,
-                             random_state: Optional[np.random.RandomState] = None) -> Tuple[float, Tuple[float, float]]:
+                             random_state: Optional[np.random.RandomState] = None,
+                             plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     """Compute the accuray score confidence interval using the bootstrap method.
 
     Parameters
@@ -82,29 +90,34 @@ def accuracy_score_bootstrap(y_true: List[int],
         The confidence interval level , by default 0.95
     method : str, optional
         The bootstrapping method, by default 'bootstrap_bca'
-    method : str, optional
-        The bootstrap method, by default 'bootstrap_bca'
     n_resamples : int, optional
         The number of bootstrap resamples, by default 9999
     random_state : Optional[np.random.RandomState], optional
         The random state for reproducability, by default None
+    plot : bool, optional
+        Whether to create histogram plot, by default False
 
     Returns
     -------
-    Union[float, Tuple[float, Tuple[float, float]]]
+    Tuple[float, Tuple[float, float]]
         The accuracy score and the confidence interval.
     """
 
     accuracy_score_no_ci = partial(
         accuracy_score_binomial_ci,
         compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=accuracy_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=accuracy_score_no_ci,
+        metric_name="accuracy",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def accuracy_score(y_true: List[int],
@@ -171,15 +184,21 @@ def ppv_score_bootstrap(y_true: List[int],
                         confidence_level: float = 0.95,
                         method: str = 'bootstrap_bca',
                         n_resamples: int = 9999,
-                        random_state: Optional[np.random.RandomState] = None) -> Union[float, Tuple[float, Tuple[float, float]]]:
+                        random_state: Optional[np.random.RandomState] = None,
+                        plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     ppv_score_no_ci = partial(ppv_score_binomial_ci, compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=ppv_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=ppv_score_no_ci,
+        metric_name="precision",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def ppv_score(y_true: List[int],
@@ -226,15 +245,21 @@ def npv_score_bootstrap(y_true: List[int],
                         confidence_level: float = 0.95,
                         method: str = 'bootstrap_bca',
                         n_resamples: int = 9999,
-                        random_state: Optional[np.random.RandomState] = None) -> Union[float, Tuple[float, Tuple[float, float]]]:
+                        random_state: Optional[np.random.RandomState] = None,
+                        plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     npv_score_no_ci = partial(npv_score_binomial_ci, compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=npv_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=npv_score_no_ci,
+        metric_name="npv",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def npv_score(y_true: List[int],
@@ -281,15 +306,21 @@ def tpr_score_bootstrap(y_true: List[int],
                         confidence_level: float = 0.95,
                         method: str = 'bootstrap_bca',
                         n_resamples: int = 9999,
-                        random_state: Optional[np.random.RandomState] = None) -> Tuple[float, Tuple[float, float]]:
+                        random_state: Optional[np.random.RandomState] = None,
+                        plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     tpr_score_no_ci = partial(tpr_score_binomial_ci, compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=tpr_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=tpr_score_no_ci,
+        metric_name="recall",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def tpr_score(y_true: List[int],
@@ -336,15 +367,21 @@ def fpr_score_bootstrap(y_true: List[int],
                         confidence_level: float = 0.95,
                         method: str = 'bootstrap_bca',
                         n_resamples: int = 9999,
-                        random_state: Optional[np.random.RandomState] = None) -> Union[float, Tuple[float, Tuple[float, float]]]:
+                        random_state: Optional[np.random.RandomState] = None,
+                        plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     fpr_score_no_ci = partial(fpr_score_binomial_ci, compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=fpr_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=fpr_score_no_ci,
+        metric_name="fpr",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def fpr_score(y_true: List[int],
@@ -391,15 +428,21 @@ def tnr_score_bootstrap(y_true: List[int],
                         confidence_level: float = 0.95,
                         method: str = 'bootstrap_bca',
                         n_resamples: int = 9999,
-                        random_state: Optional[np.random.RandomState] = None) -> Union[float, Tuple[float, Tuple[float, float]]]:
+                        random_state: Optional[np.random.RandomState] = None,
+                        plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     tnr_score_no_ci = partial(tnr_score_binomial_ci, compute_ci=False)
-    return bootstrap_ci(y_true=y_true,
-                        y_pred=y_pred,
-                        metric=tnr_score_no_ci,
-                        confidence_level=confidence_level,
-                        n_resamples=n_resamples,
-                        method=method,
-                        random_state=random_state)
+    
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=tnr_score_no_ci,
+        metric_name="specificity",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
 
 
 def tnr_score(y_true: List[int],

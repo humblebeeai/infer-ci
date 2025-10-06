@@ -1,7 +1,7 @@
 from scipy.stats import bootstrap
 from scipy import stats
 import numpy as np
-from typing import List, Callable, Optional, Tuple
+from typing import List, Callable, Optional, Tuple, Union
 
 bootstrap_methods = [
     'bootstrap_bca',
@@ -23,13 +23,48 @@ def bootstrap_ci(y_true: List[int],
                  confidence_level: float = 0.95,
                  n_resamples: int = 9999,
                  method: str = 'bootstrap_bca',
-                 random_state: Optional[np.random.RandomState] = None) -> Tuple[float, Tuple[float, float]]:
+                 random_state: Optional[np.random.RandomState] = None,
+                 return_samples: bool = False,
+                 plot: bool = False) -> Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]:
+    """
+    Compute bootstrap confidence interval for a metric.
+    
+    Parameters
+    ----------
+    y_true : List[int]
+        The ground truth labels
+    y_pred : List[int] 
+        The predicted labels
+    metric : Callable
+        Function that computes the metric from y_true and y_pred
+    confidence_level : float, optional
+        Confidence level, by default 0.95
+    n_resamples : int, optional
+        Number of bootstrap resamples, by default 9999
+    method : str, optional
+        Bootstrap method, by default 'bootstrap_bca'
+    random_state : Optional[np.random.RandomState], optional
+        Random state for reproducibility, by default None
+    return_samples : bool, optional
+        Whether to return bootstrap samples, by default False
+    plot : bool, optional
+        Whether plotting is intended (automatically sets return_samples=True), by default False
+        
+    Returns
+    -------
+    Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]
+        (metric_value, (lower, upper)) or (metric_value, (lower, upper), bootstrap_samples)
+    """
 
     def statistic(*indices):
         indices = np.array(indices)[0, :]
         return metric(np.array(y_true)[indices], np.array(y_pred)[indices])
 
     assert method in bootstrap_methods, f'Bootstrap ci method {method} not in {bootstrap_methods}'
+
+    # If plot=True, automatically enable return_samples
+    if plot:
+        return_samples = True
 
     indices = (np.arange(len(y_true)), )
     bootstrap_res = bootstrap(indices,
@@ -40,7 +75,13 @@ def bootstrap_ci(y_true: List[int],
                               random_state=random_state)
     result = metric(y_true, y_pred)
     ci = bootstrap_res.confidence_interval.low, bootstrap_res.confidence_interval.high
-    return result, ci
+    
+    if return_samples:
+        # Get bootstrap samples for plotting
+        bootstrap_samples = bootstrap_res.bootstrap_distribution
+        return result, ci, bootstrap_samples
+    else:
+        return result, ci
 
 
 def jackknife_ci(y_true: List[float], 

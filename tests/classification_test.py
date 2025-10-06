@@ -116,7 +116,8 @@ def test_binary_classification_ci(path, ground_truth):
             y_true=y_test_exp, 
             y_pred=y_test_pred_lr, 
             task='classification', 
-            metric=metric
+            metric=metric,
+            plot=True
         )
         lr_test_value, (lr_ci_lower, lr_ci_upper) = lr_result
         
