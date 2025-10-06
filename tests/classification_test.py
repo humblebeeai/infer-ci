@@ -205,6 +205,6 @@ def test_binary_classification_ci(path, ground_truth):
     print(f"\nOverall Success Rate: {success_count}/{total_count} ({success_rate:.1f}%)")
 
 if __name__ == "__main__":
-    path = '/home/diyorbek/Downloads/breast_cancer.csv'
+    path = 'datasets/breast_cancer.csv'
     ground_truth = 'target'
     test_passed = test_binary_classification_ci(path, ground_truth)

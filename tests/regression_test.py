@@ -167,7 +167,7 @@ def test_pipeline(path, ground_truth):
 
     return results
 if __name__ == "__main__":
-    path = "/home/diyorbek/Downloads/housing.csv"
+    path = "datasets/housing.csv"
     ground_truth = "median_house_value"
     test_pipeline(path, ground_truth)
 
