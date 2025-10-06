@@ -102,7 +102,8 @@ def test_pipeline(path, ground_truth):
         y_pred=y_test_pred_lr_single,
         task='regression',
         metrics=metrics,
-        method='bootstrap_bca'
+        method='bootstrap_bca',
+        plot=True
     )
     
     # Evaluate all metrics at once for XGBoost
@@ -111,7 +112,8 @@ def test_pipeline(path, ground_truth):
         y_pred=y_test_pred_xgb_single,
         task='regression',
         metrics=metrics,
-        method='bootstrap_bca'
+        method='bootstrap_bca',
+        plot=True
     )
     
     # Evaluate all metrics for Linear Regression validation data (without CI)
@@ -120,7 +122,8 @@ def test_pipeline(path, ground_truth):
         y_pred=y_val_pred_lr_single,
         task='regression',
         metrics=metrics,
-        compute_ci=False
+        compute_ci=False,
+        plot=True
     )
     
     # Evaluate all metrics for XGBoost validation data (without CI)
@@ -129,7 +132,8 @@ def test_pipeline(path, ground_truth):
         y_pred=y_val_pred_xgb_single,
         task='regression',
         metrics=metrics,
-        compute_ci=False
+        compute_ci=False,
+        plot=True
     )
     
     for metric in metrics:

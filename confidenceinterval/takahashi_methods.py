@@ -603,24 +603,27 @@ def f1_score(y_true: List[int],
                        'binary'], 'average method {average} not supported'
 
     if method in bootstrap_methods:
+        # Filter out parameters that bootstrap functions don't accept
+        bootstrap_kwargs = {k: v for k, v in kwargs.items() if k in ['n_resamples', 'random_state']}
+        
         if average == 'binary':
             return binary_f1_score_bootstrap(
                 y_true=y_true,
                 y_pred=y_pred,
                 confidence_level=confidence_level,
                 method=method,
-                **kwargs)
+                **bootstrap_kwargs)
         elif average == 'macro':
             return macro_f1_score_bootstrap(
                 y_true=y_true,
                 y_pred=y_pred,
                 confidence_level=confidence_level,
                 method=method,
-                **kwargs)
+                **bootstrap_kwargs)
         elif average == 'micro':
             # micro precision, recall and f1 are all the same
             return precision_score_bootstrap(
-                y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, average=average, method=method, **kwargs)
+                y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, average=average, method=method, **bootstrap_kwargs)
         else:
             raise NotImplementedError(
                 f'average method {average} not supported')

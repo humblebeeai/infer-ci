@@ -8,6 +8,9 @@ for both classification and regression tasks.
 from typing import List, Union, Tuple, Optional, Dict, Any
 import numpy as np
 from enum import Enum
+import os
+import matplotlib.pyplot as plt
+from datetime import datetime
 
 # Import classification metrics
 from .binary_metrics import (
@@ -65,7 +68,8 @@ class MetricEvaluator:
     ...     y_pred=[1.1, 2.2, 2.8, 4.1, 4.9],
     ...     task='regression',
     ...     metric='mae',
-    ...     method='jackknife'
+    ...     method='bootstrap_bca',
+    ...     plot=True
     ... ) 
     ... # Specific metric function can also be called directly:  
     >>> mae_val, ci = evaluator.mae(
@@ -187,6 +191,7 @@ class MetricEvaluator:
                  method: str = 'bootstrap_bca',
                  confidence_level: float = 0.95,
                  compute_ci: bool = True,
+                 plot: bool = False,
                  **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
         """
         Evaluate a metric with confidence intervals.
@@ -207,6 +212,8 @@ class MetricEvaluator:
             Confidence level (default: 0.95)
         compute_ci : bool, optional
             Whether to compute confidence intervals (default: True)
+        plot : bool, optional
+            Whether to create histogram plot for bootstrap methods (default: False)
         **kwargs : dict
             Additional arguments (e.g., n_resamples for bootstrap methods)
             
@@ -270,6 +277,7 @@ class MetricEvaluator:
                 confidence_level=confidence_level,
                 method=method,
                 compute_ci=compute_ci,
+                plot=plot,
                 **kwargs
             )
             return result
@@ -285,13 +293,14 @@ class MetricEvaluator:
                          method: str = 'bootstrap_bca',
                          confidence_level: float = 0.95,
                          compute_ci: bool = True,
+                         plot: bool = False,
                          **kwargs) -> Dict[str, Union[float, Tuple[float, Tuple[float, float]]]]:
         """
         Evaluate multiple metrics at once.
         
         Parameters:
         -----------
-        y_true, y_pred, task, method, confidence_level, compute_ci, **kwargs
+        y_true, y_pred, task, method, confidence_level, compute_ci, plot, **kwargs
             Same as evaluate() method
         metrics : List[str]
             List of metric names to evaluate
@@ -324,6 +333,7 @@ class MetricEvaluator:
                 method=method,
                 confidence_level=confidence_level,
                 compute_ci=compute_ci,
+                plot=plot,
                 **kwargs
             )
         return results
@@ -381,6 +391,7 @@ def evaluate_metric(y_true: List[Union[int, float]],
                    method: str = 'bootstrap_bca',
                    confidence_level: float = 0.95,
                    compute_ci: bool = True,
+                   plot: bool = False,
                    **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Convenience function to evaluate a single metric with confidence intervals.
@@ -410,5 +421,6 @@ def evaluate_metric(y_true: List[Union[int, float]],
         method=method,
         confidence_level=confidence_level,
         compute_ci=compute_ci,
+        plot=plot,
         **kwargs
     )
