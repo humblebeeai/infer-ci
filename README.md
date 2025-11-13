@@ -100,28 +100,6 @@ The paper derived recall and precision only for micro averaging.
 We derive the recall and precision confidence intervals for macro F1 as well using the delta method.
 
 
-## Regression metrics
-```python
-from confidenceinterval import MetricEvaluator
-
-evaluate = MetricEvaluator()
-
-r2, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='r2', plot=True)
-mse, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='mse', plot=True)
-mae, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='mae', plot=True)
-rmse, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='rmse', plot=True)
-mape, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='mape', plot=True)
-
-```
-## Classification metrics
-```python
-from confidenceinterval import MetricEvaluator
-
-evaluate = MetricEvaluator()
-
-f1, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric='f1')
-precision, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric='precision')
-recall, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric='recall')
 
 ```
 
