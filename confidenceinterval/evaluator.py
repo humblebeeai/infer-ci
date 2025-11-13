@@ -21,7 +21,7 @@ from .auc import roc_auc_score
 
 # Import regression metrics
 from .regression_metrics import (
-    mae, mse, rmse, r2_score, mape, regression_conf_methods
+    mae, mse, rmse, r2_score, mape, iou, regression_conf_methods
 )
 
 
@@ -57,6 +57,7 @@ class MetricEvaluator:
         - rmse (Root Mean Squared Error)
         - r2 (Coefficient of Determination)
         - mape (Mean Absolute Percentage Error)
+        - iou (Intersection over Union)
     
     Example:
     --------
@@ -112,7 +113,8 @@ class MetricEvaluator:
             'mse': mse,           # Mean Squared Error
             'rmse': rmse,         # Root Mean Squared Error
             'r2': r2_score,       # Coefficient of Determination
-            'mape': mape          # Mean Absolute Percentage Error
+            'mape': mape,         # Mean Absolute Percentage Error
+            'iou': iou            # Intersection over Union
         }
         
         # Available methods for each task type
@@ -138,6 +140,7 @@ class MetricEvaluator:
         self.rmse = rmse
         self.r2_score = r2_score
         self.mape = mape
+        self.iou = iou
         
     def get_available_metrics(self, task: Union[str, TaskType]) -> List[str]:
         """

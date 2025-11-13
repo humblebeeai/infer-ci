@@ -27,6 +27,7 @@ from .regression_metrics import mae, \
     med_abs_err,\
     huber_loss, \
     exp_var_score, \
+    iou, \
     mean_bia_dev
 
 from .classification_report import classification_report_with_ci
@@ -46,7 +47,7 @@ __all__ = [
     # Regression metrics  
     'mae', 'mse', 'rmse', 'r2_score', 'mape', 'adjusted_r2_score',
     'sym_mean_abs_per_error', 'rmse_log', 'med_abs_err', 'huber_loss',
-    'exp_var_score', 'mean_bia_dev',
+    'exp_var_score', 'mean_bia_dev', 'iou',
     
     # Utility modules
     'methods', 'utils'

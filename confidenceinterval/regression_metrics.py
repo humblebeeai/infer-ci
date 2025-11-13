@@ -623,7 +623,75 @@ def exp_var_score(y_true: List[float],
         **kwargs
     )
                          
+def iou(y_true: List[float],
+        y_pred: List[float],
+        confidence_level: float = 0.95,
+        method: str = 'bootstrap_bca',
+        compute_ci: bool = True,
+        plot: bool = False,
+        **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
+    """
+    Compute the Intersection over Union (IoU) / Jaccard Index and optionally the confidence interval.
+    
+    IoU measures the overlap between predicted and true values, commonly used in object detection
+    and image segmentation tasks. Also known as the Jaccard Index or Jaccard Similarity Coefficient.
+    
+    IoU = (Intersection) / (Union) = (A ∩ B) / (A ∪ B)
+    
+    For binary classification: IoU = TP / (TP + FP + FN)
+    For continuous values: Uses set-based calculation with threshold
+    
+    Parameters
+    ----------
+    y_true : List[float]
+        The ground truth target values.
+    y_pred : List[float]
+        The predicted target values.
+    confidence_level : float, optional
+        The confidence interval level, by default 0.95
+    method : str, optional
+        The bootstrap method, by default 'bootstrap_bca'
+    compute_ci : bool, optional
+        If true return the confidence interval as well as the IoU score, by default True
+    plot : bool, optional
+        If true create histogram plot for bootstrap methods, by default False
 
+    Returns
+    -------
+    Union[float, Tuple[float, Tuple[float, float]]]
+        The IoU score and optionally the confidence interval.
+        
+    Notes
+    -----
+    - Range: [0, 1] where 0 is no overlap and 1 is perfect overlap
+    - For binary inputs (0/1), this is equivalent to the Jaccard Index
+    - For continuous values, values are compared element-wise
+    """
+    def iou_metric(y_true, y_pred):
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+        
+        # Calculate intersection and union
+        intersection = np.sum(np.minimum(y_true, y_pred))
+        union = np.sum(np.maximum(y_true, y_pred))
+        
+        # Avoid division by zero
+        if union == 0:
+            return 0.0
+        
+        return intersection / union
+    
+    return _compute_metric_with_optional_ci(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=iou_metric,
+        confidence_level=confidence_level,
+        method=method,
+        compute_ci=compute_ci,
+        plot=plot,
+        metric_name="iou",
+        **kwargs
+    )
 
 def mean_bia_dev(y_true: List[float],
                  y_pred: List[float],

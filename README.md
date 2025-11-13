@@ -29,7 +29,7 @@ pip install -e .
 # All the possible imports:
 from confidenceinterval import MetricEvaluator 
 from confidenceinterval import accuracy_score, precision_score, tpr_score, f1_score
-from confidenceinterval import mae, mse, rmse, r2_score
+from confidenceinterval import mae, mse, rmse, r2_score, iou
 
 # Classification example:
 
@@ -75,6 +75,7 @@ For other computation of the CI for any of the methods below, just specify metho
 - `rmse`: Root Mean Squared Error
 - `r2`: Coefficient of Determination
 - `mape`: Mean Absolute Percentage Error
+- `IoU`: Intersection Over Union 
 
 You can also get available methods and metrics programmatically
 
