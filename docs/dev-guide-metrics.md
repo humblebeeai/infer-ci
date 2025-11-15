@@ -190,6 +190,7 @@ class MetricEvaluator:
 Add your metric to the appropriate dictionary in the `__init__` method of `MetricEvaluator`:
 
 **For regression metrics:**
+
 ```python
 def __init__(self):
     """Initialize the MetricEvaluator with available metrics and methods."""
@@ -312,8 +313,7 @@ Update the README in two places:
 
 Add your metric to the appropriate section:
 
-**Classification:**
-```markdown
+
 **Classification:**
 - `accuracy`: Overall classification accuracy
 - `precision`: Positive Predictive Value (PPV) 
@@ -326,10 +326,8 @@ Add your metric to the appropriate section:
 - `recall_takahashi`: Recall using Takahashi method
 - `auc`: ROC AUC Score
 - `your_new_metric`: Brief description of your metric
-```
 
-**Regression:**
-```markdown
+
 **Regression:**
 - `mae`: Mean Absolute Error
 - `mse`: Mean Squared Error
@@ -337,7 +335,7 @@ Add your metric to the appropriate section:
 - `r2`: Coefficient of Determination
 - `mape`: Mean Absolute Percentage Error
 - `your_new_metric`: Brief description of your metric
-```
+
 
 #### 7.2: Usage Examples
 
@@ -346,7 +344,6 @@ Add a usage example in the appropriate section:
 **For regression metrics:**
 ```python
 ## Regression metrics
-```python
 from confidenceinterval import MetricEvaluator
 
 evaluate = MetricEvaluator()
@@ -358,10 +355,8 @@ rmse, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='rmse', p
 mape, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='mape', plot=True)
 your_metric, ci = evaluate.evaluate(y_true, y_pred, task='regression', metric='your_new_metric', plot=True)
 ```
-```
 
 **For classification metrics:**
-```python
 ## Classification metrics
 ```python
 from confidenceinterval import MetricEvaluator
@@ -373,9 +368,6 @@ precision, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric=
 recall, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric='recall')
 your_metric, ci = evaluate.evaluate(y_true, y_pred, task='classification', metric='your_new_metric')
 ```
-```
-
----
 
 ## Checklist
 
