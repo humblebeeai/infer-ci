@@ -24,11 +24,17 @@ from .regression_metrics import (
     mae, mse, rmse, r2_score, mape, iou, regression_conf_methods
 )
 
+# Import detection metrics
+from .detection_metrics import (
+    yolo_map_with_ci, yolo_precision_with_ci, yolo_recall_with_ci, detection_conf_methods
+)
+
 
 class TaskType(Enum):
     """Enumeration for task types."""
     CLASSIFICATION = "classification"
     REGRESSION = "regression"
+    DETECTION = "detection"
 
 
 class MetricEvaluator:
@@ -42,7 +48,7 @@ class MetricEvaluator:
     ------------------
     Classification:
         - accuracy
-        - precision (PPV) 
+        - precision (PPV)
         - recall (TPR / Sensitivity)
         - specificity (TNR)
         - npv (Negative Predictive Value)
@@ -50,14 +56,19 @@ class MetricEvaluator:
         - f1 (F1 Score, Takahashi method)
         - precision_takahashi (Takahashi method)
         - recall_takahashi (Takahashi method)
-        - auc (ROC AUC Score)   
+        - auc (ROC AUC Score)
     Regression:
         - mae (Mean Absolute Error)
-        - mse (Mean Squared Error)      
+        - mse (Mean Squared Error)
         - rmse (Root Mean Squared Error)
         - r2 (Coefficient of Determination)
         - mape (Mean Absolute Percentage Error)
         - iou (Intersection over Union)
+
+    Detection (YOLO):
+        - yolo_map (mAP50-95 per class with CI)
+        - yolo_precision (Precision per class with CI)
+        - yolo_recall (Recall per class with CI)
     
     Example:
     --------
@@ -116,10 +127,18 @@ class MetricEvaluator:
             'mape': mape,         # Mean Absolute Percentage Error
             'iou': iou            # Intersection over Union
         }
-        
+
+        # Detection metrics mapping (YOLO)
+        self.detection_metrics = {
+            'yolo_map': yolo_map_with_ci,           # YOLO mAP50-95 with CI
+            'yolo_precision': yolo_precision_with_ci,  # YOLO Precision with CI
+            'yolo_recall': yolo_recall_with_ci         # YOLO Recall with CI
+        }
+
         # Available methods for each task type
         self.classification_methods = proportion_conf_methods + ['bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic']
         self.regression_methods = regression_conf_methods
+        self.detection_methods = detection_conf_methods
         
         # Expose individual metric functions as instance methods
         # Classification metrics
@@ -141,6 +160,11 @@ class MetricEvaluator:
         self.r2_score = r2_score
         self.mape = mape
         self.iou = iou
+
+        # Detection metrics (YOLO)
+        self.yolo_map_with_ci = yolo_map_with_ci
+        self.yolo_precision_with_ci = yolo_precision_with_ci
+        self.yolo_recall_with_ci = yolo_recall_with_ci
         
     def get_available_metrics(self, task: Union[str, TaskType]) -> List[str]:
         """
@@ -156,13 +180,15 @@ class MetricEvaluator:
         List[str]: List of available metric names
         """
         task_str = task.value if isinstance(task, TaskType) else task.lower()
-        
+
         if task_str == 'classification':
             return list(self.classification_metrics.keys())
         elif task_str == 'regression':
             return list(self.regression_metrics.keys())
+        elif task_str == 'detection':
+            return list(self.detection_metrics.keys())
         else:
-            raise ValueError(f"Unknown task type: {task}. Use 'classification' or 'regression'")
+            raise ValueError(f"Unknown task type: {task}. Use 'classification', 'regression', or 'detection'")
     
     def get_available_methods(self, task: Union[str, TaskType]) -> List[str]:
         """
@@ -178,37 +204,41 @@ class MetricEvaluator:
         List[str]: List of available method names
         """
         task_str = task.value if isinstance(task, TaskType) else task.lower()
-        
+
         if task_str == 'classification':
             return self.classification_methods
         elif task_str == 'regression':
             return self.regression_methods
+        elif task_str == 'detection':
+            return self.detection_methods
         else:
-            raise ValueError(f"Unknown task type: {task}. Use 'classification' or 'regression'")
+            raise ValueError(f"Unknown task type: {task}. Use 'classification', 'regression', or 'detection'")
     
-    def evaluate(self, 
-                 y_true: List[Union[int, float]], 
-                 y_pred: List[Union[int, float]], 
-                 task: Union[str, TaskType],
-                 metric: str,
+    def evaluate(self,
+                 y_true: Optional[List[Union[int, float]]] = None,
+                 y_pred: Optional[List[Union[int, float]]] = None,
+                 task: Union[str, TaskType] = None,
+                 metric: str = None,
                  method: str = 'bootstrap_bca',
                  confidence_level: float = 0.95,
                  compute_ci: bool = True,
                  plot: bool = False,
-                 **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
+                 model: Optional[Any] = None,
+                 data: Optional[str] = None,
+                 **kwargs) -> Union[float, Tuple[float, Tuple[float, float]], Dict[str, Tuple[float, Tuple[float, float]]]]:
         """
         Evaluate a metric with confidence intervals.
-        
+
         Parameters:
         -----------
-        y_true : List[Union[int, float]]
-            True labels/values
-        y_pred : List[Union[int, float]]  
-            Predicted labels/values
+        y_true : List[Union[int, float]], optional
+            True labels/values (required for classification and regression tasks)
+        y_pred : List[Union[int, float]], optional
+            Predicted labels/values (required for classification and regression tasks)
         task : str or TaskType
-            Task type ('classification' or 'regression')
+            Task type ('classification', 'regression', or 'detection')
         metric : str
-            Metric name (e.g., 'accuracy', 'mae', 'f1')
+            Metric name (e.g., 'accuracy', 'mae', 'f1', 'yolo_map')
         method : str, optional
             Confidence interval method (default: 'bootstrap_bca')
         confidence_level : float, optional
@@ -217,61 +247,109 @@ class MetricEvaluator:
             Whether to compute confidence intervals (default: True)
         plot : bool, optional
             Whether to create histogram plot for bootstrap methods (default: False)
+        model : Any, optional
+            Model object or path (required for detection tasks)
+        data : str, optional
+            Dataset configuration path (required for detection tasks)
         **kwargs : dict
-            Additional arguments (e.g., n_resamples for bootstrap methods)
-            
+            Additional arguments (e.g., n_resamples for bootstrap methods,
+            n_iterations for detection tasks)
+
         Returns:
         --------
-        Union[float, Tuple[float, Tuple[float, float]]]
-            If compute_ci=False: metric value
-            If compute_ci=True: (metric_value, (lower_bound, upper_bound))
-            
+        Union[float, Tuple[float, Tuple[float, float]], Dict[str, Tuple[float, Tuple[float, float]]]]
+            For classification/regression:
+                If compute_ci=False: metric value
+                If compute_ci=True: (metric_value, (lower_bound, upper_bound))
+            For detection:
+                Dictionary with class names as keys and (mean_metric, (lower_CI, upper_CI)) as values
+
         Example:
         --------
         >>> evaluator = MetricEvaluator()
         >>> # Regression example
         >>> mae_val, ci = evaluator.evaluate(
         ...     y_true=[1, 2, 3, 4, 5],
-        ...     y_pred=[1.1, 2.1, 2.9, 4.1, 4.9], 
+        ...     y_pred=[1.1, 2.1, 2.9, 4.1, 4.9],
         ...     task='regression',
         ...     metric='mae',
         ...     method='jackknife'
         ... )
         >>> print(f"MAE: {mae_val:.3f}, 95% CI: [{ci[0]:.3f}, {ci[1]:.3f}]")
+        >>>
+        >>> # Detection example
+        >>> results = evaluator.evaluate(
+        ...     task='detection',
+        ...     metric='yolo_map',
+        ...     model='yolov8n.pt',
+        ...     data='coco128.yaml',
+        ...     n_iterations=100
+        ... )
+        >>> for class_name, (mean_map, ci) in results.items():
+        ...     print(f"{class_name}: {mean_map:.3f} [{ci[0]:.3f}, {ci[1]:.3f}]")
         """
-        
+
         # Validate and normalize task type
         task_str = task.value if isinstance(task, TaskType) else task.lower()
-        if task_str not in ['classification', 'regression']:
-            raise ValueError(f"Unknown task type: {task}. Use 'classification' or 'regression'")
-        
+        if task_str not in ['classification', 'regression', 'detection']:
+            raise ValueError(f"Unknown task type: {task}. Use 'classification', 'regression', or 'detection'")
+
+        # Handle detection tasks separately (different interface)
+        if task_str == 'detection':
+            if model is None or data is None:
+                raise ValueError("Detection tasks require 'model' and 'data' parameters")
+
+            if metric not in self.detection_metrics:
+                available = ', '.join(self.detection_metrics.keys())
+                raise ValueError(f"Unknown detection metric: {metric}. Available: {available}")
+
+            metric_func = self.detection_metrics[metric]
+
+            # Call the detection metric function
+            try:
+                result = metric_func(
+                    model=model,
+                    data=data,
+                    confidence_level=confidence_level,
+                    plot=plot,
+                    **kwargs
+                )
+                return result
+
+            except Exception as e:
+                raise RuntimeError(f"Error computing {metric}: {str(e)}")
+
+        # Handle classification and regression tasks
+        if y_true is None or y_pred is None:
+            raise ValueError("Classification and regression tasks require 'y_true' and 'y_pred' parameters")
+
         # Get the appropriate metric function and validate
         if task_str == 'classification':
             if metric not in self.classification_metrics:
                 available = ', '.join(self.classification_metrics.keys())
                 raise ValueError(f"Unknown classification metric: {metric}. Available: {available}")
             metric_func = self.classification_metrics[metric]
-            
+
             # Validate method for classification
             if method not in self.classification_methods:
                 available = ', '.join(self.classification_methods)
                 raise ValueError(f"Unknown classification method: {method}. Available: {available}")
-                
+
         else:  # regression
             if metric not in self.regression_metrics:
                 available = ', '.join(self.regression_metrics.keys())
                 raise ValueError(f"Unknown regression metric: {metric}. Available: {available}")
             metric_func = self.regression_metrics[metric]
-            
+
             # Validate method for regression
             if method not in self.regression_methods:
                 available = ', '.join(self.regression_methods)
                 raise ValueError(f"Unknown regression method: {method}. Available: {available}")
-        
+
         # Set default kwargs for different methods
         if method.startswith('bootstrap') and 'n_resamples' not in kwargs:
             kwargs['n_resamples'] = 9999
-        
+
         # Call the metric function
         try:
             result = metric_func(
@@ -284,7 +362,7 @@ class MetricEvaluator:
                 **kwargs
             )
             return result
-            
+
         except Exception as e:
             raise RuntimeError(f"Error computing {metric} with method {method}: {str(e)}")
     
@@ -344,20 +422,24 @@ class MetricEvaluator:
     def info(self) -> Dict[str, Any]:
         """
         Get information about available tasks, metrics, and methods.
-        
+
         Returns:
         --------
         Dict[str, Any]: Dictionary containing all available options
         """
         return {
-            'tasks': ['classification', 'regression'],
+            'tasks': ['classification', 'regression', 'detection'],
             'classification': {
                 'metrics': list(self.classification_metrics.keys()),
                 'methods': self.classification_methods
             },
             'regression': {
-                'metrics': list(self.regression_metrics.keys()), 
+                'metrics': list(self.regression_metrics.keys()),
                 'methods': self.regression_methods
+            },
+            'detection': {
+                'metrics': list(self.detection_metrics.keys()),
+                'methods': self.detection_methods
             }
         }
     
@@ -365,24 +447,32 @@ class MetricEvaluator:
         """Print formatted information about available options."""
         print("MetricEvaluator - Available Options")
         print("=" * 40)
-        
+
         print("\n📊 CLASSIFICATION METRICS:")
         for metric in self.classification_metrics.keys():
             print(f"   - {metric}")
-            
+
         print(f"\n🔧 Classification Methods: {len(self.classification_methods)}")
         for method in self.classification_methods:
             print(f"   - {method}")
-        
+
         print("\n📈 REGRESSION METRICS:")
         for metric in self.regression_metrics.keys():
             print(f"   - {metric}")
-            
-        print(f"\n🔧 Regression Methods: {len(self.regression_methods)}")  
+
+        print(f"\n🔧 Regression Methods: {len(self.regression_methods)}")
         for method in self.regression_methods:
             print(f"   - {method}")
-        
-        print(f"\nDefault method: bootstrap_bca")
+
+        print("\n🎯 DETECTION METRICS (YOLO):")
+        for metric in self.detection_metrics.keys():
+            print(f"   - {metric}")
+
+        print(f"\n🔧 Detection Methods: {len(self.detection_methods)}")
+        for method in self.detection_methods:
+            print(f"   - {method}")
+
+        print(f"\nDefault method: bootstrap_bca (classification/regression), yolo_bootstrap (detection)")
         print(f"Default confidence level: 0.95")
 
 

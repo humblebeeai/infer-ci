@@ -14,7 +14,6 @@ This is a standardized evaluation tool that computes common machine learning met
 
 ## Installation
 
-
 Clone this repository and install in development mode:
 
 ```bash
@@ -22,6 +21,16 @@ git clone https://github.com/humblebeeai/infer-ci.git
 cd infer-ci
 pip install -e .
 ```
+
+### For YOLO Detection Metrics (Optional)
+
+To use YOLO detection metrics with confidence intervals, install with the detection extras:
+
+```bash
+pip install -e .[detection]
+```
+
+This will install the additional dependencies (PyTorch, OpenCV, WandB, etc.) required for the customized Ultralytics YOLO CI validation.
 
 ## Getting started
 
@@ -75,7 +84,12 @@ For other computation of the CI for any of the methods below, just specify metho
 - `rmse`: Root Mean Squared Error
 - `r2`: Coefficient of Determination
 - `mape`: Mean Absolute Percentage Error
-- `IoU`: Intersection Over Union 
+- `iou`: Intersection Over Union
+
+**Detection (YOLO):**
+- `yolo_map`: mAP50-95 per class with confidence intervals (bootstrap validation)
+- `yolo_precision`: Precision per class with confidence intervals
+- `yolo_recall`: Recall per class with confidence intervals 
 
 You can also get available methods and metrics programmatically
 
@@ -102,7 +116,77 @@ We derive the recall and precision confidence intervals for macro F1 as well usi
 
 
 
+
+## Detection Metrics (YOLO)
+
+For object detection tasks using YOLO models, this library provides specialized metrics that compute confidence intervals through bootstrap validation. Instead of traditional y_true/y_pred arrays, these metrics take a YOLO model and dataset configuration.
+
+### YOLO mAP with Confidence Intervals
+
+```python
+from confidenceinterval import MetricEvaluator
+import numpy as np
+
+evaluator = MetricEvaluator()
+
+# Evaluate YOLO model - returns list of dicts (bootstrap samples)
+stats_list = evaluator.evaluate(
+    task='detection',
+    metric='yolo_map',
+    model='yolov8n.pt',   # Path to YOLO model weights
+    data='coco128.yaml',  # Path to dataset YAML config
+    n_iterations=100,     # Number of bootstrap iterations
+    batch=32,
+    imgsz=640
+)
+
+# Process stats_list to compute mean and CI for each class
+print(f"\nYOLO mAP50-95 Results ({len(stats_list)} iterations):")
+for class_name in stats_list[0].keys():
+    # Collect values across iterations
+    values = [stats[class_name] for stats in stats_list]
+    mean_map = np.mean(values)
+    ci = np.percentile(values, [2.5, 97.5])
+    print(f"{class_name}: {mean_map:.3f} [{ci[0]:.3f}, {ci[1]:.3f}]")
 ```
+
+You can also use the metric functions directly:
+
+```python
+from confidenceinterval import yolo_map_with_ci
+import numpy as np
+
+# Direct function call - returns list of dicts
+stats_list = yolo_map_with_ci(
+    model='yolov8n.pt',
+    data='coco128.yaml',
+    n_iterations=100,
+    confidence_level=0.95,
+    wb_run_name='my_experiment',       # Optional: WandB logging
+    project_name='yolo_experiments',   # Optional: WandB project
+    project_entity='my_team'           # Optional: WandB entity
+)
+
+# prints results automatically
+```
+
+### How YOLO CI Validation Works
+
+The YOLO confidence interval validation:
+1. Runs validation `n_iterations` times (default: 100)
+2. In each iteration, randomly samples ~50% of the validation data
+3. Computes metrics (mAP/precision/recall) for each class in each iteration
+4. Returns raw bootstrap samples as a list of dictionaries (one dict per iteration)
+5. Automatically generates visualization plots and saves them to `runs/val/`
+6. Optionally logs results to Weights & Biases
+
+The DetectionCIValidator automatically:
+- Saves all results to `{cwd}/runs/val/` directory
+- Creates confidence interval plots (bar charts with error bars)
+- Generates distribution histograms for each class
+- Saves raw metrics to `ci_metrics.json`
+
+You can then process the returned `stats_list` to compute mean and confidence intervals for any metric or class of interest.
 
 ## Get a Classification Report
 The [classification_report.py](confidenceinterval%2Fclassification_report.py) function builds a text report showing the main classification metrics and their confidence intervals.

@@ -25,4 +25,20 @@ setuptools.setup(
     ],
     packages=['confidenceinterval'],
     python_requires='>=3.10',
-    install_requires=requirements)
+    install_requires=requirements,
+    extras_require={
+        'detection': [
+            'opencv-python-headless',
+            'psutil>=6.1.0',
+            'py-cpuinfo>=9.0.0',
+            'pyyaml>=6.0.0',
+            'scipy>=1.14.0',
+            'seaborn>=0.13.0',
+            'torch',
+            'torchaudio',
+            'torchvision',
+            'tqdm>=4.67.0',
+            'ultralytics-thop>=2.0.0',
+            'wandb>=0.19.0',
+        ]
+    })

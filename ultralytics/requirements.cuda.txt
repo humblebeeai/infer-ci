@@ -1,0 +1,11 @@
+opencv-python==4.10.0.84
+psutil==6.1.1
+py-cpuinfo==9.0.0
+pyyaml==6.0.2
+scipy==1.14.1
+seaborn==0.13.2
+torchaudio==2.0.2+cu117
+torchvision==0.15.2+cu117
+tqdm==4.67.1
+ultralytics-thop==2.0.13
+wandb==0.19.1
