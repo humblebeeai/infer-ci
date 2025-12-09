@@ -26,7 +26,9 @@ from .regression_metrics import (
 
 # Import detection metrics
 from .detection_metrics import (
-    yolo_map_with_ci, yolo_precision_with_ci, yolo_recall_with_ci, detection_conf_methods
+    extract_detection_data, DetectionData,
+    yolo_map_with_ci, yolo_map50_with_ci, yolo_precision_with_ci, yolo_recall_with_ci,
+    detection_conf_methods
 )
 
 
@@ -130,9 +132,10 @@ class MetricEvaluator:
 
         # Detection metrics mapping (YOLO)
         self.detection_metrics = {
-            'yolo_map': yolo_map_with_ci,           # YOLO mAP50-95 with CI
-            'yolo_precision': yolo_precision_with_ci,  # YOLO Precision with CI
-            'yolo_recall': yolo_recall_with_ci         # YOLO Recall with CI
+            'yolo_map': yolo_map_with_ci,               # YOLO mAP50-95 with CI
+            'yolo_map50': yolo_map50_with_ci,           # YOLO mAP50 with CI
+            'yolo_precision': yolo_precision_with_ci,   # YOLO Precision with CI
+            'yolo_recall': yolo_recall_with_ci          # YOLO Recall with CI
         }
 
         # Available methods for each task type
@@ -162,7 +165,10 @@ class MetricEvaluator:
         self.iou = iou
 
         # Detection metrics (YOLO)
+        self.extract_detection_data = extract_detection_data
+        self.DetectionData = DetectionData
         self.yolo_map_with_ci = yolo_map_with_ci
+        self.yolo_map50_with_ci = yolo_map50_with_ci
         self.yolo_precision_with_ci = yolo_precision_with_ci
         self.yolo_recall_with_ci = yolo_recall_with_ci
         
@@ -296,8 +302,19 @@ class MetricEvaluator:
 
         # Handle detection tasks separately (different interface)
         if task_str == 'detection':
-            if model is None or data is None:
-                raise ValueError("Detection tasks require 'model' and 'data' parameters")
+            # Check if detection_data is provided in kwargs, otherwise need model + data
+            detection_data_obj = kwargs.pop('detection_data', None)
+
+            if detection_data_obj is None:
+                # Need to extract detection data from model
+                if model is None or data is None:
+                    raise ValueError(
+                        "Detection tasks require either:\n"
+                        "  1. 'detection_data' parameter (DetectionData object), OR\n"
+                        "  2. 'model' and 'data' parameters to extract detection data"
+                    )
+                # Extract detection data (runs inference ONCE)
+                detection_data_obj = extract_detection_data(model, data, **kwargs)
 
             if metric not in self.detection_metrics:
                 available = ', '.join(self.detection_metrics.keys())
@@ -305,12 +322,13 @@ class MetricEvaluator:
 
             metric_func = self.detection_metrics[metric]
 
-            # Call the detection metric function
+            # Call the detection metric function with detection_data
             try:
                 result = metric_func(
-                    model=model,
-                    data=data,
+                    detection_data=detection_data_obj,
                     confidence_level=confidence_level,
+                    method=method,
+                    compute_ci=compute_ci,
                     plot=plot,
                     **kwargs
                 )
