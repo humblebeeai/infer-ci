@@ -25,10 +25,8 @@ from .regression_metrics import (
 )
 
 # Import detection metrics
-from .detection_metrics import (
-    extract_detection_data, DetectionData,
-    yolo_map_with_ci, yolo_map50_with_ci, yolo_precision_with_ci, yolo_recall_with_ci,
-    detection_conf_methods
+from .yolo_detection_metrics import (
+    yolo_map, yolo_map50, yolo_precision, yolo_recall
 )
 
 
@@ -68,9 +66,10 @@ class MetricEvaluator:
         - iou (Intersection over Union)
 
     Detection (YOLO):
-        - yolo_map (mAP50-95 per class with CI)
-        - yolo_precision (Precision per class with CI)
-        - yolo_recall (Recall per class with CI)
+        - yolo_map (mAP@0.5:0.95 with CI)
+        - yolo_map50 (mAP@0.5 with CI)
+        - yolo_precision (Precision with CI)
+        - yolo_recall (Recall with CI)
     
     Example:
     --------
@@ -132,16 +131,17 @@ class MetricEvaluator:
 
         # Detection metrics mapping (YOLO)
         self.detection_metrics = {
-            'yolo_map': yolo_map_with_ci,               # YOLO mAP50-95 with CI
-            'yolo_map50': yolo_map50_with_ci,           # YOLO mAP50 with CI
-            'yolo_precision': yolo_precision_with_ci,   # YOLO Precision with CI
-            'yolo_recall': yolo_recall_with_ci          # YOLO Recall with CI
+            'yolo_map': yolo_map,               # YOLO mAP@0.5:0.95 with CI
+            'yolo_map50': yolo_map50,           # YOLO mAP@0.5 with CI
+            'yolo_precision': yolo_precision,   # YOLO Precision with CI
+            'yolo_recall': yolo_recall          # YOLO Recall with CI
         }
 
         # Available methods for each task type
         self.classification_methods = proportion_conf_methods + ['bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic']
         self.regression_methods = regression_conf_methods
-        self.detection_methods = detection_conf_methods
+        # Detection uses bootstrap methods
+        self.detection_methods = ['bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic']
         
         # Expose individual metric functions as instance methods
         # Classification metrics
@@ -165,12 +165,10 @@ class MetricEvaluator:
         self.iou = iou
 
         # Detection metrics (YOLO)
-        self.extract_detection_data = extract_detection_data
-        self.DetectionData = DetectionData
-        self.yolo_map_with_ci = yolo_map_with_ci
-        self.yolo_map50_with_ci = yolo_map50_with_ci
-        self.yolo_precision_with_ci = yolo_precision_with_ci
-        self.yolo_recall_with_ci = yolo_recall_with_ci
+        self.yolo_map = yolo_map
+        self.yolo_map50 = yolo_map50
+        self.yolo_precision = yolo_precision
+        self.yolo_recall = yolo_recall
         
     def get_available_metrics(self, task: Union[str, TaskType]) -> List[str]:
         """
@@ -284,15 +282,18 @@ class MetricEvaluator:
         >>> print(f"MAE: {mae_val:.3f}, 95% CI: [{ci[0]:.3f}, {ci[1]:.3f}]")
         >>>
         >>> # Detection example
-        >>> results = evaluator.evaluate(
+        >>> from ultralytics import YOLO
+        >>> model = YOLO('yolov8n.pt')
+        >>> results = model.predict(source='val-dataset/images/')
+        >>> map_val, (lower, upper) = evaluator.evaluate(
+        ...     y_true='val-dataset',
+        ...     y_pred=results,
         ...     task='detection',
         ...     metric='yolo_map',
-        ...     model='yolov8n.pt',
-        ...     data='coco128.yaml',
-        ...     n_iterations=100
+        ...     method='bootstrap_percentile',
+        ...     n_resamples=1000
         ... )
-        >>> for class_name, (mean_map, ci) in results.items():
-        ...     print(f"{class_name}: {mean_map:.3f} [{ci[0]:.3f}, {ci[1]:.3f}]")
+        >>> print(f"mAP@0.5:0.95: {map_val:.3f} [{lower:.3f}, {upper:.3f}]")
         """
 
         # Validate and normalize task type
@@ -302,19 +303,13 @@ class MetricEvaluator:
 
         # Handle detection tasks separately (different interface)
         if task_str == 'detection':
-            # Check if detection_data is provided in kwargs, otherwise need model + data
-            detection_data_obj = kwargs.pop('detection_data', None)
-
-            if detection_data_obj is None:
-                # Need to extract detection data from model
-                if model is None or data is None:
-                    raise ValueError(
-                        "Detection tasks require either:\n"
-                        "  1. 'detection_data' parameter (DetectionData object), OR\n"
-                        "  2. 'model' and 'data' parameters to extract detection data"
-                    )
-                # Extract detection data (runs inference ONCE)
-                detection_data_obj = extract_detection_data(model, data, **kwargs)
+            # Detection tasks require y_true (dataset path) and y_pred (Results objects)
+            if y_true is None or y_pred is None:
+                raise ValueError(
+                    "Detection tasks require:\n"
+                    "  - 'y_true': Path to validation dataset directory (e.g., 'val-dataset')\n"
+                    "  - 'y_pred': List of ultralytics Results objects from model.predict()"
+                )
 
             if metric not in self.detection_metrics:
                 available = ', '.join(self.detection_metrics.keys())
@@ -322,10 +317,11 @@ class MetricEvaluator:
 
             metric_func = self.detection_metrics[metric]
 
-            # Call the detection metric function with detection_data
+            # Call the detection metric function
             try:
                 result = metric_func(
-                    detection_data=detection_data_obj,
+                    y_true=y_true,
+                    y_pred=y_pred,
                     confidence_level=confidence_level,
                     method=method,
                     compute_ci=compute_ci,

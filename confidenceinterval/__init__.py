@@ -30,12 +30,11 @@ from .regression_metrics import mae, \
     iou, \
     mean_bia_dev
 
-from .detection_metrics import extract_detection_data, \
-    DetectionData, \
-    yolo_map_with_ci, \
-    yolo_map50_with_ci, \
-    yolo_precision_with_ci, \
-    yolo_recall_with_ci
+# Detection metrics (YOLO)
+from .yolo_detection_metrics import yolo_map, \
+    yolo_map50, \
+    yolo_precision, \
+    yolo_recall
 
 from .classification_report import classification_report_with_ci
 
@@ -57,8 +56,7 @@ __all__ = [
     'exp_var_score', 'mean_bia_dev', 'iou',
 
     # Detection metrics (YOLO)
-    'extract_detection_data', 'DetectionData',
-    'yolo_map_with_ci', 'yolo_map50_with_ci', 'yolo_precision_with_ci', 'yolo_recall_with_ci',
+    'yolo_map', 'yolo_map50', 'yolo_precision', 'yolo_recall',
 
     # Utility modules
     'methods', 'utils'

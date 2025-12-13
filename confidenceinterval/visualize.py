@@ -45,37 +45,67 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     
-    # Set color scheme based on plot type
-    if plot_type.lower() == "regression":
+    # Determine if using old YOLO detection approach (frequency) or new approach (density)
+    use_frequency = plot_type.lower() == "detection"
+
+    # Set color scheme and parameters based on plot type
+    if use_frequency:
+        # YOLO detection: use old approach with frequency
         color = 'skyblue'
+        bins = 30
+        alpha = 0.75
+        density = False
+        ylabel = 'Frequency'
+        title_suffix = " (Detection)"
+    elif plot_type.lower() == "regression":
+        color = 'skyblue'
+        bins = 50
+        alpha = 0.7
+        density = True
+        ylabel = 'Density'
         title_suffix = ""  # Regression plots don't specify type in title (matches original behavior)
     else:  # classification
         color = 'lightcoral'
+        bins = 50
+        alpha = 0.7
+        density = True
+        ylabel = 'Density'
         title_suffix = f" ({plot_type.title()})"
-    
+
     # Create the plot
     plt.figure(figsize=(10, 6))
-    plt.hist(bootstrap_samples, bins=50, alpha=0.7, density=True, color=color, 
+    plt.hist(bootstrap_samples, bins=bins, alpha=alpha, density=density, color=color,
              edgecolor='black', label='Bootstrap Distribution')
-    
+
     # Add vertical lines for metric value and confidence interval
-    plt.axvline(metric_value, color='red', linestyle='--', linewidth=2, 
-                label=f'{metric_name.upper()}: {metric_value:.4f}')
-    plt.axvline(confidence_interval[0], color='orange', linestyle=':', linewidth=2, 
-                label=f'{confidence_level*100:.0f}% CI Lower: {confidence_interval[0]:.4f}')
-    plt.axvline(confidence_interval[1], color='orange', linestyle=':', linewidth=2, 
-                label=f'{confidence_level*100:.0f}% CI Upper: {confidence_interval[1]:.4f}')
-    
-    # Add shaded area for confidence interval
-    plt.axvspan(confidence_interval[0], confidence_interval[1], alpha=0.2, color='orange')
-    
+    if use_frequency:
+        # Old YOLO style: simpler labels
+        plt.axvline(metric_value, color='red', linestyle='--', linewidth=2,
+                    label=f'Mean {metric_name}')
+        plt.axvline(confidence_interval[0], color='blue', linestyle='--', linewidth=2,
+                    label='95% CI Lower Bound')
+        plt.axvline(confidence_interval[1], color='blue', linestyle='--', linewidth=2,
+                    label='95% CI Upper Bound')
+    else:
+        # New style: show values in labels
+        plt.axvline(metric_value, color='red', linestyle='--', linewidth=2,
+                    label=f'{metric_name.upper()}: {metric_value:.4f}')
+        plt.axvline(confidence_interval[0], color='orange', linestyle=':', linewidth=2,
+                    label=f'{confidence_level*100:.0f}% CI Lower: {confidence_interval[0]:.4f}')
+        plt.axvline(confidence_interval[1], color='orange', linestyle=':', linewidth=2,
+                    label=f'{confidence_level*100:.0f}% CI Upper: {confidence_interval[1]:.4f}')
+
+    # Add shaded area for confidence interval (only for new style)
+    if not use_frequency:
+        plt.axvspan(confidence_interval[0], confidence_interval[1], alpha=0.2, color='orange')
+
     # Formatting
-    plt.xlabel(f'{metric_name.upper()} Value')
-    plt.ylabel('Density')
-    plt.title(f'{metric_name.upper()} Bootstrap Distribution{title_suffix}\n'
-              f'Method: {method}, CI: [{confidence_interval[0]:.4f}, {confidence_interval[1]:.4f}]')
+    plt.xlabel(f'{metric_name}')
+    plt.ylabel(ylabel)
+    plt.title(f'{metric_name} Bootstrap Distribution{title_suffix}\n'
+              f'Method: {method}, 95% Confidence Interval: [{confidence_interval[0]:.4f}, {confidence_interval[1]:.4f}]')
     plt.legend()
-    plt.grid(True, alpha=0.3)
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     
     # Save the plot
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
