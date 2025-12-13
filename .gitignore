@@ -7,3 +7,10 @@ confidenceinterval.egg-info/
 myenv/
 .myenv/
 results/
+
+
+dev-docs
+custom-dataset
+models
+examples
+ultralytics
