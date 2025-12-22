@@ -61,8 +61,21 @@ def bootstrap_ci(y_true: List[int],
     """
 
     # Progress bar setup
-    pbar = tqdm(total=n_resamples, desc="Bootstrap CI", disable=not show_progress,
-                bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')
+    # For BCA method, total iterations = n_resamples + len(data) + 1
+    # (bootstrap samples + jackknife for acceleration + original)
+    # For other methods, total iterations = n_resamples
+    if method == 'bootstrap_bca':
+        # BCA requires additional jackknife iterations for acceleration constant
+        # Total = n_resamples + n_data_points + 1
+        n_data_points = len(y_true)
+        total_iterations = n_resamples + n_data_points + 1
+        bar_format = '{desc} (BCA): {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+    else:
+        total_iterations = n_resamples
+        bar_format = '{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+
+    pbar = tqdm(total=total_iterations, desc="Bootstrap CI", disable=not show_progress,
+                bar_format=bar_format)
 
     call_count = [0]  # Use list to allow modification in nested function
 
