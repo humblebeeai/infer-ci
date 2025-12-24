@@ -76,13 +76,13 @@ For other computation of the CI for any of the methods below, just specify metho
 - `mape`: Mean Absolute Percentage Error
 - `iou`: Intersection Over Union
 
-**Detection (YOLO):**
-- `yolo_map`: mean Average Precision 0.5:0.95 (overall + per-class support)
-- `yolo_map50`: mean Average Precision 0.5 (overall + per-class support)
-- `yolo_precision`: Precision (overall + per-class support)
-- `yolo_recall`: Recall (overall + per-class support)
+**Object Detection (overall + per-class support):**
+- `map`: mean Average Precision 0.5:0.95
+- `map50`: mean Average Precision 0.5
+- `precision`: Precision
+- `recall`: Recall
 
-📖 **For YOLO detection metrics usage examples, see:** [YOLO Detection Metrics Usage Guide](docs/yolo-detection-metrics-usage.md)
+📖 **For object detection metrics usage examples, see:** [Object Detection Metrics Usage Guide](docs/object-detection-metrics-usage.md)
 
 You can also get available methods and metrics programmatically
 
