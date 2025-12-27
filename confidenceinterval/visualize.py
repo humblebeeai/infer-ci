@@ -44,13 +44,11 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
     results_dir = "results"
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    
-    # Determine if using old YOLO detection approach (frequency) or new approach (density)
+
     use_frequency = plot_type.lower() == "detection"
 
     # Set color scheme and parameters based on plot type
     if use_frequency:
-        # YOLO detection: use old approach with frequency
         color = 'skyblue'
         bins = 30
         alpha = 0.75
@@ -63,8 +61,8 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
         alpha = 0.7
         density = True
         ylabel = 'Density'
-        title_suffix = ""  # Regression plots don't specify type in title (matches original behavior)
-    else:  # classification
+        title_suffix = ""  # Regression plots don't specify type in title
+    else:
         color = 'lightcoral'
         bins = 50
         alpha = 0.7
@@ -79,7 +77,6 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
 
     # Add vertical lines for metric value and confidence interval
     if use_frequency:
-        # Old YOLO style: simpler labels
         plt.axvline(metric_value, color='red', linestyle='--', linewidth=2,
                     label=f'Mean {metric_name}')
         plt.axvline(confidence_interval[0], color='blue', linestyle='--', linewidth=2,
@@ -87,7 +84,6 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
         plt.axvline(confidence_interval[1], color='blue', linestyle='--', linewidth=2,
                     label='95% CI Upper Bound')
     else:
-        # New style: show values in labels
         plt.axvline(metric_value, color='red', linestyle='--', linewidth=2,
                     label=f'{metric_name.upper()}: {metric_value:.4f}')
         plt.axvline(confidence_interval[0], color='orange', linestyle=':', linewidth=2,
@@ -95,7 +91,6 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
         plt.axvline(confidence_interval[1], color='orange', linestyle=':', linewidth=2,
                     label=f'{confidence_level*100:.0f}% CI Upper: {confidence_interval[1]:.4f}')
 
-    # Add shaded area for confidence interval (only for new style)
     if not use_frequency:
         plt.axvspan(confidence_interval[0], confidence_interval[1], alpha=0.2, color='orange')
 
@@ -112,7 +107,7 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
     filename = f"{metric_name}_{method}_{timestamp}.png"
     filepath = os.path.join(results_dir, filename)
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
-    plt.close()  # Close the figure to free memory
+    plt.close()
     
     return filepath
 
@@ -161,7 +156,7 @@ def bootstrap_with_plot(y_true: List[Union[int, float]],
     """
     # Auto-determine plot type if not specified
     if plot_type == "auto":
-        # Check if y_true contains only integers (likely classification)
+        # Check if y_true contains only integers
         if all(isinstance(val, (int, np.integer)) for val in y_true):
             plot_type = "classification"
         else:

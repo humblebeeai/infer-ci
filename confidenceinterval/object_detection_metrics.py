@@ -1,4 +1,4 @@
-# Confidence intervals for YOLO object detection metrics
+# Confidence intervals for object detection metrics
 
 from typing import List, Tuple, Union, Dict, Any, Optional, Callable
 import numpy as np
@@ -55,7 +55,7 @@ def _load_ground_truth(y_true: Union[str, Path]) -> Tuple[List[np.ndarray], List
                 dataset_path = Path(data.get('path', y_true.parent))
                 names = data.get('names', {})
 
-                # Convert list to dict if needed (YOLO YAML format uses list)
+                # Convert list to dict if needed
                 if isinstance(names, list):
                     names = {i: name for i, name in enumerate(names)}
         except yaml.YAMLError as e:
@@ -91,27 +91,23 @@ def _load_ground_truth(y_true: Union[str, Path]) -> Tuple[List[np.ndarray], List
 
     ground_truth_boxes = []
     image_shapes = []
-    missing_images = []
+    skipped_labels = []
 
     for label_file in label_files:
+        # First, check if the corresponding image exists
+        image_file = images_dir / f"{label_file.stem}.jpg"
+        if not image_file.exists():
+            image_file = images_dir / f"{label_file.stem}.png"
+
+        if not image_file.exists():
+            # Skip this label file if image doesn't exist
+            skipped_labels.append(label_file.stem)
+            continue
+
         # Read label file
         if label_file.stat().st_size == 0:
             # Empty file (no objects in image)
             ground_truth_boxes.append(np.zeros((0, 5)))
-            # Try to get image shape
-            image_file = images_dir / f"{label_file.stem}.jpg"
-            if not image_file.exists():
-                image_file = images_dir / f"{label_file.stem}.png"
-            if image_file.exists():
-                from PIL import Image
-                img = Image.open(image_file)
-                image_shapes.append(img.size[::-1])  # (height, width)
-            else:
-                missing_images.append(label_file.stem)
-                image_shapes.append((640, 640))  # Default
-                logger.warning(
-                    f"Image not found for label {label_file.name}, using default shape (640, 640)"
-                )
         else:
             try:
                 boxes = np.loadtxt(label_file).reshape(-1, 5)
@@ -128,39 +124,28 @@ def _load_ground_truth(y_true: Union[str, Path]) -> Tuple[List[np.ndarray], List
                     f"Expected format: class x_center y_center width height (one box per line)"
                 )
 
-            # Get image shape from corresponding image
-            image_file = images_dir / f"{label_file.stem}.jpg"
-            if not image_file.exists():
-                image_file = images_dir / f"{label_file.stem}.png"
-            if image_file.exists():
-                from PIL import Image
-                img = Image.open(image_file)
-                image_shapes.append(img.size[::-1])  # (height, width)
-            else:
-                missing_images.append(label_file.stem)
-                image_shapes.append((640, 640))  # Default
-                logger.warning(
-                    f"Image not found for label {label_file.name}, using default shape (640, 640)"
-                )
+        # Get image shape from corresponding image
+        from PIL import Image
+        img = Image.open(image_file)
+        image_shapes.append(img.size[::-1])  # (height, width)
 
-    # Warn if many images are missing
-    if len(missing_images) > 0:
-        warnings.warn(
-            f"Could not find {len(missing_images)}/{len(label_files)} images. "
-            f"Using default shape (640, 640) for these images. "
-            f"This may affect metric accuracy.",
-            UserWarning
-        )
+    # Warn if labels were skipped
+    if len(skipped_labels) > 0:
+        print(f"\n  Skipped {len(skipped_labels)} labels without matching images:")
+        for fname in skipped_labels:
+            print(f"     - image {fname} not found")
+        print()
+        
 
     # Validate we have ground truth
     total_boxes = sum(len(boxes) for boxes in ground_truth_boxes)
     if total_boxes == 0:
         raise ValueError(
-            f"No ground truth boxes found across {len(label_files)} label files. "
+            f"No ground truth boxes found across {len(ground_truth_boxes)} label files. "
             f"All label files are empty. Cannot compute detection metrics."
         )
 
-    logger.info(f"Loaded {len(label_files)} label files with {total_boxes} total ground truth boxes")
+    logger.info(f"Loaded {len(ground_truth_boxes)} label files with {total_boxes} total ground truth boxes")
 
     return ground_truth_boxes, image_shapes, names
 
@@ -582,7 +567,7 @@ def _calculate_metrics_from_data(predictions: List[np.ndarray],
     predictions : List[np.ndarray]
         List of prediction arrays per image [n_pred, 6] as [x1, y1, x2, y2, conf, class]
     ground_truths : List[np.ndarray]
-        List of GT arrays per image [n_gt, 5] as [class, x_center, y_center, w, h] (YOLO format)
+        List of GT arrays per image [n_gt, 5] as [class, x_center, y_center, w, h]
     image_shapes : List[Tuple[int, int]]
         List of image shapes (height, width)
     return_per_class : bool, optional
@@ -622,7 +607,7 @@ def _calculate_metrics_from_data(predictions: List[np.ndarray],
             f"ground_truths={len(ground_truths)}, image_shapes={len(image_shapes)}"
         )
 
-    # Convert GT from YOLO format to xyxy
+    # Convert GT to xyxy
     gt_xyxy = [_convert_yolo_to_xyxy(gt, shape) for gt, shape in zip(ground_truths, image_shapes)]
 
     # Collect all results
@@ -697,24 +682,22 @@ def _calculate_metrics_from_data(predictions: List[np.ndarray],
 
 
 def _compute_percentile_ci_from_samples(samples: np.ndarray,
-                                        confidence_level: float,
-                                        method: str = 'bootstrap_percentile') -> Tuple[float, Tuple[float, float]]:
+                                        original_value: float,
+                                        confidence_level: float) -> Tuple[float, Tuple[float, float]]:
     """
     Compute percentile-based confidence interval from bootstrap samples.
 
-    This helper eliminates code duplication and uses the same logic as scipy.stats.bootstrap
-    for percentile-based CIs. We can't use scipy directly here because we do custom
-    resampling (computing all classes at once for efficiency).
+    This helper uses the percentile method which is simple and robust for per-class metrics.
+    For overall metrics, use bootstrap_with_plot which supports all methods (percentile, basic, BCA).
 
     Parameters
     ----------
     samples : np.ndarray
         Bootstrap samples
+    original_value : float
+        The original metric value computed on the full dataset (not bootstrap mean)
     confidence_level : float
         Confidence level (e.g., 0.95)
-    method : str, optional
-        Bootstrap method (currently only 'bootstrap_percentile' supported for manual samples).
-        Parameter reserved for future support of BCA and basic methods.
 
     Returns
     -------
@@ -725,7 +708,7 @@ def _compute_percentile_ci_from_samples(samples: np.ndarray,
     -----
     This function uses the same percentile calculation as scipy.stats.bootstrap for consistency.
     """
-    metric_value = samples.mean()
+    metric_value = original_value
 
     # Calculate percentiles (same logic as scipy.stats.bootstrap)
     alpha = 1 - confidence_level
@@ -795,6 +778,30 @@ def _compute_per_class_ci(predictions: List[np.ndarray],
     all_gt_cls = np.concatenate([gt[:, 0] for gt in ground_truths if len(gt) > 0])
     unique_classes = np.unique(all_gt_cls).astype(int)
 
+    # First, compute original metric values on full dataset
+    original_metrics = _calculate_metrics_from_data(predictions, ground_truths, image_shapes,
+                                                    return_per_class=True)
+
+    # Extract overall original value
+    if "mAP@0.5:0.95" in metric_name:
+        original_overall = original_metrics['map']
+    elif "mAP@0.5" in metric_name:
+        original_overall = original_metrics['map50']
+    elif "Precision" in metric_name:
+        original_overall = original_metrics['precision']
+    elif "Recall" in metric_name:
+        original_overall = original_metrics['recall']
+
+    # Extract per-class original values
+    original_per_class = {}
+    for class_id in unique_classes:
+        class_indices = np.where(original_metrics['unique_classes'] == class_id)[0]
+        if len(class_indices) > 0:
+            class_idx = class_indices[0]
+            original_per_class[class_id] = metric_extractor(original_metrics, class_idx)
+        else:
+            original_per_class[class_id] = 0.0
+
     # Storage for bootstrap samples
     n_images = len(predictions)
     overall_samples = []
@@ -840,9 +847,8 @@ def _compute_per_class_ci(predictions: List[np.ndarray],
     # Convert to arrays
     overall_samples = np.array(overall_samples)
 
-    # Compute overall CI using helper function
     overall_value, overall_ci = _compute_percentile_ci_from_samples(
-        overall_samples, confidence_level, method
+        overall_samples, original_overall, confidence_level
     )
 
     # Count support (number of ground truth instances) per class
@@ -862,9 +868,8 @@ def _compute_per_class_ci(predictions: List[np.ndarray],
         class_name = class_names.get(class_id, f"class_{class_id}")
         samples = np.array(per_class_samples[class_id])
 
-        # Compute CI using helper function (eliminates code duplication)
         class_value, class_ci = _compute_percentile_ci_from_samples(
-            samples, confidence_level, method
+            samples, original_per_class[class_id], confidence_level
         )
 
         per_class_results[class_id] = (class_value, class_ci)
@@ -898,7 +903,7 @@ def _compute_per_class_ci(predictions: List[np.ndarray],
     print(f"{'':>4} {'Class':<30} {metric_name+' CI':<25} {'Support':>8}")
 
     # Overall row
-    print(f"{'':>4} {'all':<30} ({overall_ci[0]:.3f}, {overall_ci[1]:.3f}){'':<13} {total_support:>8}")
+    print(f"{'':>4} {'all':<30} ({overall_ci[0]:.3f}, {overall_ci[1]:.3f}){'':<13} {total_support:>6}")
 
     # Per-class rows
     for row in table_data:
@@ -917,8 +922,6 @@ def _prepare_detection_data(y_true: Union[str, Path],
                             y_pred: List[Any]) -> Tuple[List[np.ndarray], List[np.ndarray], List[Tuple[int, int]], Dict[int, str]]:
     """
     Prepare detection data by loading ground truth and matching to predictions.
-
-    This helper eliminates code duplication across all YOLO metric functions.
 
     Parameters
     ----------
@@ -976,9 +979,10 @@ def _prepare_detection_data(y_true: Union[str, Path],
             skipped_files.append(pred_fname)
 
     if len(skipped_files) > 0:
-        print(f"  ⚠️  Skipped {len(skipped_files)} predictions without matching ground truth labels:")
+        print(f"  Skipped {len(skipped_files)} predictions without matching ground truth labels:")
         for fname in skipped_files:
-            print(f"     - {fname}.txt (label file not found)")
+            print(f"     - label {fname}.txt file not found")
+        print()
 
     if len(matched_predictions) == 0:
         raise ValueError(
@@ -990,7 +994,7 @@ def _prepare_detection_data(y_true: Union[str, Path],
 
 # Main Metric Functions
 
-def yolo_map(y_true: Union[str, Path],
+def map(y_true: Union[str, Path],
              y_pred: List[Any],
              confidence_level: float = 0.95,
              method: str = 'bootstrap_percentile',
@@ -1000,7 +1004,7 @@ def yolo_map(y_true: Union[str, Path],
              random_state: int = 42,
              **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
-    Compute YOLO mAP@0.5:0.95 with confidence interval.
+    Compute mAP@0.5:0.95 with confidence interval.
 
     This function calculates the mean Average Precision across IoU thresholds 0.5:0.05:0.95
     with confidence intervals using bootstrap resampling at the image level.
@@ -1030,31 +1034,6 @@ def yolo_map(y_true: Union[str, Path],
     -------
     Union[float, Tuple[float, Tuple[float, float]]]
         The mAP@0.5:0.95 score and optionally the confidence interval
-
-    Examples
-    --------
-    >>> from ultralytics import YOLO
-    >>> from confidenceinterval import yolo_map
-    >>>
-    >>> model = YOLO('yolov8n.pt')
-    >>> results = model.predict(source='val-dataset/images/')
-    >>>
-    >>> # Calculate mAP with CI
-    >>> map_val, (lower, upper) = yolo_map(
-    ...     y_true='val-dataset',
-    ...     y_pred=results,
-    ...     method='bootstrap_percentile',
-    ...     n_resamples=1000
-    ... )
-    >>> print(f"mAP@0.5:0.95: {map_val:.4f}, 95% CI: [{lower:.4f}, {upper:.4f}]")
-    >>>
-    >>> # Calculate mAP with per-class plots
-    >>> map_val, (lower, upper) = yolo_map(
-    ...     y_true='val-dataset',
-    ...     y_pred=results,
-    ...     plot_per_class=True,  # Creates one plot per class
-    ...     n_resamples=1000
-    ... )
 
     Notes
     -----
@@ -1140,7 +1119,7 @@ def yolo_map(y_true: Union[str, Path],
     )
 
 
-def yolo_map50(y_true: Union[str, Path],
+def map50(y_true: Union[str, Path],
                y_pred: List[Any],
                confidence_level: float = 0.95,
                method: str = 'bootstrap_percentile',
@@ -1150,7 +1129,7 @@ def yolo_map50(y_true: Union[str, Path],
                random_state: int = 42,
                **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
-    Compute YOLO mAP@0.5 with confidence interval.
+    Compute mAP@0.5 with confidence interval.
 
     This function calculates the mean Average Precision at IoU threshold 0.5
     with confidence intervals using bootstrap resampling at the image level.
@@ -1180,23 +1159,6 @@ def yolo_map50(y_true: Union[str, Path],
     -------
     Union[float, Tuple[float, Tuple[float, float]]]
         The mAP@0.5 score and optionally the confidence interval
-
-    Examples
-    --------
-    >>> from ultralytics import YOLO
-    >>> from confidenceinterval import yolo_map50
-    >>>
-    >>> model = YOLO('yolov8n.pt')
-    >>> results = model.predict(source='val-dataset/images/')
-    >>>
-    >>> # Calculate mAP@0.5 with CI
-    >>> map50_val, (lower, upper) = yolo_map50(
-    ...     y_true='val-dataset',
-    ...     y_pred=results,
-    ...     method='bootstrap_percentile',
-    ...     n_resamples=1000
-    ... )
-    >>> print(f"mAP@0.5: {map50_val:.4f}, 95% CI: [{lower:.4f}, {upper:.4f}]")
 
     Notes
     -----
@@ -1273,7 +1235,7 @@ def yolo_map50(y_true: Union[str, Path],
     )
 
 
-def yolo_precision(y_true: Union[str, Path],
+def precision(y_true: Union[str, Path],
                    y_pred: List[Any],
                    confidence_level: float = 0.95,
                    method: str = 'bootstrap_percentile',
@@ -1283,7 +1245,7 @@ def yolo_precision(y_true: Union[str, Path],
                    random_state: int = 42,
                    **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
-    Compute YOLO mean precision with confidence interval.
+    Compute mean precision with confidence interval.
 
     This function calculates the mean precision across all classes
     with confidence intervals using bootstrap resampling at the image level.
@@ -1313,23 +1275,6 @@ def yolo_precision(y_true: Union[str, Path],
     -------
     Union[float, Tuple[float, Tuple[float, float]]]
         The mean precision score and optionally the confidence interval
-
-    Examples
-    --------
-    >>> from ultralytics import YOLO
-    >>> from confidenceinterval import yolo_precision
-    >>>
-    >>> model = YOLO('yolov8n.pt')
-    >>> results = model.predict(source='val-dataset/images/')
-    >>>
-    >>> # Calculate mean precision with CI
-    >>> precision_val, (lower, upper) = yolo_precision(
-    ...     y_true='val-dataset',
-    ...     y_pred=results,
-    ...     method='bootstrap_percentile',
-    ...     n_resamples=1000
-    ... )
-    >>> print(f"Precision: {precision_val:.4f}, 95% CI: [{lower:.4f}, {upper:.4f}]")
 
     Notes
     -----
@@ -1406,7 +1351,7 @@ def yolo_precision(y_true: Union[str, Path],
     )
 
 
-def yolo_recall(y_true: Union[str, Path],
+def recall(y_true: Union[str, Path],
                 y_pred: List[Any],
                 confidence_level: float = 0.95,
                 method: str = 'bootstrap_percentile',
@@ -1416,7 +1361,7 @@ def yolo_recall(y_true: Union[str, Path],
                 random_state: int = 42,
                 **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
-    Compute YOLO mean recall with confidence interval.
+    Compute mean recall with confidence interval.
 
     This function calculates the mean recall across all classes
     with confidence intervals using bootstrap resampling at the image level.
@@ -1446,23 +1391,6 @@ def yolo_recall(y_true: Union[str, Path],
     -------
     Union[float, Tuple[float, Tuple[float, float]]]
         The mean recall score and optionally the confidence interval
-
-    Examples
-    --------
-    >>> from ultralytics import YOLO
-    >>> from confidenceinterval import yolo_recall
-    >>>
-    >>> model = YOLO('yolov8n.pt')
-    >>> results = model.predict(source='val-dataset/images/')
-    >>>
-    >>> # Calculate mean recall with CI
-    >>> recall_val, (lower, upper) = yolo_recall(
-    ...     y_true='val-dataset',
-    ...     y_pred=results,
-    ...     method='bootstrap_percentile',
-    ...     n_resamples=1000
-    ... )
-    >>> print(f"Recall: {recall_val:.4f}, 95% CI: [{lower:.4f}, {upper:.4f}]")
 
     Notes
     -----

@@ -25,8 +25,8 @@ from .regression_metrics import (
 )
 
 # Import detection metrics
-from .yolo_detection_metrics import (
-    yolo_map, yolo_map50, yolo_precision, yolo_recall
+from .object_detection_metrics import (
+    map, map50, precision, recall
 )
 
 
@@ -65,11 +65,11 @@ class MetricEvaluator:
         - mape (Mean Absolute Percentage Error)
         - iou (Intersection over Union)
 
-    Detection (YOLO):
-        - yolo_map (mAP@0.5:0.95 with CI)
-        - yolo_map50 (mAP@0.5 with CI)
-        - yolo_precision (Precision with CI)
-        - yolo_recall (Recall with CI)
+    Detection:
+        - map (mAP@0.5:0.95 with CI)
+        - map50 (mAP@0.5 with CI)
+        - precision (Precision with CI)
+        - recall (Recall with CI)
     
     Example:
     --------
@@ -129,12 +129,12 @@ class MetricEvaluator:
             'iou': iou            # Intersection over Union
         }
 
-        # Detection metrics mapping (YOLO)
+        # Detection metrics mapping
         self.detection_metrics = {
-            'yolo_map': yolo_map,               # YOLO mAP@0.5:0.95 with CI
-            'yolo_map50': yolo_map50,           # YOLO mAP@0.5 with CI
-            'yolo_precision': yolo_precision,   # YOLO Precision with CI
-            'yolo_recall': yolo_recall          # YOLO Recall with CI
+            'map': map,               # mAP@0.5:0.95 with CI
+            'map50': map50,           # mAP@0.5 with CI
+            'precision': precision,   # Precision with CI
+            'recall': recall          # Recall with CI
         }
 
         # Available methods for each task type
@@ -164,11 +164,11 @@ class MetricEvaluator:
         self.mape = mape
         self.iou = iou
 
-        # Detection metrics (YOLO)
-        self.yolo_map = yolo_map
-        self.yolo_map50 = yolo_map50
-        self.yolo_precision = yolo_precision
-        self.yolo_recall = yolo_recall
+        # Detection metrics
+        self.map = map
+        self.map50 = map50
+        self.precision = precision
+        self.recall = recall
         
     def get_available_metrics(self, task: Union[str, TaskType]) -> List[str]:
         """
@@ -242,7 +242,7 @@ class MetricEvaluator:
         task : str or TaskType
             Task type ('classification', 'regression', or 'detection')
         metric : str
-            Metric name (e.g., 'accuracy', 'mae', 'f1', 'yolo_map')
+            Metric name (e.g., 'accuracy', 'mae', 'f1', 'map')
         method : str, optional
             Confidence interval method (default: 'bootstrap_bca')
         confidence_level : float, optional
@@ -284,12 +284,12 @@ class MetricEvaluator:
         >>> # Detection example
         >>> from ultralytics import YOLO
         >>> model = YOLO('yolov8n.pt')
-        >>> results = model.predict(source='val-dataset/images/')
+        >>> results = model.predict(source='dataset/images')
         >>> map_val, (lower, upper) = evaluator.evaluate(
-        ...     y_true='val-dataset',
+        ...     y_true='dataset',
         ...     y_pred=results,
         ...     task='detection',
-        ...     metric='yolo_map',
+        ...     metric='map',
         ...     method='bootstrap_percentile',
         ...     n_resamples=1000
         ... )
@@ -478,7 +478,7 @@ class MetricEvaluator:
         for method in self.regression_methods:
             print(f"   - {method}")
 
-        print("\n🎯 DETECTION METRICS (YOLO):")
+        print("\n🎯 DETECTION METRICS:")
         for metric in self.detection_metrics.keys():
             print(f"   - {metric}")
 
@@ -486,7 +486,7 @@ class MetricEvaluator:
         for method in self.detection_methods:
             print(f"   - {method}")
 
-        print(f"\nDefault method: bootstrap_bca (classification/regression), yolo_bootstrap (detection)")
+        print(f"\nDefault method: bootstrap_bca")
         print(f"Default confidence level: 0.95")
 
 

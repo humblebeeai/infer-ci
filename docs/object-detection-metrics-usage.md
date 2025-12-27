@@ -1,6 +1,6 @@
-# YOLO Detection Metrics Usage Guide
+# Object Detection Metrics Usage Guide
 
-This guide shows how to use the YOLO detection metrics with confidence intervals.
+This guide shows how to use the Object detection metrics with confidence intervals.
 
 ## Quick Start
 
@@ -11,16 +11,16 @@ from ultralytics import YOLO
 # Initialize evaluator
 evaluate = MetricEvaluator()
 
-# Load your YOLO model and run predictions
+# Load your model and run predictions
 model = YOLO('yolov8n.pt')
 results = model.predict(source='path/to/val-dataset/images', verbose=False)
 
 # Compute mAP@0.5:0.95 with confidence interval
 map_value, (lower, upper) = evaluate.evaluate(
     y_true='path/to/val-dataset',  # Path to dataset folder or data.yaml
-    y_pred=results,                 # YOLO prediction results
+    y_pred=results,                 # prediction results
     task='detection',
-    metric='yolo_map',
+    metric='map',
     method='bootstrap_percentile',
     n_resamples=1000,
     plot=True                       # Create histogram plot
@@ -32,14 +32,14 @@ print(f"95% CI: [{lower:.4f}, {upper:.4f}]")
 
 ## Available Detection Metrics
 
-- `yolo_map`: mAP@0.5:0.95 (mean Average Precision across IoU thresholds 0.5:0.05:0.95)
-- `yolo_map50`: mAP@0.5 (mean Average Precision at IoU threshold 0.5)
-- `yolo_precision`: Mean precision across all classes
-- `yolo_recall`: Mean recall across all classes
+- `map`: mAP@0.5:0.95 (mean Average Precision across IoU thresholds 0.5:0.05:0.95)
+- `map50`: mAP@0.5 (mean Average Precision at IoU threshold 0.5)
+- `precision`: Mean precision across all classes
+- `recall`: Mean recall across all classes
 
 ## Dataset Structure
 
-Your validation dataset should follow the YOLO format:
+Your validation dataset should follow to this format:
 
 ```
 val-dataset/
@@ -65,22 +65,20 @@ Get confidence intervals for each class:
 
 ```python
 map_value, (lower, upper) = evaluate.evaluate(
-    y_true='path/to/val-dataset',
+    y_true='path/to/dataset',
     y_pred=results,
     task='detection',
-    metric='yolo_map',
+    metric='map',
     plot_per_class=True,  # Enable per-class analysis
     n_resamples=1000
 )
 
 # Output shows overall + per-class results:
 # Per-class mAP@0.5:0.95 with 95% Confidence Intervals:
-# ================================================================
 #      Class                          mAP@0.5:0.95 CI    Support
-# ----------------------------------------------------------------
 #      all                            (0.922, 0.949)        1234
-#    0  person                        (0.900, 0.969)          45
-#    1  car                           (0.789, 0.955)          89
+#    0 person                         (0.900, 0.969)          45
+#    1 car                            (0.789, 0.955)          89
 #    ...
 ```
 
@@ -89,19 +87,19 @@ map_value, (lower, upper) = evaluate.evaluate(
 ```python
 # mAP@0.5
 map50, ci = evaluate.evaluate(
-    y_true='path/to/val-dataset',
+    y_true='path/to/dataset',
     y_pred=results,
     task='detection',
-    metric='yolo_map50',
+    metric='map50',
     n_resamples=1000
 )
 
 # Precision
 precision, ci = evaluate.evaluate(
-    y_true='path/to/val-dataset',
+    y_true='path/to/dataset',
     y_pred=results,
     task='detection',
-    metric='yolo_precision',
+    metric='precision',
     n_resamples=1000
 )
 
@@ -110,7 +108,7 @@ recall, ci = evaluate.evaluate(
     y_true='path/to/val-dataset',
     y_pred=results,
     task='detection',
-    metric='yolo_recall',
+    metric='recall',
     n_resamples=1000
 )
 ```
@@ -121,11 +119,6 @@ recall, ci = evaluate.evaluate(
 
 The notebook includes:
 - Step-by-step setup with COCO128 dataset
-- Running YOLOv8 predictions
-- Computing all detection metrics (mAP@0.5:0.95, mAP@0.5, Precision, Recall)
-- Creating visualization plots
-- Summary table with confidence intervals
-- Best practices and tips
 
 ## Parameters
 
@@ -162,7 +155,7 @@ The notebook includes:
 
 ### "No label files found"
 - Verify the dataset path is correct
-- Ensure the directory structure follows YOLO format
+- Ensure the directory structure follows above format
 
 ### "Invalid label format"
 - Check that label files have 5 columns: `class x_center y_center width height`
