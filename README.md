@@ -14,7 +14,6 @@ This is a standardized evaluation tool that computes common machine learning met
 
 ## Installation
 
-
 Clone this repository and install in development mode:
 
 ```bash
@@ -75,7 +74,15 @@ For other computation of the CI for any of the methods below, just specify metho
 - `rmse`: Root Mean Squared Error
 - `r2`: Coefficient of Determination
 - `mape`: Mean Absolute Percentage Error
-- `IoU`: Intersection Over Union 
+- `iou`: Intersection Over Union
+
+**Object Detection (overall + per-class support):**
+- `map`: mean Average Precision 0.5:0.95
+- `map50`: mean Average Precision 0.5
+- `precision`: Precision
+- `recall`: Recall
+
+📖 **For object detection metrics usage examples, see:** [Object Detection Metrics Usage Guide](docs/object-detection-metrics-usage.md)
 
 You can also get available methods and metrics programmatically
 
@@ -96,14 +103,10 @@ print("Regression metrics:", regression_metrics)
 
 ```
 
-The analytical computation here is using the (amazing) 2022 paper of Takahashi et al (reference below).
-The paper derived recall and precision only for micro averaging.
-We derive the recall and precision confidence intervals for macro F1 as well using the delta method.
-
+The analytical computation here is using the (amazing) 2022 paper of Takahashi et al (reference below). The paper derived recall and precision only for micro averaging. We derive the recall and precision confidence intervals for macro F1 as well using the delta method.
 
 
 ```
-
 ## Get a Classification Report
 The [classification_report.py](confidenceinterval%2Fclassification_report.py) function builds a text report showing the main classification metrics and their confidence intervals.
 Each class will be first treated as a binary classification problem, the default CI for P and R used being Wilson, and Takahashi-binary for F1. Then the 

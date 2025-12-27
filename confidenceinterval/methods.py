@@ -2,6 +2,7 @@ from scipy.stats import bootstrap
 from scipy import stats
 import numpy as np
 from typing import List, Callable, Optional, Tuple, Union
+from tqdm import tqdm
 
 bootstrap_methods = [
     'bootstrap_bca',
@@ -25,7 +26,8 @@ def bootstrap_ci(y_true: List[int],
                  method: str = 'bootstrap_bca',
                  random_state: Optional[np.random.RandomState] = None,
                  return_samples: bool = False,
-                 plot: bool = False) -> Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]:
+                 plot: bool = False,
+                 show_progress: bool = True) -> Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]:
     """
     Compute bootstrap confidence interval for a metric.
     
@@ -49,16 +51,43 @@ def bootstrap_ci(y_true: List[int],
         Whether to return bootstrap samples, by default False
     plot : bool, optional
         Whether plotting is intended (automatically sets return_samples=True), by default False
-        
+    show_progress : bool, optional
+        Whether to show progress bar, by default True
+
     Returns
     -------
     Union[Tuple[float, Tuple[float, float]], Tuple[float, Tuple[float, float], np.ndarray]]
         (metric_value, (lower, upper)) or (metric_value, (lower, upper), bootstrap_samples)
     """
 
+    # Progress bar setup
+    # For BCA method, total iterations = n_resamples + len(data) + 1
+    # (bootstrap samples + jackknife for acceleration + original)
+    # For other methods, total iterations = n_resamples
+    if method == 'bootstrap_bca':
+        # BCA requires additional jackknife iterations for acceleration constant
+        # Total = n_resamples + n_data_points + 1
+        n_data_points = len(y_true)
+        total_iterations = n_resamples + n_data_points + 1
+        bar_format = '{desc} (BCA): {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+    else:
+        total_iterations = n_resamples
+        bar_format = '{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+
+    pbar = tqdm(total=total_iterations, desc="Bootstrap CI", disable=not show_progress,
+                bar_format=bar_format)
+
+    call_count = [0]  # Use list to allow modification in nested function
+
     def statistic(*indices):
         indices = np.array(indices)[0, :]
-        return metric(np.array(y_true)[indices], np.array(y_pred)[indices])
+        result = metric(np.array(y_true)[indices], np.array(y_pred)[indices])
+
+        # Update progress bar
+        call_count[0] += 1
+        pbar.update(1)
+
+        return result
 
     assert method in bootstrap_methods, f'Bootstrap ci method {method} not in {bootstrap_methods}'
 
@@ -73,9 +102,12 @@ def bootstrap_ci(y_true: List[int],
                               confidence_level=confidence_level,
                               method=method.split('bootstrap_')[1],
                               random_state=random_state)
+
+    pbar.close()
+
     result = metric(y_true, y_pred)
     ci = bootstrap_res.confidence_interval.low, bootstrap_res.confidence_interval.high
-    
+
     if return_samples:
         # Get bootstrap samples for plotting
         bootstrap_samples = bootstrap_res.bootstrap_distribution
