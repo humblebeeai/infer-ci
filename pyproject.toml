@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=70.3.0,<81.0.0", "setuptools-scm>=8.0.4,<10.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infer-ci"
+authors = [{ name = "HumbleBeeAI", email = "services@humblebee.ai" }]
+description = "Model evaluation and confidence interval validation"
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+keywords = ["infer-ci", "template", "module", "python", "package"]
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Intended Audience :: Developers",
+	"Topic :: Software Development :: Libraries",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+]
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "infer_ci.__version__.__version__" }
+dependencies = { file = "./requirements.txt" }
+
+[tool.setuptools.dynamic.optional-dependencies]
+# Options dependencies for DEVELOPMENT
+test = { file = ["./requirements/requirements.test.txt"] }
+build = { file = ["./requirements/requirements.build.txt"] }
+docs = { file = ["./requirements/requirements.docs.txt"] }
+dev = { file = [
+	"./requirements/requirements.test.txt",
+	"./requirements/requirements.build.txt",
+	"./requirements/requirements.docs.txt",
+	"./requirements/requirements.dev.txt",
+] }
+
+# [tool.pyright]
+# venvPath = "."
+# venv = ".venv"
+
+[project.urls]
+Homepage = "https://github.com/humblebeeai/infer-ci"
+Documentation = "https://infer.humblebee.ai"
+Repository = "https://github.com/humblebeeai/infer-ci.git"
+Issues = "https://github.com/humblebeeai/infer-ci/issues"
+Changelog = "https://github.com/humblebeeai/infer-ci/blob/main/CHANGELOG.md"

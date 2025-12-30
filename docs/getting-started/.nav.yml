@@ -1,0 +1,7 @@
+nav:
+  - Prequisites: prerequisites.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Examples: examples.md
+  - Error Codes: error-codes.md
+  # - "*"

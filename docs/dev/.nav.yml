@@ -1,0 +1,13 @@
+nav:
+  - Test: test.md
+  - Build: build.md
+  - Docs: docs.md
+  - Scripts: scripts/
+  - CI/CD: cicd/
+  - Diagrams: diagrams.md
+  - File Structure: file-structure.md
+  - Sitemap: sitemap.md
+  - Related Projects: related-projects.md
+  - Contributing: contributing.md
+  - Roadmap: roadmap.md
+  # - "*"

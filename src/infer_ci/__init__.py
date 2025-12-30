@@ -1,3 +1,7 @@
+from .__version__ import __version__
+from .config import MyClassConfigPM, MyClassCliConfig
+from ._base import MyClass
+
 # Core unified interface for confidence interval metrics
 from .evaluator import MetricEvaluator, evaluate_metric, TaskType
 
