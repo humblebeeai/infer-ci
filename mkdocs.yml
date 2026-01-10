@@ -100,3 +100,50 @@ plugins:
 extra:
   version:
     provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Examples: getting-started/examples.md
+  - User Guide:
+    - Classification Metrics: getting-started/classification.md
+    - Regression Metrics: getting-started/regression.md
+    - Object Detection: object-detection-metrics-usage.md
+    - CI Methods: getting-started/ci-methods.md
+    - Visualization: getting-started/visualization.md
+  - API Reference:
+    - Overview: api-docs/index.md
+    - MetricEvaluator: api-docs/MetricEvaluator.md
+    - Classification Metrics:
+      - accuracy_score: api-docs/classification/accuracy_score.md
+      - precision_score: api-docs/classification/precision_score.md
+      - recall_score: api-docs/classification/recall_score.md
+      - f1_score: api-docs/classification/f1_score.md
+      - ppv_score: api-docs/classification/ppv_score.md
+      - tpr_score: api-docs/classification/tpr_score.md
+      - tnr_score: api-docs/classification/tnr_score.md
+      - npv_score: api-docs/classification/npv_score.md
+      - fpr_score: api-docs/classification/fpr_score.md
+      - roc_auc_score: api-docs/classification/roc_auc_score.md
+    - Regression Metrics:
+      - mae: api-docs/regression/mae.md
+      - mse: api-docs/regression/mse.md
+      - rmse: api-docs/regression/rmse.md
+      - r2_score: api-docs/regression/r2_score.md
+      - mape: api-docs/regression/mape.md
+      - iou: api-docs/regression/iou.md
+    - Detection Metrics:
+      - map: api-docs/detection/map.md
+      - map50: api-docs/detection/map50.md
+      - precision: api-docs/detection/precision.md
+      - recall: api-docs/detection/recall.md
+    - Utilities:
+      - classification_report_with_ci: api-docs/utilities/classification_report.md
+      - CI Methods: api-docs/utilities/ci_methods.md
+  - Development:
+    - Contributing: dev/contributing.md
+    - Release Notes: release-notes.md
+  - About:
+    - License: about/license.md

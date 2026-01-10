@@ -2,6 +2,7 @@
 ![logo](logo.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 This is a standardized evaluation tool that computes common machine learning metrics like Accuracy, MSE, and returns their confidence intervals using bootstraping and other methods. 
 
@@ -14,33 +15,38 @@ This is a standardized evaluation tool that computes common machine learning met
 
 ## Installation
 
-Clone this repository and install in development mode:
+### From PyPI (Recommended)
+
+```bash
+pip install infer-ci
+```
+
+### From Source (Development)
 
 ```bash
 git clone https://github.com/humblebeeai/infer-ci.git
 cd infer-ci
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 ## Getting started
 
 ```python
 # All the possible imports:
-from confidenceinterval import MetricEvaluator 
-from confidenceinterval import accuracy_score, precision_score, tpr_score, f1_score
-from confidenceinterval import mae, mse, rmse, r2_score, iou
+from infer_ci import MetricEvaluator
+from infer_ci import accuracy_score, precision_score, tpr_score, f1_score
+from infer_ci import mae, mse, rmse, r2_score, iou
 
 # Classification example:
-
-evaluate = MetricEvaluator()
+evaluator = MetricEvaluator()
 
 accuracy, ci = evaluator.evaluate(
-    y_true=y_true, 
-    y_pred=y_pred, 
-    task='classification', 
+    y_true=y_true,
+    y_pred=y_pred,
+    task='classification',
     metric='accuracy',
-    method='wilson' ,
-    # plot = True  Only supported in Bootstrap methods
+    method='wilson'
+    # plot=True  # Supported in Bootstrap methods
 )
 ```
 
@@ -84,6 +90,8 @@ For other computation of the CI for any of the methods below, just specify metho
 
 📖 **For object detection metrics usage examples, see:** [Object Detection Metrics Usage Guide](docs/object-detection-metrics-usage.md)
 
+📚 **Try Online version** [https://infer.humblebee.ai](https://infer.humblebee.ai)
+
 You can also get available methods and metrics programmatically
 
 ```python
@@ -106,14 +114,14 @@ print("Regression metrics:", regression_metrics)
 The analytical computation here is using the (amazing) 2022 paper of Takahashi et al (reference below). The paper derived recall and precision only for micro averaging. We derive the recall and precision confidence intervals for macro F1 as well using the delta method.
 
 
-```
 ## Get a Classification Report
-The [classification_report.py](confidenceinterval%2Fclassification_report.py) function builds a text report showing the main classification metrics and their confidence intervals.
+
+The `classification_report_with_ci` function builds a text report showing the main classification metrics and their confidence intervals.
 Each class will be first treated as a binary classification problem, the default CI for P and R used being Wilson, and Takahashi-binary for F1. Then the 
 micro and macro multi-class metric will be calculated using the Takahashi-methods.
 
 ```python
-from confidenceinterval import classification_report_with_ci
+from infer_ci import classification_report_with_ci
 
 y_true = [0, 1, 2, 2, 2, 1, 1, 1, 0, 2, 2, 1, 0, 2, 2, 1, 2, 2, 1, 1]
 y_pred = [0, 1, 0, 0, 2, 1, 1, 1, 0, 2, 2, 1, 0, 1, 2, 1, 2, 2, 1, 1]
@@ -130,7 +138,7 @@ classification_report_with_ci(y_true, y_pred)
 
 ## Support for binary, macro and micro averaging for F1, Precision and Recall.
 ```python
-from confidenceinterval import precision_score, recall_score, f1_score
+from infer_ci import precision_score, recall_score, f1_score
 binary_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='binary')
 macro_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='macro')
 micro_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='micro')

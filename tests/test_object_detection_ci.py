@@ -1,5 +1,5 @@
 import time
-from confidenceinterval import MetricEvaluator
+from infer_ci import MetricEvaluator
 from ultralytics import YOLO
 
 evaluate = MetricEvaluator()
@@ -11,7 +11,7 @@ start = time.time()
 model = YOLO('yolov8n.pt')
 
 results = model.predict(
-    source='coco128/images',
+    source='/home/azamjon/Documents/infer/infer-ci/datasets/coco128/images',
     verbose=False,
 )
 elapsed = time.time() - start
@@ -19,8 +19,8 @@ elapsed = time.time() - start
 print(f"✓ Predictions completed in {elapsed:.2f}s")
 print(f"  - Predicted {len(results)} images")
 
-map_pc, ci_pc = evaluate.evaluate(
-    y_true='coco128',
+metric_value, ci, filepath = evaluate.evaluate(
+    y_true='/home/azamjon/Documents/infer/infer-ci/datasets/coco128',
     y_pred=results,
     task='detection',
     metric='map',
@@ -32,7 +32,7 @@ map_pc, ci_pc = evaluate.evaluate(
 )
 
 print(f"\nOverall Results:")
-map_value_pc, (lower_pc, upper_pc) = map_pc, ci_pc
+map_value_pc, (lower_pc, upper_pc) = metric_value, ci
 print(f"  mAP@0.5:0.95 = {map_value_pc:.4f}")
 print(f"  95% CI = [{lower_pc:.4f}, {upper_pc:.4f}]")
 print(f"\n✓ Per-class plots saved to results/ directory")

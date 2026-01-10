@@ -290,6 +290,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.pyc
+.venv/
+myenv/
+.myenv/
 
 # Spyder project settings
 .spyderproject
@@ -510,3 +514,12 @@ datasets
 *.bak
 example.py
 test.py
+
+dev-docs
+custom-dataset
+models
+examples
+ultralytics
+
+confidenceinterval.egg-info/
+results/

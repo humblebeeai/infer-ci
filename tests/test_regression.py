@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from confidenceinterval import MetricEvaluator
+from infer_ci import MetricEvaluator
 import warnings 
 warnings.filterwarnings('ignore')
 from sklearn.datasets import fetch_california_housing
