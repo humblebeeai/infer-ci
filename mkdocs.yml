@@ -96,7 +96,10 @@ plugins:
   - tags
   - search
   - awesome-nav
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
 extra:
   version:
     provider: mike
