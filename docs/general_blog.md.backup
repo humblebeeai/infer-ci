@@ -1,0 +1,190 @@
+
+# Your model is not as good as you think. Or maybe it is. Without uncertainty, you cannot tell.
+
+<img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="500"/>
+
+Machine learning (ML) teams love clean numbers: **Accuracy of 92%**, **RMSE of 3.4**, **F1-score of 0.88**. These values look decisive, but they hide a critical truth: every metric is only an estimate. It depends on data sampling, class imbalance, noise, and evaluation protocol. **Confidence intervals** turn these fragile point estimates into something you can trust.
+
+In this post, we will explore why confidence intervals matter in modern ML, then introduce **Infer**, a project built to make metric uncertainty first-class. We will walk through how Infer works using a clean, end-to-end evaluation flow.
+
+## Why confidence intervals matter in ML
+
+<img src="images/confidence_interval.png" alt="Confidence Interval" width="500"/>
+
+A single metric value answers only one question: *what is the accuracy of my model?*
+
+Confidence intervals (CI) answer a more important one: *how reliable is this result?*
+
+In real-world ML systems, uncertainty shows up everywhere:
+
+- Small or imbalanced datasets inflate variance
+- Cross-validation folds produce inconsistent scores
+- Deployment data drifts from offline evaluation
+- Two models with the same accuracy may behave very differently in production
+
+Confidence intervals quantify this uncertainty by estimating a range within which the true metric value is likely to lie. Instead of saying “accuracy is 92%”, you say “accuracy is 92% ± 1.5% at 95% confidence”. This changes how decisions are made.
+
+**Confidence intervals help you:**
+
+- Compare models more statistically 
+- Avoid overconfidence on noisy or small datasets
+- Detect when improvements are not statistically meaningful
+- Communicate reliability to stakeholders and regulators
+- Make safer decisions in high-risk domains like healthcare or finance
+
+Despite all this, CI computation for ML metrics is still fragmented, inconsistent, and often ignored.
+
+> That gap is exactly why Infer exists.
+
+## Introducing Infer
+
+**Infer** is a Python-based evaluation framework designed to compute confidence intervals for evaluation metrics in a standardized, reliable, and extensible way.
+
+### Who should care about Infer?
+
+Infer is built for teams and practitioners who take model evaluation seriously:
+
+- **ML engineers** comparing models and claiming improvements
+- **Data scientists** working with small or imbalanced datasets
+- **Teams** deploying models in regulated or high-risk domains (healthcare, finance, autonomous systems)
+- **Researchers** publishing benchmark results and competing on leaderboards
+- **Product teams** making decisions based on metric improvements that may not be statistically significant
+
+If your model evaluation currently ends with a single number, Infer is for you.
+
+### What makes Infer different
+
+Infer focuses on a fundamental insight: **metrics without uncertainty quantification expose statistical and business risk**. Most teams roll their own bootstrap loops or trust default implementations, but this introduces hidden dangers. Infer abstracts away the complexity:
+
+- **Automatic CI-method selection**: Infer chooses the right statistical method per metric, handling edge cases (small samples, imbalanced classes, zero-division) that practitioners often get wrong
+- **Metric-specific statistical assumptions**: Different metrics require different CI approaches. Infer encodes this knowledge so you don't have to
+- **Consistent APIs**: Whether you're evaluating classification or regression, the interface stays the same
+- **Reproducible evaluation outputs**: Structured results suitable for reports, dashboards, and stakeholder communication
+
+At its core, Infer supports:
+
+- Classification metrics like **Accuracy, Precision, Recall, F1-score, ROC-AUC**
+- Regression metrics like **MAE, RMSE, MAPE**
+- Multiple CI estimation methods including analytical and bootstrap-based approaches
+- Automatic method selection based on metric and data characteristics
+- Visual outputs that make uncertainty transparent and actionable
+
+This design is rooted on a clear observation: CI computation is inconsistent across ML teams, even though robust statistical methods are well-known and proven.
+
+## The Infer evaluation flow
+
+Infer follows a clean and intuitive evaluation pipeline:
+
+**EDA → Evaluation Metric → Confidence Interval → Output**
+
+Exploratory data analysis (EDA) matters here: it reveals whether key statistical assumptions hold (normality, homogeneity of variance) and whether resampling-based methods are necessary or analytical shortcuts suffice.
+
+### 1. Exploratory data analysis
+
+Understanding your data informs CI method selection. Small samples? Imbalanced classes? Non-normal errors? These characteristics guide the statistical approach.
+
+### 2. Metric computation
+
+Infer computes standard ML metrics using well-defined formulations. It supports a broad range of metrics across ML domains, including regression and classification metrics commonly used in practice. At this stage, Infer produces the familiar point estimate. This is necessary but not sufficient.
+
+### 3. Confidence interval estimation
+
+This is where Infer differentiates itself.
+
+Infer integrates multiple CI estimation methods, including:
+
+- Analytical methods like Wald and Wilson intervals for proportion-based metrics
+- Exact and Bayesian-inspired intervals for small samples
+- Bootstrap-based methods, including bias-corrected and accelerated bootstrap, for complex metrics and regression errors
+- Specialized methods for metrics like ROC-AUC and cross-validation settings
+
+Each method has different assumptions, strengths, and failure modes. Infer documents these clearly and selects appropriate methods based on the metric and data characteristics.
+
+### 4. Output and visualization
+
+Infer does not stop at numbers. It generates:
+
+- Metric values with confidence intervals
+- Distribution plots from bootstrap samples
+- CI bars and summaries for comparison
+- Structured outputs suitable for reports and dashboards
+
+This transforms uncertainty from hidden noise into actionable intelligence.
+
+## Example Usage
+
+```python
+from confidenceinterval import MetricEvaluator 
+import pandas as pd
+
+# Load your data
+df = pd.read_csv('data.csv')
+y_true = df['actual_values']
+y_pred = df['predictions']
+
+# Initialize the evaluator
+evaluator = MetricEvaluator()
+
+# Evaluate regression metric with confidence interval
+mape, ci = evaluator.evaluate(
+    y_true=y_true, l
+    y_pred=y_pred, 
+    task='regression', 
+    metric='mape',
+    method='bootstrap',  # or 'analytical' for faster computation
+    n_bootstraps=10000,   # number of bootstrap samples
+    confidence_level=0.95 # 95% confidence
+    # plot=True  # Uncomment to visualize the distribution
+)
+
+print(f"MAPE: {mape:.2f}%")
+print(f"95% CI: [{ci[0]:.2f}%, {ci[1]:.2f}%]")
+```
+
+**The result:**
+
+- MAPE of 7.88%
+- 95% confidence interval of [6.47%, 9.84%]
+- Corresponding accuracy interpretation of 92.12% with a well-defined uncertainty range
+
+This gives far more insight than a single error number. It tells you not just how well the model performed, but how stable that performance is under resampling and noise.
+
+## A real-world moment: The 0.6% improvement
+
+Consider this scenario: You train two models on your dataset. Model B shows 0.6% higher accuracy than Model A which sounds like an improvement. Without confidence intervals, you deploy Model B.
+
+But with Infer, you compute:
+- Model A: 92.0% ± 2.1% (95% CI)
+- Model B: 92.6% ± 2.0% (95% CI)
+
+The confidence intervals overlap significantly. The improvement is **not statistically significant**. It is likely just noise from your particular test set. You saved yourself from unnecessary deployment complexity and potential production instability.
+
+This is the difference Infer makes: it prevents false confidence in improvements that don't hold up to statistical scrutiny.
+
+## Why Infer matters
+
+Infer is not just another metrics library. It represents a shift in how model evaluation is treated.
+
+Instead of asking:
+
+> “What is the metric?”
+
+Infer encourages you to ask:
+
+> "How confident are we in this metric? Would this improvement hold on different data?"
+
+By combining rigorous statistical methods, practical ML metrics, and clear visual outputs, Infer helps teams:
+
+- Make statistically defensible comparisons
+- Avoid false improvements that don't replicate
+- Communicate uncertainty clearly to stakeholders
+- Build trust in ML systems through scientific rigor
+
+In a world where ML models increasingly inform critical decisions, **uncertainty is not optional**. It is foundational. Infer makes it measurable, visible, and usable.
+
+## Next steps
+
+Try Infer on your last model comparison. Run the same evaluation with confidence intervals. Ask yourself: would that improvement survive a CI check? Would you still deploy it?
+
+That question is worth answering before it matters in production.
+
