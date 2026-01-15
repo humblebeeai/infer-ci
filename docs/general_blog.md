@@ -61,15 +61,16 @@ Aggregate metrics can look stable while subgroup performance is wildly uncertain
 
 ## The real question metrics do not answer
 
-A single metric value answers a narrow and retrospective question: what did the model score on this particular evaluation sample. That information is useful, but it is rarely sufficient for making real decisions.
+A single metric value answers a narrow and retrospective question: *what did the model score on this particular evaluation sample?* 
+That information is useful, but it is rarely sufficient for making real decisions.
 
-Most practical decisions depend on a forward looking question instead. How much could this metric plausibly change if the data were slightly different, if labels contained noise, or if operating conditions shifted in production. Without an answer to that question, teams cannot reliably judge whether an observed improvement is meaningful, whether a regression reflects real degradation, or whether a model is safe to deploy.
+Most practical decisions depend on a forward looking question instead. *How much could this metric plausibly change if the data were slightly different, if labels contained noise, or if operating conditions shifted in production?* Without an answer to that question, teams cannot reliably judge whether an observed improvement is meaningful, whether a regression reflects real degradation, or whether a model is safe to deploy.
 
 This gap between reporting a number and understanding its stability is where many evaluation failures originate. Metrics summarize past performance, but decisions require an understanding of uncertainty. Confidence intervals exist precisely to bridge this gap, by turning point estimates into ranges that reflect how much trust we can place in them.
 
 ## From point estimates to uncertainty aware evaluation
 
-Confidence intervals transform evaluation from a static report into a probabilistic statement.
+**Confidence intervals** transform evaluation from a static report into a probabilistic statement.
 
 Instead of saying the model has 92 percent accuracy, we say that the accuracy is likely to lie within a certain range given the data we observed. That range captures sampling variability, measurement noise, and sensitivity to evaluation choices.
 
@@ -81,6 +82,8 @@ A single metric value summarizes what a model achieved on a specific evaluation 
 
 Confidence intervals address this by quantifying the range within which a metric is likely to fall, given the inherent variability of finite data, noisy labels, and evaluation design choices. This is not a purely statistical concern. The width and position of an interval directly affect real decisions about deployment, monitoring, and prioritization.
 
+<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" /></p>
+
 By exposing best case and worst case scenarios, confidence intervals allow teams to translate abstract metrics into concrete business risk. They reduce the chance of selecting models that appear better only due to noise during hyperparameter tuning. They make it possible to distinguish expected metric fluctuation from genuine performance degradation after deployment. They also highlight instability in subgroups that aggregate metrics can hide, improving fairness analysis and regulatory confidence. Finally, confidence intervals improve communication by replacing overconfident point estimates with calibrated statements about what the data actually supports.
 
 ## Confidence intervals in real decision making
@@ -91,7 +94,7 @@ Consider a healthcare model that reports 94 percent sensitivity on a test set. O
 
 With a confidence interval, the picture changes. The sensitivity might plausibly lie between 87 percent and 98 percent. That lower bound may be unacceptable in a clinical setting where missed diagnoses carry serious consequences. Without the interval, that risk remains invisible.
 
-This logic is already standard in online experimentation. No serious A B testing team would ship a change based on point estimates alone. Offline model evaluation is answering the same question. Is this difference real, or is it noise.
+This logic is already standard in online experimentation. No serious A/B testing team would ship a change based on point estimates alone. Offline model evaluation is answering the same question: *is this difference real, or is it noise?*
 
 Confidence intervals bring the same discipline to machine learning evaluation.
 
