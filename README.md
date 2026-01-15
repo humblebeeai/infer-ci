@@ -53,7 +53,7 @@ accuracy, ci = evaluator.evaluate(
 ## All methods can do an analytical computation, but do a bootsrapping computation by default
 By default all the methods return an Bootstrap Bias-Corrected and Accelerated computation of the confidence intervals (CI). It is an advanced version of the basic bootstrap method that corrects for both bias and skewness in the estimate.
 
-For other computation of the CI for any of the methods below, just specify method='jackknife_ci', or method='bootstrap_percentile'. These are different ways of doing the bootstrapping, but method='bootstrap_bca' is the generalibly reccomended method.
+For other computation of the CI for any of the methods below, just specify `method='jackknife_ci'`, or `method='bootstrap_percentile'`. These are different ways of doing the bootstrapping, but `method='bootstrap_bca'` is the generalibly reccomended method.
 
 ## Supported Methods
 - **Analytical Methods**: Wilson, Normal, Agresti-Coull, Beta, Jeffreys, Binomial test
