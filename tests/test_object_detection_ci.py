@@ -11,7 +11,7 @@ start = time.time()
 model = YOLO('yolov8n.pt')
 
 results = model.predict(
-    source='/home/azamjon/Documents/infer/infer-ci/datasets/coco128/images',
+    source='datasets/coco128/images',
     verbose=False,
 )
 elapsed = time.time() - start
@@ -20,7 +20,7 @@ print(f"✓ Predictions completed in {elapsed:.2f}s")
 print(f"  - Predicted {len(results)} images")
 
 metric_value, ci, filepath = evaluate.evaluate(
-    y_true='/home/azamjon/Documents/infer/infer-ci/datasets/coco128',
+    y_true='datasets/coco128',
     y_pred=results,
     task='detection',
     metric='map',
