@@ -11,11 +11,11 @@ Before we talk about confidence intervals, we need to step back and talk about e
 
 ## Why we evaluate machine learning models at all
 
-Model evaluation is fundamentally about supporting decisions rather than producing a single performance number. When teams evaluate a model, they are implicitly trying to understand how that model will behave once it leaves the controlled environment of an offline test set and encounters real users, real data shifts, and real costs associated with errors.
+Model evaluation exists to inform decisions about whether and how a machine learning system should be used. Training a model produces parameters that optimize a loss function on observed data, but evaluation is the step that connects that optimization process to real world deployment, where mistakes have costs and performance expectations must be met.
 
-In practice, evaluation seeks to answer questions such as whether the model will perform acceptably in production, whether it represents a meaningful improvement over an existing system, how risky it is to deploy, and where its failure modes are likely to appear. These questions cannot be answered by a metric in isolation, because they depend on context, uncertainty, and the consequences of mistakes.
+In practice, evaluation helps teams determine whether a model meets the requirements of its intended use. It provides evidence about how the model behaves on data it was not trained on, how well it aligns with domain specific goals, and whether it satisfies constraints related to reliability, safety, or regulation. Without evaluation, there is no principled way to decide whether a model is ready to be deployed or how it compares to alternative approaches.
 
-A strong evaluation framework therefore connects observed model behavior to real world outcomes and tradeoffs, while a weak one collapses that complexity into a single score and assumes it will generalize unchanged. Seen this way, evaluation is not a procedural step to check off before deployment but an ongoing risk assessment exercise that informs how confidently a model can be used.
+Evaluation also serves as a shared reference point across teams. It allows engineers, researchers, product managers, and stakeholders to reason about model behavior using a common framework, even if their priorities differ. In this sense, evaluation is not only a technical step but also an organizational tool that supports accountability and informed decision making throughout the lifecycle of a machine learning system.
 
 ## Metrics are abstractions, not truths
 
