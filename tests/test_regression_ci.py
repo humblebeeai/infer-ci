@@ -30,7 +30,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
 
-from confidenceinterval import MetricEvaluator 
+from infer_ci import MetricEvaluator 
 
 def load_california_housing_data():
     """Load and prepare California housing dataset."""

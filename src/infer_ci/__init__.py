@@ -1,3 +1,5 @@
+from .__version__ import __version__
+
 # Core unified interface for confidence interval metrics
 from .evaluator import MetricEvaluator, evaluate_metric, TaskType
 

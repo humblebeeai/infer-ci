@@ -17,7 +17,7 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
                                   plot_type: str = "classification") -> str:
     """
     Create a histogram plot of bootstrap samples for metrics and save it to the Results folder.
-    
+
     Parameters
     ----------
     bootstrap_samples : np.ndarray
@@ -34,7 +34,7 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
         Confidence level
     plot_type : str, optional
         Type of plot ("classification" or "regression"), by default "classification"
-        
+
     Returns
     -------
     str
@@ -101,14 +101,14 @@ def create_bootstrap_histogram_plot(bootstrap_samples: np.ndarray,
               f'Method: {method}, 95% Confidence Interval: [{confidence_interval[0]:.4f}, {confidence_interval[1]:.4f}]')
     plt.legend()
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
-    
+
     # Save the plot
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{metric_name}_{method}_{timestamp}.png"
     filepath = os.path.join(results_dir, filename)
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     plt.close()
-    
+
     return filepath
 
 
@@ -124,7 +124,7 @@ def bootstrap_with_plot(y_true: List[Union[int, float]],
                        plot_type: str = "auto") -> Tuple[float, Tuple[float, float]]:
     """
     Generic function to compute bootstrap confidence intervals with optional plotting.
-    
+
     Parameters
     ----------
     y_true : List[Union[int, float]]
@@ -148,7 +148,7 @@ def bootstrap_with_plot(y_true: List[Union[int, float]],
     plot_type : str, optional
         Type of plot ("classification", "regression", or "auto"), by default "auto"
         If "auto", will determine based on data type: integers -> classification, floats -> regression
-        
+
     Returns
     -------
     Tuple[float, Tuple[float, float]]
@@ -161,7 +161,7 @@ def bootstrap_with_plot(y_true: List[Union[int, float]],
             plot_type = "classification"
         else:
             plot_type = "regression"
-    
+
     if plot:
         # Get bootstrap samples for plotting
         result_with_samples = bootstrap_ci(y_true=y_true,
@@ -173,14 +173,14 @@ def bootstrap_with_plot(y_true: List[Union[int, float]],
                                          random_state=random_state,
                                          return_samples=True)
         metric_value, ci, bootstrap_samples = result_with_samples
-        
+
         # Create and save the histogram plot
         plot_path = create_bootstrap_histogram_plot(
             bootstrap_samples, metric_value, ci, metric_name, method, confidence_level, plot_type
         )
         print(f"Histogram plot saved to: {plot_path}")
-        
-        return metric_value, ci
+
+        return metric_value, ci, plot_path
     else:
         return bootstrap_ci(y_true=y_true,
                            y_pred=y_pred,

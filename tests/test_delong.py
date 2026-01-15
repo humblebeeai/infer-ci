@@ -1,4 +1,4 @@
-from confidenceinterval.delong import compute_ground_truth_statistics
+from infer_ci.delong import compute_ground_truth_statistics
 import numpy as np
 import pytest
 

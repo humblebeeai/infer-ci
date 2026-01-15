@@ -1,0 +1,12 @@
+nav:
+  - Scripts: README.md
+  - clean.sh: clean.sh.md
+  - get-version.sh: get-version.sh.md
+  - test.sh: test.sh.md
+  - bump-version.sh: bump-version.sh.md
+  - build.sh: build.sh.md
+  - release.sh: release.sh.md
+  - changelog.sh: changelog.sh.md
+  - diagrams.sh: diagrams.sh.md
+  - docs.sh: docs.sh.md
+  # - "*"

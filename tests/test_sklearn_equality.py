@@ -1,5 +1,5 @@
 import pytest
-from confidenceinterval import accuracy_score, \
+from infer_ci import accuracy_score, \
     ppv_score, \
     npv_score, \
     tpr_score, \

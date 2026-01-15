@@ -1,0 +1,6 @@
+infer-ci:
+  min_length: 2
+  max_length: 100
+  min_value: 0.0
+  max_value: 1.0
+  threshold: 0.5

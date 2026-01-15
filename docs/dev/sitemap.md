@@ -1,0 +1,50 @@
+---
+title: Sitemap
+---
+
+# 🗺️ Sitemap
+
+- [Home](../README.md)
+- Getting Started
+    - [Prerequisites](../getting-started/prerequisites.md)
+    - [Installation](../getting-started/installation.md)
+    - [Configuration](../getting-started/configuration.md)
+    - [Examples](../getting-started/examples.md)
+    - [Error Codes](../getting-started/error-codes.md)
+- API Documentation
+    - [MyClass](../api-docs/MyClass.md)
+- Development
+    - [Test](../dev/test.md)
+    - [Build](../dev/build.md)
+    - [Docs](../dev/docs.md)
+    - [Scripts](../dev/scripts/README.md)
+        - [clean.sh](../dev/scripts/clean.sh.md)
+        - [get-version.sh](../dev/scripts/get-version.sh.md)
+        - [test.sh](../dev/scripts/test.sh.md)
+        - [bump-version.sh](../dev/scripts/bump-version.sh.md)
+        - [build.sh](../dev/scripts/build.sh.md)
+        - [release.sh](../dev/scripts/release.sh.md)
+        - [changelog.sh](../dev/scripts/changelog.sh.md)
+        - [diagrams.sh](../dev/scripts/diagrams.sh.md)
+        - [docs.sh](../dev/scripts/docs.sh.md)
+    - [CI/CD](../dev/cicd/README.md)
+        - [1.bump-version.yml](../dev/cicd/1.bump-version.md)
+        - [2.build-publish.yml](../dev/cicd/2.build-publish.md)
+        - [3.update-changelog.yml](../dev/cicd/3.update-changelog.md)
+        - [publish-docs.yml](../dev/cicd/publish-docs.md)
+    - [Diagrams](../dev/diagrams.md)
+    - [File Structure](../dev/file-structure.md)
+    - [Sitemap](../dev/sitemap.md)
+    - [Related Projects](../dev/related-projects.md)
+    - [Contributing](../dev/contributing.md)
+    - [Roadmap](../dev/roadmap.md)
+- Research
+    - [Reports](../research/reports.md)
+    - [Benchmarks](../research/benchmarks.md)
+    - [References](../research/references.md)
+- [Release Notes](../release-notes.md)
+- About
+    - [FAQ](../about/faq.md)
+    - [Authors](../about/authors.md)
+    - [Contact](../about/contact.md)
+    - [License](../about/license.md)

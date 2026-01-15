@@ -30,7 +30,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
 
-from confidenceinterval import MetricEvaluator 
+from infer_ci import MetricEvaluator 
 
 
 def load_and_prepare_data():

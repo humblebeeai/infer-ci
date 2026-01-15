@@ -1,0 +1,7 @@
+nav:
+  - CI/CD: README.md
+  - 1.bump-version.yml: 1.bump-version.md
+  - 2.build-publish.yml: 2.build-publish.md
+  - 3.update-changelog.yml: 3.update-changelog.md
+  - publish-docs.yml: publish-docs.md
+  # - "*"
