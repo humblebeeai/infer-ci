@@ -2268,7 +2268,7 @@
 
 <h1 id="your-model-is-not-as-good-as-you-think-or-maybe-it-is-without-uncertainty-you-cannot-tell">Your model is not as good as you think or maybe it is. Without uncertainty, you cannot tell.</h1>
 <p>Machine learning teams love clean numbers: <strong>accuracy of 92 percent</strong>. <strong>RMSE of 3.4</strong>, <strong>F1 score of 0.88</strong>. These numbers feel objective, precise, and reassuring. They fit neatly into dashboards, slide decks, and go or no-go decisions.</p>
-<p align="center"><img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="700" /></p>
+<p align="center"><img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="800" height="400" /></p>
 
 <p>But those values are not facts about the world. They are estimates derived from finite data, noisy labels, and a long chain of design choices such as sampling strategy, preprocessing, thresholds, and metric definitions. Treating a single number as definitive creates a <strong>false sense of certainty</strong>. That overconfidence often leads to poor decisions, unreliable deployments, missed regressions in minority groups, and wasted effort chasing noise during model selection.</p>
 <p>Before we talk about confidence intervals, we need to step back and talk about evaluation itself. Why do we evaluate models, what are metrics actually telling us, and where do they quietly fail.</p>
@@ -2309,12 +2309,12 @@ That information is useful, but it is rarely sufficient for making real decision
 <h2 id="why-confidence-intervals-matter-in-machine-learning">Why confidence intervals matter in machine learning</h2>
 <p>A single metric value summarizes what a model achieved on a specific evaluation sample, but it does not indicate how stable or reliable that result is. In practice, most decisions depend not only on the reported number but also on how much that number could change under slightly different conditions.</p>
 <p>Confidence intervals address this by quantifying the range within which a metric is likely to fall, given the inherent variability of finite data, noisy labels, and evaluation design choices. This is not a purely statistical concern. The width and position of an interval directly affect real decisions about deployment, monitoring, and prioritization.</p>
-<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" /></p>
+<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" height="400"/></p>
 
 <p>By exposing best case and worst case scenarios, confidence intervals allow teams to translate abstract metrics into concrete business risk. They reduce the chance of selecting models that appear better only due to noise during hyperparameter tuning. They make it possible to distinguish expected metric fluctuation from genuine performance degradation after deployment. They also highlight instability in subgroups that aggregate metrics can hide, improving fairness analysis and regulatory confidence. Finally, confidence intervals improve communication by replacing overconfident point estimates with calibrated statements about what the data actually supports.</p>
 <h2 id="confidence-intervals-in-real-decision-making">Confidence intervals in real decision making</h2>
 <p>Consider a healthcare model that reports 94 percent sensitivity on a test set. On its own, that number sounds strong.</p>
-<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" /></p>
+<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" height="300" /></p>
 
 <p>With a confidence interval, the picture changes. The sensitivity might plausibly lie between 87 percent and 98 percent. That lower bound may be unacceptable in a clinical setting where missed diagnoses carry serious consequences. Without the interval, that risk remains invisible.</p>
 <p>This logic is already standard in online experimentation. No serious A/B testing team would ship a change based on point estimates alone. Offline model evaluation is answering the same question: <em>is this difference real, or is it noise?</em></p>
@@ -2324,6 +2324,8 @@ That information is useful, but it is rarely sufficient for making real decision
 <p>Metrics like accuracy and recall are not normally distributed in small samples. Bootstrapping can fail when data are highly imbalanced or correlated. Some metrics are discontinuous with respect to thresholds. Others depend on complex pipelines that violate independence assumptions.</p>
 <p>This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.</p>
 <h2 id="introducing-infer">Introducing Infer</h2>
+<p align="center"><img src="images/infer_black.png" alt="infer" width="1000" height="300" /></p>
+
 <p><strong>Infer</strong> is a Python-based evaluation framework that turns point metrics into <strong>uncertainty-aware performance statements</strong>. Instead of returning a single score, Infer computes statistically appropriate confidence intervals, making model evaluation and comparison more reliable in real-world settings. </p>
 <h3 id="what-makes-infer-different">What makes Infer different</h3>
 <p>Infer is built on a simple insight: <strong>metrics without uncertainty quantification create statistical and business risk</strong>.
