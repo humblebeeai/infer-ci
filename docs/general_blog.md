@@ -72,6 +72,7 @@ A single metric value answers a narrow and retrospective question: what did the 
 Most practical decisions depend on a forward looking question instead. How much could this metric plausibly change if the data were slightly different, if labels contained noise, or if operating conditions shifted in production. Without an answer to that question, teams cannot reliably judge whether an observed improvement is meaningful, whether a regression reflects real degradation, or whether a model is safe to deploy.
 
 This gap between reporting a number and understanding its stability is where many evaluation failures originate. Metrics summarize past performance, but decisions require an understanding of uncertainty. Confidence intervals exist precisely to bridge this gap, by turning point estimates into ranges that reflect how much trust we can place in them.
+
 ## From point estimates to uncertainty aware evaluation
 
 Confidence intervals transform evaluation from a static report into a probabilistic statement.
@@ -91,6 +92,8 @@ By exposing best case and worst case scenarios, confidence intervals allow teams
 ## Confidence intervals in real decision making
 
 Consider a healthcare model that reports 94 percent sensitivity on a test set. On its own, that number sounds strong.
+
+<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" /></p>
 
 With a confidence interval, the picture changes. The sensitivity might plausibly lie between 87 percent and 98 percent. That lower bound may be unacceptable in a clinical setting where missed diagnoses carry serious consequences. Without the interval, that risk remains invisible.
 
