@@ -82,15 +82,11 @@ A single metric value summarizes what a model achieved on a specific evaluation 
 
 Confidence intervals address this by quantifying the range within which a metric is likely to fall, given the inherent variability of finite data, noisy labels, and evaluation design choices. This is not a purely statistical concern. The width and position of an interval directly affect real decisions about deployment, monitoring, and prioritization.
 
-<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" height="400"/></p>
-
 By exposing best case and worst case scenarios, confidence intervals allow teams to translate abstract metrics into concrete business risk. They reduce the chance of selecting models that appear better only due to noise during hyperparameter tuning. They make it possible to distinguish expected metric fluctuation from genuine performance degradation after deployment. They also highlight instability in subgroups that aggregate metrics can hide, improving fairness analysis and regulatory confidence. Finally, confidence intervals improve communication by replacing overconfident point estimates with calibrated statements about what the data actually supports.
 
 ## Confidence intervals in real decision making
 
 Consider a healthcare model that reports 94 percent sensitivity on a test set. On its own, that number sounds strong.
-
-<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" height="300" /></p>
 
 With a confidence interval, the picture changes. The sensitivity might plausibly lie between 87 percent and 98 percent. That lower bound may be unacceptable in a clinical setting where missed diagnoses carry serious consequences. Without the interval, that risk remains invisible.
 
