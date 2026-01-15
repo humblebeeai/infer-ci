@@ -3,7 +3,7 @@
 
 Machine learning teams love clean numbers: **accuracy of 92 percent**. **RMSE of 3.4**, **F1 score of 0.88**. These numbers feel objective, precise, and reassuring. They fit neatly into dashboards, slide decks, and go or no-go decisions.
 
-<p align="center"><img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="700" /></p>
+<p align="center"><img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="800" height="400" /></p>
 
 But those values are not facts about the world. They are estimates derived from finite data, noisy labels, and a long chain of design choices such as sampling strategy, preprocessing, thresholds, and metric definitions. Treating a single number as definitive creates a **false sense of certainty**. That overconfidence often leads to poor decisions, unreliable deployments, missed regressions in minority groups, and wasted effort chasing noise during model selection.
 
@@ -82,7 +82,7 @@ A single metric value summarizes what a model achieved on a specific evaluation 
 
 Confidence intervals address this by quantifying the range within which a metric is likely to fall, given the inherent variability of finite data, noisy labels, and evaluation design choices. This is not a purely statistical concern. The width and position of an interval directly affect real decisions about deployment, monitoring, and prioritization.
 
-<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" /></p>
+<p align="center"><img src="images/confidence_interval_v2.png" alt="Confidence Intervals" width="700" height="400"/></p>
 
 By exposing best case and worst case scenarios, confidence intervals allow teams to translate abstract metrics into concrete business risk. They reduce the chance of selecting models that appear better only due to noise during hyperparameter tuning. They make it possible to distinguish expected metric fluctuation from genuine performance degradation after deployment. They also highlight instability in subgroups that aggregate metrics can hide, improving fairness analysis and regulatory confidence. Finally, confidence intervals improve communication by replacing overconfident point estimates with calibrated statements about what the data actually supports.
 
@@ -90,7 +90,7 @@ By exposing best case and worst case scenarios, confidence intervals allow teams
 
 Consider a healthcare model that reports 94 percent sensitivity on a test set. On its own, that number sounds strong.
 
-<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" /></p>
+<p align="center"><img src="images/medicine-doctor-stet.jpg" alt="Doctor" width="700" height="300" /></p>
 
 With a confidence interval, the picture changes. The sensitivity might plausibly lie between 87 percent and 98 percent. That lower bound may be unacceptable in a clinical setting where missed diagnoses carry serious consequences. Without the interval, that risk remains invisible.
 
@@ -107,6 +107,8 @@ Metrics like accuracy and recall are not normally distributed in small samples. 
 This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.
 
 ## Introducing Infer
+
+<p align="center"><img src="images/infer_black.png" alt="infer" width="1000" height="300" /></p>
 
 **Infer** is a Python-based evaluation framework that turns point metrics into **uncertainty-aware performance statements**. Instead of returning a single score, Infer computes statistically appropriate confidence intervals, making model evaluation and comparison more reliable in real-world settings. 
 
