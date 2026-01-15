@@ -2312,9 +2312,6 @@ That information is useful, but it is rarely sufficient for making real decision
 <p>Not all confidence intervals (CI) are created equal. Many common approaches break down in realistic ML settings.</p>
 <p>Metrics like accuracy and recall are not normally distributed in small samples. Bootstrapping can fail when data are highly imbalanced or correlated. Some metrics are discontinuous with respect to thresholds. Others depend on complex pipelines that violate independence assumptions.</p>
 <p>This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.</p>
-<p>Understood. Here is a <strong>short, sharper replacement</strong> that strengthens the argument <strong>without increasing length</strong> and fits cleanly into your existing structure. It keeps your headings and bullets, but makes each line do more work.</p>
-<p>You can drop this in directly.</p>
-<hr />
 <h2 id="introducing-infer">Introducing Infer</h2>
 <p><strong>Infer</strong> is a Python-based evaluation framework that turns point metrics into <strong>uncertainty-aware performance statements</strong>. Instead of returning a single score, Infer computes statistically appropriate confidence intervals, making model evaluation and comparison more reliable in real-world settings. </p>
 <h3 id="what-makes-infer-different">What makes Infer different</h3>
@@ -2322,19 +2319,19 @@ That information is useful, but it is rarely sufficient for making real decision
 Naive bootstrapping or default statistical methods often break silently when datasets are small, imbalanced, or when metrics violate their assumptions. Infer abstracts this complexity away.</p>
 <ul>
 <li>
-<p><strong>Automatic CI-method selection</strong>
+<p><strong>Automatic CI-method selection</strong>:
   Infer selects confidence-interval methods that match each metric’s statistical properties, handling edge cases such as small samples, class imbalance, and zero-division safely.</p>
 </li>
 <li>
-<p><strong>Metric-aware statistical assumptions</strong>
+<p><strong>Metric-aware statistical assumptions</strong>:
   Different metrics require different uncertainty models. Infer encodes these distinctions so practitioners do not need to reason about statistical validity metric by metric.</p>
 </li>
 <li>
-<p><strong>Consistent, unified APIs</strong>
+<p><strong>Consistent, unified APIs</strong>:
   The same interface works across classification, regression, and detection tasks, reducing evaluation friction and error-prone custom code.</p>
 </li>
 <li>
-<p><strong>Reproducible evaluation outputs</strong>
+<p><strong>Reproducible evaluation outputs</strong>:
   Structured results are designed for reports, dashboards, and stakeholder communication, not just ad-hoc experimentation.</p>
 </li>
 </ul>
