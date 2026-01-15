@@ -19,7 +19,7 @@ fi
 
 ## --- Variables --- ##
 # Load from envrionment variables:
-VERSION_FILE_PATH="${VERSION_FILE_PATH:-./src/infer-ci/__version__.py}"
+VERSION_FILE_PATH="${VERSION_FILE_PATH:-./src/infer_ci/__version__.py}"
 ## --- Variables --- ##
 
 
