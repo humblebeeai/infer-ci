@@ -2158,13 +2158,80 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#toward-production-ready-uncertainty-in-evaluation" class="md-nav__link">
+  <a href="#introducing-infer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Toward production ready uncertainty in evaluation
+        Introducing Infer
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Introducing Infer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-makes-infer-different" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What makes Infer different
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-pypi-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From PyPI (Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-source-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From Source (Development)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting started
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2242,32 +2309,54 @@ That information is useful, but it is rarely sufficient for making real decision
 <p>This logic is already standard in online experimentation. No serious A/B testing team would ship a change based on point estimates alone. Offline model evaluation is answering the same question: <em>is this difference real, or is it noise?</em></p>
 <p>Confidence intervals bring the same discipline to machine learning evaluation.</p>
 <h2 id="where-naive-confidence-interval-approaches-fail">Where naive confidence interval approaches fail</h2>
-<p>Not all confidence intervals are created equal. Many common approaches break down in realistic ML settings.</p>
+<p>Not all confidence intervals (CI) are created equal. Many common approaches break down in realistic ML settings.</p>
 <p>Metrics like accuracy and recall are not normally distributed in small samples. Bootstrapping can fail when data are highly imbalanced or correlated. Some metrics are discontinuous with respect to thresholds. Others depend on complex pipelines that violate independence assumptions.</p>
 <p>This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.</p>
-<h2 id="toward-production-ready-uncertainty-in-evaluation">Toward production ready uncertainty in evaluation</h2>
-<p>A robust evaluation workflow does three things. It computes metrics that align with real world decisions. It quantifies uncertainty in those metrics. And it integrates that uncertainty into model selection, deployment, and monitoring.</p>
-<p>Confidence intervals are the bridge between evaluation and decision making. They do not replace metrics. They complete them.</p>
-<p>Once teams start asking how confident they are in their numbers, evaluation stops being a vanity exercise and becomes a tool for managing risk.</p>
-<p>That is the shift this post is about.</p>
-<h1 id="load-your-data">Load your data</h1>
-<p>df = pd.read_csv('data.csv')
-y_true = df['actual_values']
-y_pred = df['predictions']</p>
-<h1 id="initialize-the-evaluator">Initialize the evaluator</h1>
-<p>evaluator = MetricEvaluator()</p>
-<h1 id="evaluate-regression-metric-with-confidence-interval">Evaluate regression metric with confidence interval</h1>
-<p>mape, ci = evaluator.evaluate(
-    y_true=y_true, l
-    y_pred=y_pred, 
-    task='regression', 
-    metric='mape',
-    method='bootstrap',  # or 'analytical' for faster computation
-    n_bootstraps=10000,   # number of bootstrap samples
-    confidence_level=0.95 # 95% confidence
-    # plot=True  # Uncomment to visualize the distribution
-)</p>
-<p>```</p>
+<h2 id="introducing-infer">Introducing Infer</h2>
+<p><strong>Infer</strong> is a Python-based evaluation framework designed to compute confidence intervals for evaluation metrics in a standardized, reliable, and extensible way.</p>
+<h3 id="what-makes-infer-different">What makes Infer different</h3>
+<p>Infer focuses on a fundamental insight: 
+- <strong>metrics without uncertainty quantification expose statistical and business risk</strong>. 
+Most teams roll their own bootstrap loops or trust default implementations, but this introduces hidden dangers. 
+Infer abstracts away the complexity: 
+- <strong>Automatic CI-method selection</strong>: 
+Infer chooses the right statistical method per metric, handling edge cases (small samples, imbalanced classes, zero-division) that practitioners often get wrong 
+- <strong>Metric-specific statistical assumptions</strong>: Different metrics require different CI approaches. Infer encodes this knowledge so you don't have to </p>
+<ul>
+<li>
+<p><strong>Consistent APIs</strong>: Whether you're evaluating classification or regression, the interface stays the same </p>
+</li>
+<li>
+<p><strong>Reproducible evaluation outputs</strong>: Structured results suitable for reports, dashboards, and stakeholder communication</p>
+</li>
+</ul>
+<h3 id="installation">Installation</h3>
+<h4 id="from-pypi-recommended">From PyPI (Recommended)</h4>
+<div class="language-Python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pip</span> <span class="n">install</span> <span class="n">infer</span><span class="o">-</span><span class="n">ci</span>
+</span></code></pre></div>
+<h3 id="from-source-development">From Source (Development)</h3>
+<div class="language-Python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">humblebeeai</span><span class="o">/</span><span class="n">infer</span><span class="o">-</span><span class="n">ci</span><span class="o">.</span><span class="n">git</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">cd</span> <span class="n">infer</span><span class="o">-</span><span class="n">ci</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;.[dev]&quot;</span>
+</span></code></pre></div>
+<h3 id="getting-started">Getting started</h3>
+<div class="language-Python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># All the possible imports:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">infer_ci</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricEvaluator</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">infer_ci</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">tpr_score</span><span class="p">,</span> <span class="n">f1_score</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">infer_ci</span><span class="w"> </span><span class="kn">import</span> <span class="n">mae</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">rmse</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">,</span> <span class="n">iou</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Classification example:</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">evaluator</span> <span class="o">=</span> <span class="n">MetricEvaluator</span><span class="p">()</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">accuracy</span><span class="p">,</span> <span class="n">ci</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">task</span><span class="o">=</span><span class="s1">&#39;classification&#39;</span><span class="p">,</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;wilson&#39;</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="c1"># plot=True  # Supported in Bootstrap methods</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">)</span>
+</span></code></pre></div>
 <p><strong>The result:</strong></p>
 <ul>
 <li>MAPE of 7.88%</li>
