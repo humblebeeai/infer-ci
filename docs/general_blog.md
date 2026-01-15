@@ -1,11 +1,11 @@
 
-# Your model is not as good as you think. Or maybe it is. Without uncertainty, you cannot tell.
+# Your model is not as good as you think or maybe it is. Without uncertainty, you cannot tell.
 
-Machine learning teams love clean numbers. Accuracy of 92 percent. RMSE of 3.4. F1 score of 0.88. These numbers feel objective, precise, and reassuring. They fit neatly into dashboards, slide decks, and go or no-go decisions.
+Machine learning teams love clean numbers: **accuracy of 92 percent**. **RMSE of 3.4**, **F1 score of 0.88**. These numbers feel objective, precise, and reassuring. They fit neatly into dashboards, slide decks, and go or no-go decisions.
 
 <p align="center"><img src="images/evaluation_metrics.jpg" alt="Machine Learning model accuracy" width="700" /></p>
 
-But those values are not facts about the world. They are estimates derived from finite data, noisy labels, and a long chain of design choices such as sampling strategy, preprocessing, thresholds, and metric definitions. Treating a single number as definitive creates a false sense of certainty. That overconfidence often leads to poor decisions, unreliable deployments, missed regressions in minority groups, and wasted effort chasing noise during model selection.
+But those values are not facts about the world. They are estimates derived from finite data, noisy labels, and a long chain of design choices such as sampling strategy, preprocessing, thresholds, and metric definitions. Treating a single number as definitive creates a **false sense of certainty**. That overconfidence often leads to poor decisions, unreliable deployments, missed regressions in minority groups, and wasted effort chasing noise during model selection.
 
 Before we talk about confidence intervals, we need to step back and talk about evaluation itself. Why do we evaluate models, what are metrics actually telling us, and where do they quietly fail.
 
@@ -21,11 +21,11 @@ Evaluation also serves as a shared reference point across teams. It allows engin
 
 Evaluation metrics are simplified summaries of model behavior. Each metric captures one narrow notion of quality and ignores everything else.
 
-Accuracy assumes that all errors have equal cost and that class distributions are stable. Precision and recall focus on different failure modes but ignore calibration and confidence. F1 score compresses two competing objectives into a single value while hiding tradeoffs. Regression metrics like RMSE and MAE emphasize different error magnitudes and implicitly encode assumptions about loss functions.
+Consider accuracy in a customer churn model. If only 5 percent of customers churn, a model that predicts “no churn” for everyone achieves 95 percent accuracy while providing zero business value. The metric looks strong precisely because it ignores the asymmetric cost of errors and the rarity of the outcome the model is meant to detect.
+
+The same pattern appears across metrics. Accuracy assumes all errors have equal cost and that class distributions are stable. Precision and recall focus on different failure modes but ignore calibration and confidence. F1 score compresses competing objectives into a single value while hiding tradeoffs. Regression metrics like RMSE and MAE emphasize different error magnitudes and implicitly encode assumptions about loss functions.
 
 Choosing the right metric already requires domain understanding, cost modeling, and clarity about how predictions will be used. A fraud detection system, a medical diagnostic model, and a recommender system should not be evaluated the same way even if they use similar algorithms.
-
-But even when the metric choice is correct, there is a deeper problem that often goes unnoticed.
 
 ## The hidden assumption behind point metrics
 
@@ -39,23 +39,23 @@ If the same model were evaluated on a slightly different test set drawn from the
 
 The limitations of point metrics show up repeatedly across real world machine learning systems.
 
-### Small or medium sized test sets
+#### Small or medium sized test sets
 
 When test sets are small, randomness dominates. On a test set of a few hundred samples, one or two additional errors can materially change reported performance. Teams routinely interpret these fluctuations as meaningful improvements or regressions when they are simply noise.
 
-### Imbalanced problems
+#### Imbalanced problems
 
 In domains like fraud detection, medical diagnosis, or anomaly detection, the most important class is often the rare one. Metrics such as recall, precision, and F1 score can swing dramatically with small changes in class composition or labeling errors. A single point estimate can easily mask extreme instability in minority class performance.
 
-### Threshold sensitivity
+#### Threshold sensitivity
 
 Many metrics depend on a chosen decision threshold. A model that looks strong at one threshold may look weak at another. Reporting a single number hides how sensitive the model is to operational choices that will inevitably change over time.
 
-### Model selection and hyperparameter tuning
+#### Model selection and hyperparameter tuning
 
 When dozens or hundreds of models are tried, the best looking metric is often the luckiest one. Selecting based on point estimates alone systematically favors noise. This is one of the most common sources of overestimated offline performance.
 
-### Subgroup and fairness analysis
+#### Subgroup and fairness analysis
 
 Aggregate metrics can look stable while subgroup performance is wildly uncertain. Small sample sizes within demographic slices amplify variance. Without explicitly accounting for uncertainty, teams often miss fragile or unsafe behavior in exactly the groups that matter most.
 
