@@ -106,12 +106,6 @@ Metrics like accuracy and recall are not normally distributed in small samples. 
 
 This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.
 
-Understood. Here is a **short, sharper replacement** that strengthens the argument **without increasing length** and fits cleanly into your existing structure. It keeps your headings and bullets, but makes each line do more work.
-
-You can drop this in directly.
-
----
-
 ## Introducing Infer
 
 **Infer** is a Python-based evaluation framework that turns point metrics into **uncertainty-aware performance statements**. Instead of returning a single score, Infer computes statistically appropriate confidence intervals, making model evaluation and comparison more reliable in real-world settings. 
@@ -121,16 +115,16 @@ You can drop this in directly.
 Infer is built on a simple insight: **metrics without uncertainty quantification create statistical and business risk**.
 Naive bootstrapping or default statistical methods often break silently when datasets are small, imbalanced, or when metrics violate their assumptions. Infer abstracts this complexity away.
 
-* **Automatic CI-method selection**
+* **Automatic CI-method selection**:
   Infer selects confidence-interval methods that match each metric’s statistical properties, handling edge cases such as small samples, class imbalance, and zero-division safely.
 
-* **Metric-aware statistical assumptions**
+* **Metric-aware statistical assumptions**:
   Different metrics require different uncertainty models. Infer encodes these distinctions so practitioners do not need to reason about statistical validity metric by metric.
 
-* **Consistent, unified APIs**
+* **Consistent, unified APIs**:
   The same interface works across classification, regression, and detection tasks, reducing evaluation friction and error-prone custom code.
 
-* **Reproducible evaluation outputs**
+* **Reproducible evaluation outputs**:
   Structured results are designed for reports, dashboards, and stakeholder communication, not just ad-hoc experimentation.
 
 
