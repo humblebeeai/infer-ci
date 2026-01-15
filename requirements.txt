@@ -8,7 +8,7 @@ numpy==2.2.6
 setuptools==68.2.2
 pandas==2.3.3
 pytest==8.4.2
-matplotlib==3.10.6
+matplotlib==3.10.8
 seaborn==0.13.2
 xgboost==3.0.5
 tqdm==4.67.1
