@@ -29,15 +29,11 @@ But even when the metric choice is correct, there is a deeper problem that often
 
 ## The hidden assumption behind point metrics
 
-When we report a metric value, we usually treat it as a fixed property of the model.
+When metric values are reported, they are often treated as fixed properties of a model, similar to architectural details such as the number of parameters or layers. Saying that a model has 92 percent accuracy or an F1 score of 0.88 implicitly suggests that these numbers are stable characteristics that can be relied on as precise summaries of performance.
 
-For example, we say the model has 92 percent accuracy, or an F1 score of 0.88, as if those numbers were intrinsic characteristics like model size or number of parameters.
+In reality, every reported metric is an estimate that depends on a specific evaluation setup. The value reflects the particular test sample that was drawn, the labels that were collected and possibly contain noise, and the operational choices embedded in the evaluation process, including preprocessing steps, thresholds, and metric definitions. None of these factors are fixed in practice, and small changes in any of them can alter the resulting metric.
 
-In reality, every metric value is an estimate. It depends on the specific test sample that happened to be drawn, the labels that happened to be collected, and the particular operational choices baked into the evaluation.
-
-If you evaluated the same model on a slightly different test set drawn from the same data distribution, you would not get the exact same number. The metric would move, sometimes by a little, sometimes by a lot.
-
-Point metrics quietly assume that this variability is negligible. In practice, it often is not.
+If the same model were evaluated on a slightly different test set drawn from the same underlying data distribution, the reported metric would almost certainly change. Sometimes the change would be minor, but in other cases it could be large enough to alter conclusions about model quality or readiness for deployment. Treating a single point estimate as definitive therefore relies on an implicit assumption that this variability is negligible, an assumption that often does not hold in real machine learning systems.
 
 ## Where single metric evaluation fails in practice
 
