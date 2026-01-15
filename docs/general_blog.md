@@ -100,42 +100,61 @@ Confidence intervals bring the same discipline to machine learning evaluation.
 
 ## Where naive confidence interval approaches fail
 
-Not all confidence intervals are created equal. Many common approaches break down in realistic ML settings.
+Not all confidence intervals (CI) are created equal. Many common approaches break down in realistic ML settings.
 
 Metrics like accuracy and recall are not normally distributed in small samples. Bootstrapping can fail when data are highly imbalanced or correlated. Some metrics are discontinuous with respect to thresholds. Others depend on complex pipelines that violate independence assumptions.
 
 This is why confidence intervals need to be metric aware, data aware, and production ready. Treating CI computation as an afterthought often produces misleading results that are worse than no interval at all.
 
-## Toward production ready uncertainty in evaluation
+## Introducing Infer 
 
-A robust evaluation workflow does three things. It computes metrics that align with real world decisions. It quantifies uncertainty in those metrics. And it integrates that uncertainty into model selection, deployment, and monitoring.
+**Infer** is a Python-based evaluation framework designed to compute confidence intervals for evaluation metrics in a standardized, reliable, and extensible way.
 
-Confidence intervals are the bridge between evaluation and decision making. They do not replace metrics. They complete them.
+### What makes Infer different 
 
-Once teams start asking how confident they are in their numbers, evaluation stops being a vanity exercise and becomes a tool for managing risk.
+Infer focuses on a fundamental insight: 
+- **metrics without uncertainty quantification expose statistical and business risk**. 
+Most teams roll their own bootstrap loops or trust default implementations, but this introduces hidden dangers. 
+Infer abstracts away the complexity: 
+- **Automatic CI-method selection**: 
+Infer chooses the right statistical method per metric, handling edge cases (small samples, imbalanced classes, zero-division) that practitioners often get wrong 
+- **Metric-specific statistical assumptions**: Different metrics require different CI approaches. Infer encodes this knowledge so you don't have to 
 
-That is the shift this post is about.
+- **Consistent APIs**: Whether you're evaluating classification or regression, the interface stays the same 
 
-# Load your data
-df = pd.read_csv('data.csv')
-y_true = df['actual_values']
-y_pred = df['predictions']
+- **Reproducible evaluation outputs**: Structured results suitable for reports, dashboards, and stakeholder communication
 
-# Initialize the evaluator
+### Installation
+#### From PyPI (Recommended)
+```Python
+pip install infer-ci
+```
+
+### From Source (Development)
+```Python
+git clone https://github.com/humblebeeai/infer-ci.git
+cd infer-ci
+pip install -e ".[dev]"
+```
+
+### Getting started
+```Python
+# All the possible imports:
+from infer_ci import MetricEvaluator
+from infer_ci import accuracy_score, precision_score, tpr_score, f1_score
+from infer_ci import mae, mse, rmse, r2_score, iou
+
+# Classification example:
 evaluator = MetricEvaluator()
 
-# Evaluate regression metric with confidence interval
-mape, ci = evaluator.evaluate(
-    y_true=y_true, l
-    y_pred=y_pred, 
-    task='regression', 
-    metric='mape',
-    method='bootstrap',  # or 'analytical' for faster computation
-    n_bootstraps=10000,   # number of bootstrap samples
-    confidence_level=0.95 # 95% confidence
-    # plot=True  # Uncomment to visualize the distribution
+accuracy, ci = evaluator.evaluate(
+    y_true=y_true,
+    y_pred=y_pred,
+    task='classification',
+    metric='accuracy',
+    method='wilson'
+    # plot=True  # Supported in Bootstrap methods
 )
-
 ```
 
 **The result:**
