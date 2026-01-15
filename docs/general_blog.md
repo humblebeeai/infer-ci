@@ -11,13 +11,11 @@ Before we talk about confidence intervals, we need to step back and talk about e
 
 ## Why we evaluate machine learning models at all
 
-Model evaluation is not about producing a number. It is about answering decision-making questions.
+Model evaluation is fundamentally about supporting decisions rather than producing a single performance number. When teams evaluate a model, they are implicitly trying to understand how that model will behave once it leaves the controlled environment of an offline test set and encounters real users, real data shifts, and real costs associated with errors.
 
-When teams evaluate a model, they are implicitly trying to answer questions like: *Will this model behave acceptably in production?* *Is it better than the model we already have?* *How risky is it to deploy?* *Where are its weaknesses and how severe are they?*
+In practice, evaluation seeks to answer questions such as whether the model will perform acceptably in production, whether it represents a meaningful improvement over an existing system, how risky it is to deploy, and where its failure modes are likely to appear. These questions cannot be answered by a metric in isolation, because they depend on context, uncertainty, and the consequences of mistakes.
 
-A good evaluation framework connects model behavior to real world consequences. A bad evaluation reduces everything to a single score and assumes that score will generalize perfectly.
-
-Evaluation is therefore not a checkbox. It is a risk assessment exercise.
+A strong evaluation framework therefore connects observed model behavior to real world outcomes and tradeoffs, while a weak one collapses that complexity into a single score and assumes it will generalize unchanged. Seen this way, evaluation is not a procedural step to check off before deployment but an ongoing risk assessment exercise that informs how confidently a model can be used.
 
 ## Metrics are abstractions, not truths
 
