@@ -1,4 +1,4 @@
-statsmodels==0.14.5
+statsmodels==0.14.6
 scikit-learn==1.7.2
 scipy==1.15.3
 numpy==2.2.6
