@@ -1,16 +1,11 @@
 """ Confidence intervals for common binary metrics."""
 
-from ast import Call
-import statsmodels
 from statsmodels.stats.proportion import proportion_confint
-from typing import List, Callable, Tuple, Union, Optional
+from typing import List, Tuple, Union, Optional
 from functools import partial
 import numpy as np
-import os
-import matplotlib.pyplot as plt
-from datetime import datetime
 from .utils import get_positive_negative_counts
-from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
+from .methods import bootstrap_methods
 from .visualize import bootstrap_with_plot
 
 proportion_conf_methods: List[str] = [
@@ -55,8 +50,10 @@ def accuracy_score_binomial_ci(y_true: List[int],
         The accuracy score and optionally the confidence interval.
     """
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
 
     correct = np.sum(np.array(y_pred) == np.array(y_true))
     acc = correct / len(y_pred)
@@ -160,12 +157,14 @@ def ppv_score_binomial_ci(y_true: List[int],
                           method: str = 'wilson',
                           compute_ci: bool = True) -> Union[float, Tuple[float, Tuple[float, float]]]:
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
-    assert np.min(y_true) >= 0 and np.max(
-        y_true) <= 1, 'This metric is supported only for binary classification'
-    assert np.min(y_pred) >= 0 and np.max(
-        y_pred) <= 1, 'This metric is supported only for binary classification'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
+    if np.min(y_true) < 0 or np.max(y_true) > 1:
+        raise ValueError('This metric is supported only for binary classification')
+    if np.min(y_pred) < 0 or np.max(y_pred) > 1:
+        raise ValueError('This metric is supported only for binary classification')
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
     TP, FP = TP[1], FP[1]
@@ -221,12 +220,14 @@ def npv_score_binomial_ci(y_true: List[int],
                           method: str = 'wilson',
                           compute_ci=True) -> Union[float, Tuple[float, Tuple[float, float]]]:
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
-    assert np.min(y_true) >= 0 and np.max(
-        y_true) <= 1, 'This metric is supported only for binary classification'
-    assert np.min(y_pred) >= 0 and np.max(
-        y_pred) <= 1, 'This metric is supported only for binary classification'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
+    if np.min(y_true) < 0 or np.max(y_true) > 1:
+        raise ValueError('This metric is supported only for binary classification')
+    if np.min(y_pred) < 0 or np.max(y_pred) > 1:
+        raise ValueError('This metric is supported only for binary classification')
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
     TN, FN = TN[1], FN[1]
@@ -282,12 +283,14 @@ def tpr_score_binomial_ci(y_true: List[int],
                           method: str = 'wilson',
                           compute_ci=True) -> Union[float, Tuple[float, Tuple[float, float]]]:
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
-    assert np.min(y_true) >= 0 and np.max(
-        y_true) <= 1, 'This metric is supported only for binary classification'
-    assert np.min(y_pred) >= 0 and np.max(
-        y_pred) <= 1, 'This metric is supported only for binary classification'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
+    if np.min(y_true) < 0 or np.max(y_true) > 1:
+        raise ValueError('This metric is supported only for binary classification')
+    if np.min(y_pred) < 0 or np.max(y_pred) > 1:
+        raise ValueError('This metric is supported only for binary classification')
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
     TP, FN = TP[1], FN[1]
@@ -343,12 +346,14 @@ def fpr_score_binomial_ci(y_true: List[int],
                           method: str = 'wilson',
                           compute_ci=True) -> Union[float, Tuple[float, Tuple[float, float]]]:
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
-    assert np.min(y_true) >= 0 and np.max(
-        y_true) <= 1, 'This metric is supported only for binary classification'
-    assert np.min(y_pred) >= 0 and np.max(
-        y_pred) <= 1, 'This metric is supported only for binary classification'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
+    if np.min(y_true) < 0 or np.max(y_true) > 1:
+        raise ValueError('This metric is supported only for binary classification')
+    if np.min(y_pred) < 0 or np.max(y_pred) > 1:
+        raise ValueError('This metric is supported only for binary classification')
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
     FP, TN = FP[1], TN[1]
@@ -404,12 +409,14 @@ def tnr_score_binomial_ci(y_true: List[int],
                           method: str = 'wilson',
                           compute_ci: bool = True) -> Union[float, Tuple[float, Tuple[float, float]]]:
 
-    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
-    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
-    assert np.min(y_true) >= 0 and np.max(
-        y_true) <= 1, 'This metric is supported only for binary classification'
-    assert np.min(y_pred) >= 0 and np.max(
-        y_pred) <= 1, 'This metric is supported only for binary classification'
+    if method not in proportion_conf_methods:
+        raise ValueError(f'Proportion CI method {method} not in {proportion_conf_methods}')
+    if not 0 <= confidence_level <= 1:
+        raise ValueError(f'confidence_level must be between 0 and 1, got {confidence_level}')
+    if np.min(y_true) < 0 or np.max(y_true) > 1:
+        raise ValueError('This metric is supported only for binary classification')
+    if np.min(y_pred) < 0 or np.max(y_pred) > 1:
+        raise ValueError('This metric is supported only for binary classification')
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
     TN, FP = TN[1], FP[1]

@@ -1,12 +1,8 @@
 """Confidence intervals for regression metrics"""
 
 from typing import List, Callable, Tuple, Union, Optional
-from ast import Call
 import numpy as np
 from functools import partial
-import os
-import matplotlib.pyplot as plt
-from datetime import datetime
 from .methods import bootstrap_ci, bootstrap_methods, jackknife_ci, regression_conf_methods
 from .visualize import bootstrap_with_plot
 

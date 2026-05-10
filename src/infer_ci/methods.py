@@ -13,11 +13,6 @@ bootstrap_methods = [
 regression_conf_methods: List[str] = bootstrap_methods + ['jackknife']
 
 
-class BootstrapParams:
-    n_resamples: int
-    random_state: Optional[np.random.RandomState]
-
-
 def bootstrap_ci(y_true: List[int],
                  y_pred: List[int],
                  metric: Callable,
@@ -89,7 +84,8 @@ def bootstrap_ci(y_true: List[int],
 
         return result
 
-    assert method in bootstrap_methods, f'Bootstrap ci method {method} not in {bootstrap_methods}'
+    if method not in bootstrap_methods:
+        raise ValueError(f'Bootstrap CI method {method} not in {bootstrap_methods}')
 
     # If plot=True, automatically enable return_samples
     if plot:

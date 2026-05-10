@@ -189,7 +189,8 @@ def calc_pvalue(aucs, sigma):
 
 
 def compute_ground_truth_statistics(ground_truth, sample_weight):
-    assert np.array_equal(np.unique(ground_truth), [0, 1])
+    if not np.array_equal(np.unique(ground_truth), [0, 1]):
+        raise ValueError('ground_truth must be a binary array containing only 0 and 1')
     order = (~ground_truth).argsort()
     label_1_count = int(ground_truth.sum())
     if sample_weight is None:
@@ -212,6 +213,6 @@ def delong_roc_variance(ground_truth, predictions, sample_weight=None):
     predictions_sorted_transposed = predictions[np.newaxis, order]
     aucs, delongcov = fastDeLong(
         predictions_sorted_transposed, label_1_count, ordered_sample_weight)
-    assert len(
-        aucs) == 1, "There is a bug in the code, please forward this to the developers"
+    if len(aucs) != 1:
+        raise RuntimeError("There is a bug in the code, please forward this to the developers")
     return aucs[0], delongcov

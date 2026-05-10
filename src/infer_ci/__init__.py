@@ -3,10 +3,6 @@ from .__version__ import __version__
 # Core unified interface for confidence interval metrics
 from .evaluator import MetricEvaluator, evaluate_metric, TaskType
 
-# Import utility modules
-from .methods import *
-from .utils import *
-
 # Individual metric imports (for backward compatibility and advanced usage)
 from .binary_metrics import accuracy_score, \
     ppv_score, \
@@ -59,7 +55,4 @@ __all__ = [
 
     # Detection metrics
     'map', 'map50', 'precision', 'recall',
-
-    # Utility modules
-    'methods', 'utils'
 ]

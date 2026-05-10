@@ -31,8 +31,9 @@ def roc_auc_score(y_true: List,
                   confidence_level: float = 0.95,
                   method: str = 'delong',
                   *args, **kwargs) -> Tuple[float, float]:
-    assert method in [
-        'delong'] + bootstrap_methods, f"Method {method} not in {['delong'] + bootstrap_methods}"
+    valid_methods = ['delong'] + bootstrap_methods
+    if method not in valid_methods:
+        raise ValueError(f"Method {method} not in {valid_methods}")
 
     if method == 'delong':
         auc, variance = delong_roc_variance(np.array(y_true), np.array(y_pred))

@@ -14,13 +14,8 @@ The test validates that confidence intervals computed from test data contain
 the actual metric values computed on validation data.
 """
 
-import sys
-import os
 import warnings
 warnings.filterwarnings('ignore')
-
-# Add the main module to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'main'))
 
 import pandas as pd
 import numpy as np

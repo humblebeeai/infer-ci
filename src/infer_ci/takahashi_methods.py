@@ -8,7 +8,7 @@ from functools import partial
 import numpy as np
 from scipy.stats import norm
 from .utils import get_positive_negative_counts
-from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
+from .methods import bootstrap_ci, bootstrap_methods
 from .binary_metrics import tpr_score, ppv_score
 
 from sklearn.metrics import confusion_matrix
@@ -59,7 +59,8 @@ def precision_score_takahashi(y_true: List[int],
         The metric, and (optionally) the confidence interval low, high tuple.
     """
     # TBD, do the math for macro precision based on the paper
-    assert average in ['micro', 'macro']
+    if average not in ['micro', 'macro']:
+        raise ValueError(f"average must be 'micro' or 'macro', got '{average}'")
 
     FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
 
@@ -243,7 +244,8 @@ def recall_score_takahashi(y_true: List[int],
     """
 
     # TBD, do the math for macro recall based on the paper
-    assert average in ['micro', 'macro']
+    if average not in ['micro', 'macro']:
+        raise ValueError(f"average must be 'micro' or 'macro', got '{average}'")
 
     if average == 'micro':
         FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
@@ -599,8 +601,8 @@ def f1_score(y_true: List[int],
         The F1 score, and (optionally) the confidence interval low, high tuple.
     """
 
-    assert average in ['micro', 'macro',
-                       'binary'], 'average method {average} not supported'
+    if average not in ['micro', 'macro', 'binary']:
+        raise ValueError(f"average method '{average}' not supported, must be one of ['micro', 'macro', 'binary']")
 
     if method in bootstrap_methods:
         # Filter out parameters that bootstrap functions don't accept

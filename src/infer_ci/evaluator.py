@@ -8,9 +8,6 @@ for both classification and regression tasks.
 from typing import List, Union, Tuple, Optional, Dict, Any
 import numpy as np
 from enum import Enum
-import os
-import matplotlib.pyplot as plt
-from datetime import datetime
 
 # Import classification metrics
 from .binary_metrics import (
@@ -509,7 +506,7 @@ def evaluate_metric(y_true: List[Union[int, float]],
     
     Example:
     --------
-    >>> from confidenceinterval import evaluate_metric
+    >>> from infer_ci import evaluate_metric
     >>> 
     >>> # Quick regression evaluation  
     >>> mae_val, ci = evaluate_metric(
