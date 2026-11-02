@@ -350,21 +350,21 @@ for metric in ['accuracy', 'precision', 'recall', 'f1']:
 
 ## Common Parameters
 
-Most functions accept these parameters:
+`MetricEvaluator.evaluate()` and the metric functions accept these parameters (see [Main options](#main-options) for details):
 
-- `method` - CI calculation method (default: 'bootstrap_bca')
-- `confidence_interval` - Confidence level (default: 0.95)
-- `n_resamples` - Bootstrap iterations (default: 2000)
-- `random_state` - Random seed for reproducibility
+- `method` - CI calculation method. `evaluate()` uses `'bootstrap_bca'` by default. Metric functions called directly have their own defaults; for example, `accuracy_score()` uses `'wilson'` and `mae()` uses `'bootstrap_bca'`.
+- `confidence_level` - Confidence level (default: 0.95)
+- `n_resamples` - Number of bootstrap resamples (default: 9999, bootstrap methods only)
+- `random_state` - Random seed for bootstrap methods (default: None)
 - `compute_ci` - Whether to compute CI (default: True)
 - `plot` - Generate visualization (default: False, bootstrap only)
 
 ## Tips
 
 1. **Wilson method** is recommended for binary classification metrics
-2. **Bootstrap BCA** is the default and works well for most cases
+2. **Bootstrap BCa** is the default method of `evaluate()` and works well for most cases
 3. Use `random_state` for reproducible results
-4. Increase `n_resamples` (e.g., 5000) for more stable CIs
+4. The default `n_resamples=9999` gives stable CIs; use a smaller value (e.g., 2000) for faster runs
 5. Use `plot=True` with bootstrap methods to visualize the distribution
 
 ## Getting Help
