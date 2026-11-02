@@ -1,8 +1,11 @@
 ---
+lang: ko
 title: 설치
 ---
 
 # 🛠 설치
+
+**Language / 언어:** [English](installation.md) | **한국어**
 
 ## 요구 사항
 

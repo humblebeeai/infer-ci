@@ -1,4 +1,10 @@
+---
+lang: ko
+---
+
 # 빠른 시작
+
+**Language / 언어:** [English](quickstart.md) | **한국어**
 
 5분 안에 infer-ci를 설치하고 사용해 봅니다.
 
@@ -30,12 +36,12 @@ infer-ci는 Python 3.10 이상이 필요합니다. 가상환경 설정과 다른
 | `method` | `'bootstrap_bca'` | 신뢰구간 계산 방법입니다. `'wilson'` 같은 분석적 방법은 실행할 때마다 같은 결과를 냅니다. Bootstrap 방법(`'bootstrap_*'`)은 데이터를 무작위로 다시 뽑습니다. [사용 가능한 신뢰구간 방법](#available-ci-methods)을 참고하세요. |
 | `confidence_level` | `0.95` | 신뢰수준입니다. `0.95`이면 95% 신뢰구간을 계산합니다. |
 | `n_resamples` | `9999` | Bootstrap 재표집 횟수입니다. Bootstrap 방법에서만 사용합니다. |
-| `random_state` | `None` | Bootstrap 방법의 난수 시드입니다. 값을 지정하면(예: `random_state=42`) 실행할 때마다 같은 신뢰구간이 나옵니다. |
+| `random_state` | `None` | Bootstrap 방법의 난수 시드입니다. 값을 지정하면(예: `random_state=42`) 같은 데이터와 라이브러리 버전에서 신뢰구간을 재현할 수 있습니다. |
 | `compute_ci` | `True` | `False`로 지정하면 지표값만 반환합니다. |
 
 ### 반환값
 
-`compute_ci=True`(기본값)이면 `evaluate()`는 튜플을 반환합니다.
+아래 분류·회귀 예제에서 `compute_ci=True`(기본값)이면 `evaluate()`는 튜플을 반환합니다.
 
 ```python
 value, (lower, upper) = evaluator.evaluate(...)
@@ -114,7 +120,7 @@ MAE: 0.500
 95% CI: [0.200, 0.800]
 ```
 
-Bootstrap 방법은 데이터를 무작위로 다시 뽑습니다. `random_state=42`를 지정하면 실행할 때마다 같은 신뢰구간이 나옵니다. `random_state`를 지정하지 않으면 MAE 값은 같지만 신뢰구간은 실행마다 조금씩 달라질 수 있습니다.
+Bootstrap 방법은 데이터를 무작위로 다시 뽑습니다. `random_state=42`를 지정하면 같은 데이터와 라이브러리 버전에서 신뢰구간을 재현할 수 있습니다. `random_state`를 지정하지 않으면 MAE 값은 같지만 신뢰구간은 실행마다 조금씩 달라질 수 있습니다.
 
 Bootstrap이 실행되는 동안 `Bootstrap CI (BCA): 100%|...| 2006/2006` 같은 진행 표시줄도 함께 출력됩니다. BCa 방법은 구간을 보정하기 위한 계산을 추가로 수행하므로, 전체 횟수는 `n_resamples + 표본 수 + 1`(여기서는 2000 + 5 + 1)입니다.
 
@@ -249,7 +255,7 @@ print(evaluator.get_available_metrics('regression'))
 
 - `mae` - 평균 절대 오차(Mean Absolute Error)
 - `mse` - 평균 제곱 오차(Mean Squared Error)
-- `rmse` - 평균 제곱근 오차(Root Mean Squared Error)
+- `rmse` - 평균 제곱 오차의 제곱근(Root Mean Squared Error)
 - `r2` - 결정계수(R² Score)
 - `mape` - 평균 절대 백분율 오차(Mean Absolute Percentage Error)
 - `iou` - IoU(Intersection over Union)
@@ -350,11 +356,11 @@ for metric in ['accuracy', 'precision', 'recall', 'f1']:
 
 ## 공통 매개변수
 
-대부분의 함수는 다음 매개변수를 받습니다.
+아래 매개변수는 분류·회귀 평가 인터페이스를 기준으로 설명합니다. 지표 함수를 직접 호출하면 기본값이 다를 수 있습니다. 예를 들어 `accuracy_score()`의 기본 방법은 `wilson`입니다.
 
-- `method` - 신뢰구간 계산 방법(기본값: 'bootstrap_bca')
-- `confidence_interval` - 신뢰수준(기본값: 0.95)
-- `n_resamples` - Bootstrap 재표집 횟수(기본값: 2000)
+- `method` - `MetricEvaluator.evaluate()`의 신뢰구간 계산 방법(기본값: 'bootstrap_bca')
+- `confidence_level` - 신뢰수준(기본값: 0.95)
+- `n_resamples` - Bootstrap 재표집 횟수(기본값: 9999)
 - `random_state` - 재현성을 위한 난수 시드
 - `compute_ci` - 신뢰구간 계산 여부(기본값: True)
 - `plot` - 시각화 생성(기본값: False, Bootstrap 전용)
@@ -362,9 +368,9 @@ for metric in ['accuracy', 'precision', 'recall', 'f1']:
 ## 팁
 
 1. 이진 분류 지표에는 **Wilson 방법**을 권장합니다.
-2. **Bootstrap BCa**는 기본값이며 대부분의 경우에 잘 맞습니다.
+2. **Bootstrap BCa**는 `MetricEvaluator.evaluate()`의 기본값입니다. 지표와 데이터에 맞는 방법을 선택하세요.
 3. 결과를 재현하려면 `random_state`를 사용하세요.
-4. 더 안정적인 신뢰구간이 필요하면 `n_resamples`를 늘리세요(예: 5000).
+4. 더 안정적인 신뢰구간이 필요하면 `n_resamples`를 늘리세요(예: 20000).
 5. Bootstrap 방법에서 `plot=True`를 사용하면 분포를 시각화할 수 있습니다.
 
 ## 도움 받기

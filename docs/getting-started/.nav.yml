@@ -1,6 +1,9 @@
 nav:
-  - Prequisites: prerequisites.md
-  - Installation: installation.md
+  - Prerequisites: prerequisites.md
+  - Installation (English): installation.md
+  - 설치 (한국어): installation.ko.md
+  - Quick Start (English): quickstart.md
+  - 빠른 시작 (한국어): quickstart.ko.md
   - Configuration: configuration.md
   - Examples: examples.md
   - Error Codes: error-codes.md

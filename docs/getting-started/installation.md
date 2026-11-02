@@ -4,6 +4,8 @@ title: Installation
 
 # 🛠 Installation
 
+**Language / 언어:** **English** | [한국어](installation.ko.md)
+
 ## Requirements
 
 - **Python 3.10 or newer** (`requires-python = ">=3.10,<4.0"`)

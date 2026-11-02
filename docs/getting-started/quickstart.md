@@ -1,5 +1,7 @@
 # Quick Start
 
+**Language / 언어:** **English** | [한국어](quickstart.ko.md)
+
 Get up and running with infer-ci in 5 minutes.
 
 ## Installation
@@ -30,12 +32,12 @@ infer-ci requires Python 3.10 or newer. For virtual environment setup and other 
 | `method` | `'bootstrap_bca'` | How the CI is calculated. Analytical methods such as `'wilson'` give the same result every run. Bootstrap methods (`'bootstrap_*'`) resample the data randomly. See [Available CI Methods](#available-ci-methods). |
 | `confidence_level` | `0.95` | Confidence level of the interval. `0.95` gives a 95% CI. |
 | `n_resamples` | `9999` | Number of bootstrap resamples. Used only by bootstrap methods. |
-| `random_state` | `None` | Random seed for bootstrap methods. Set it (for example `random_state=42`) to get the same CI every run. |
+| `random_state` | `None` | Random seed for bootstrap methods. Set it (for example `random_state=42`) to reproduce the CI with the same data and library versions. |
 | `compute_ci` | `True` | If `False`, only the metric value is returned. |
 
 ### Return value
 
-With `compute_ci=True` (the default), `evaluate()` returns a tuple:
+For the classification and regression examples below, `compute_ci=True` (the default) returns a tuple:
 
 ```python
 value, (lower, upper) = evaluator.evaluate(...)
@@ -114,7 +116,7 @@ MAE: 0.500
 95% CI: [0.200, 0.800]
 ```
 
-Bootstrap methods resample the data randomly. With `random_state=42`, the CI is the same every run. Without `random_state`, the CI can change slightly from run to run, while the MAE itself stays the same.
+Bootstrap methods resample the data randomly. With `random_state=42`, the CI is reproducible with the same data and library versions. Without `random_state`, the CI can change slightly from run to run, while the MAE itself stays the same.
 
 While the bootstrap runs, a progress bar such as `Bootstrap CI (BCA): 100%|...| 2006/2006` is also displayed. For the BCa method the total is `n_resamples + number of samples + 1` (here 2000 + 5 + 1), because BCa also runs extra calculations to adjust the interval.
 
@@ -350,11 +352,11 @@ for metric in ['accuracy', 'precision', 'recall', 'f1']:
 
 ## Common Parameters
 
-Most functions accept these parameters:
+The following parameters apply to the classification/regression interface. Direct metric functions can have different defaults (for example, `accuracy_score()` defaults to `wilson`):
 
-- `method` - CI calculation method (default: 'bootstrap_bca')
-- `confidence_interval` - Confidence level (default: 0.95)
-- `n_resamples` - Bootstrap iterations (default: 2000)
+- `method` - CI calculation method for `MetricEvaluator.evaluate()` (default: 'bootstrap_bca')
+- `confidence_level` - Confidence level (default: 0.95)
+- `n_resamples` - Bootstrap resamples (default: 9999)
 - `random_state` - Random seed for reproducibility
 - `compute_ci` - Whether to compute CI (default: True)
 - `plot` - Generate visualization (default: False, bootstrap only)
@@ -364,7 +366,7 @@ Most functions accept these parameters:
 1. **Wilson method** is recommended for binary classification metrics
 2. **Bootstrap BCA** is the default and works well for most cases
 3. Use `random_state` for reproducible results
-4. Increase `n_resamples` (e.g., 5000) for more stable CIs
+4. Increase `n_resamples` (e.g., 20000) for more stable CIs
 5. Use `plot=True` with bootstrap methods to visualize the distribution
 
 ## Getting Help
