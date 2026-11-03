@@ -36,7 +36,7 @@ pip install infer-ci
 ### 소스 코드로부터 설치 (개발용)
 
 ```bash
-git clone [https://github.com/humblebeeai/infer-ci.git](https://github.com/humblebeeai/infer-ci.git)
+git clone https://github.com/humblebeeai/infer-ci.git
 cd infer-ci
 pip install -e ".[dev]"
 
@@ -108,7 +108,7 @@ accuracy, ci = evaluator.evaluate(
 * `precision`: 정밀도 (Precision)
 * `recall`: 재현율 (Recall)
 
-📖 **객체 탐지 지표 사용 예제는 다음을 참조하세요:** [Object Detection Metrics Usage Guide](https://www.docs/obeject-detection-metrics-usage.md/search?q=docs/object-detection-metrics-usage.md)
+📖 **객체 탐지 지표 사용 예제는 다음을 참조하세요:** [Object Detection Metrics Usage Guide](docs/object-detection-metrics-usage.md)
 
 📚 **온라인 버전 체험하기:** [https://infer.humblebee.ai](https://infer.humblebee.ai)
 
@@ -177,15 +177,15 @@ bootstrap_binary_f1, ci = f1_score(
 
 이 문서는 본 프로젝트에 포함된 다음 스크립트들에 대한 개요와 사용 방법을 제공합니다:
 
-* **[`clean.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/clean.sh.md)**
-* **[`get-version.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/get-version.sh.md)**
-* **[`test.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/test.sh.md)**
-* **[`bump-version.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/bump-version.sh.md)**
-* **[`build.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/build.sh.md)**
-* **[`release.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/release.sh.md)**
-* **[`changelog.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/changelog.sh.md)**
-* **[`diagrams.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/diagrams.sh.md)**
-* **[`docs.sh`](https://www.docs/obeject-detection-metrics-usage.md/search?q=./scripts/docs.sh.md)**
+* **[`clean.sh`](docs/dev/scripts/clean.sh.md)**
+* **[`get-version.sh`](docs/dev/scripts/get-version.sh.md)**
+* **[`test.sh`](docs/dev/scripts/test.sh.md)**
+* **[`bump-version.sh`](docs/dev/scripts/bump-version.sh.md)**
+* **[`build.sh`](docs/dev/scripts/build.sh.md)**
+* **[`release.sh`](docs/dev/scripts/release.sh.md)**
+* **[`changelog.sh`](docs/dev/scripts/changelog.sh.md)**
+* **[`diagrams.sh`](docs/dev/scripts/diagrams.sh.md)**
+* **[`docs.sh`](docs/dev/scripts/docs.sh.md)**
 
 모든 스크립트는 **`scripts`** 디렉터리에 위치해 있습니다:
 
