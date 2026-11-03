@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-"""Check translated README syntax, local targets and shared executable examples.
+"""Check README structure, local targets, clone syntax and shared Python examples.
 
-Install requirements/requirements.docs.txt first. External HTTP availability is
-not checked. Known invalid document host www.docs is reported instead of silently
-counting such links as valid external references. Run again after manual edits.
+Requires the documentation dependencies. External HTTP responses are not checked.
 """
 from html.parser import HTMLParser
 from pathlib import Path
