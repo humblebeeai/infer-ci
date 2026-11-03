@@ -17,3 +17,7 @@ Synthetic in-memory data are used. The suite does not download datasets or model
 ## Recorded validation
 
 On 2026-11-03, CPython 3.13.2 on macOS arm64 against source commit `8dcaf9a`: **21 passed, 14 warnings in 47.67 seconds**. The warnings were Matplotlib/pyparsing deprecations. This was the targeted suite only, not the full existing test suite, and used source via PYTHONPATH rather than a new package installation. The core-only dependency subset above was installed in an isolated environment.
+
+## Automated PR checks
+
+`.github/workflows/core-python313.yml` runs this targeted suite on Ubuntu 24.04 / Python 3.13.2 for pull requests touching the core source, suite, dependency subset or workflow. It also supports main-branch pushes and manual dispatch. The job has read-only repository permissions and performs no publishing or deployment. A fork PR may require a maintainer to approve the initial workflow run; local results do not imply a passed GitHub run.
