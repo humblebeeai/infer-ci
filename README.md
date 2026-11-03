@@ -3,8 +3,8 @@
 # Confidence Intervals for evaluation metrics
 ![logo](docs/images/infer.png)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+!License: MIT https://img.shields.io/badge/License-MIT-yellow.svg https://opensource.org/licenses/MIT
+!Python 3.10+ https://img.shields.io/badge/python-3.10+-blue.svg https://www.python.org/downloads/
 
 This is a standardized evaluation tool that computes common machine learning metrics like Accuracy, MSE, and returns their confidence intervals using bootstraping and other methods. 
 
@@ -100,9 +100,9 @@ For other computation of the CI for any of the methods below, just specify `meth
 - `precision`: Precision
 - `recall`: Recall
 
-📖 **For object detection metrics usage examples, see:** [Object Detection Metrics Usage Guide](docs/object-detection-metrics-usage.md)
+📖 **For object detection metrics usage examples, see:** Object Detection Metrics Usage Guide docs/object-detection-metrics-usage.md
 
-📚 **Try Online version** [https://infer.humblebee.ai](https://infer.humblebee.ai)
+📚 **Try Online version** https://infer.humblebee.ai https://infer.humblebee.ai
 
 You can also get available methods and metrics programmatically
 
