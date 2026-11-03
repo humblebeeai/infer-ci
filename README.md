@@ -1,3 +1,5 @@
+[English](README.md) | [한국어](README.ko.md)
+
 # Confidence Intervals for evaluation metrics
 ![logo](docs/images/infer.png)
 
