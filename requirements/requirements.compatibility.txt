@@ -1,0 +1,12 @@
+# Core-only dependency subset for INF-29, validated on CPython 3.13.2.
+# These match the numerical-library pins in requirements.txt; no model/data downloads.
+numpy==2.2.6
+scipy==1.15.3
+statsmodels==0.14.5
+scikit-learn==1.7.2
+pandas==2.3.3
+matplotlib==3.10.6
+seaborn==0.13.2
+tqdm==4.67.1
+PyYAML==6.0.2
+pytest==8.4.2
