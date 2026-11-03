@@ -1,4 +1,4 @@
-```markdown
+```
 [English](README.md) | [한국어](README.ko.md)
 
 # 평가 지표를 위한 신뢰구간 (Confidence Intervals for evaluation metrics)
