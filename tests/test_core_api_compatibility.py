@@ -1,7 +1,3 @@
-"""Offline core API contracts for the INF-29 Python 3.13.2 workstream.
-
-No external datasets, model downloads, plotting windows, or empirical coverage claims.
-"""
 import math
 
 import numpy as np

@@ -1,4 +1,3 @@
-# Core-only dependency subset for INF-29, validated on CPython 3.13.2.
 # These match the numerical-library pins in requirements.txt; no model/data downloads.
 numpy==2.2.6
 scipy==1.15.3
