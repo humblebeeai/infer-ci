@@ -15,7 +15,7 @@
 
 실제 사례: 몇 년 전 HumbleBee.AI를 창립하기 전에, Jumabek Alikhan의 동료가 독일 고객을 위해 YOLO 기반 탐지기를 구축하고 있었습니다. 작은 테스트 세트에서의 초기 평가에서는 mAP가 약 40%로 보고되었습니다. 하지만 데이터를 더 수집하고 훈련/테스트 세트를 확장한 후 보고된 mAP가 약 36%로 떨어졌고, 고객은 모델 성능이 저하되었다고 판단했습니다. Jumabek이 이 문제를 조사하기 위해 투입되었습니다. 문제는 YOLO의 "버그"가 아니라 통계적 불확실성이었습니다. 원래의 40%는 매우 넓은 95% 신뢰구간(약 20%~60%)을 가진 작은 테스트 세트에서 나온 반면, 더 큰 테스트 세트에서의 36%는 훨씬 더 좁고 신뢰할 수 있는 구간(약 30%~42%)을 가지고 있었습니다. 이러한 불확실성을 소통함으로써 분쟁이 해결되었고, 팀은 모델의 실제 성능 궤적에 대해 의견을 일치시킬 수 있었습니다.
 
-이러한 사고방식, 즉 평가를 단일 점수가 아닌 통계적 추론으로 다루는 것은 훗날 Jumabek이 HumbleBee.AI를 설립하는 방향성을 제시했습니다. 낙관적인 대시보드 수치가 아닌 방어 가능하고 신뢰할 수 있는 측정을 통해 프로덕션 ML을 제공하는 것입니다. `infer-ci`는 이러한 원칙을 오픈소스로 구현한 것으로, 어떤 팀이든 이미 보고하고 있는 지표에 신뢰구간을 첨부하고 안정적인 증거를 바탕으로 배포 결정을 내릴 수 있도록 돕습니다.
+이러한 사고방식, 즉 평가를 단일 점수가 아닌 통계적 추론으로 다루는 것은 훗날 Jumabek이 HumbleBee.AI를 설립하는 방향성을 제시했습니다. 낙관적인 대시보드 수치가 아닌 근거를 설명할 수 있는 신뢰성 있는 측정을 통해 프로덕션 ML을 제공하는 것입니다. `infer-ci`는 이러한 원칙을 오픈소스로 구현한 것으로, 어떤 팀이든 이미 보고하고 있는 지표에 신뢰구간을 첨부하고 안정적인 증거를 바탕으로 배포 결정을 내릴 수 있도록 돕습니다.
 
 ## 개발 동기 (The motivation)
 
@@ -82,11 +82,11 @@ accuracy, ci = evaluator.evaluate(
 **분류 (Classification):**
 
 * `accuracy`: 전체 분류 정확도 (Overall classification accuracy)
-* `precision`: 양성 예측도 (Positive Predictive Value, PPV)
-* `recall`: 민감도 / 참 양성 비율 (True Positive Rate/Sensitivity, TPR)
+* `precision`: 정밀도·양성 예측도 (Positive Predictive Value, PPV)
+* `recall`: 재현율·민감도 (True Positive Rate/Sensitivity, TPR)
 * `specificity`: 특이도 / 참 음성 비율 (True Negative Rate, TNR)
 * `npv`: 음성 예측도 (Negative Predictive Value)
-* `fpr`: 거짓 양성 비율 (False Positive Rate)
+* `fpr`: 위양성률 (False Positive Rate)
 * `f1`: F1 점수 (평균화 지원)
 * `precision_takahashi`: Takahashi 방법을 사용한 정밀도
 * `recall_takahashi`: Takahashi 방법을 사용한 재현율
@@ -123,7 +123,7 @@ for task in ['classification', 'regression', 'detection']:
     print(f"{task} metrics:", evaluator.get_available_metrics(task))
 ```
 
-여기서 분석적 계산은 Takahashi et al.의 2022년 논문(아래 참조)을 기반 참조합니다. 해당 논문은 마이크로 평균(micro averaging)에 대해서만 재현율과 정밀도를 도출했습니다. 우리는 델타 방법(delta method)을 사용하여 매크로(macro) F1에 대한 재현율 및 정밀도 신뢰구간도 함께 도출합니다.
+여기서 사용하는 분석적 계산은 아래 참고 문헌에 있는 Takahashi 등의 2022년 논문을 바탕으로 합니다. 해당 논문은 micro 평균의 재현율과 정밀도를 유도합니다. 이 프로젝트는 델타 방법을 사용해 macro F1 등의 신뢰구간 계산도 구현합니다.
 
 ## 분류 보고서 만들기
 
