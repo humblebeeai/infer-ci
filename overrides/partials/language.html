@@ -1,0 +1,5 @@
+{# Use Korean UI labels and lang="ko" only on translated pages. #}
+{% set locale = page.meta.lang if page and page.meta.lang else config.theme.language %}
+{% import "partials/languages/" ~ locale ~ ".html" as lang %}
+{% import "partials/languages/en.html" as fallback %}
+{% macro t(key) %}{{ lang.t(key) or fallback.t(key) or key }}{% endmacro %}

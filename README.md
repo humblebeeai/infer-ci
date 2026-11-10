@@ -1,10 +1,12 @@
 # Confidence Intervals for evaluation metrics
+
+**Language / 언어:** **English** | [한국어](README.ko.md)
 ![logo](docs/images/infer.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-This is a standardized evaluation tool that computes common machine learning metrics like Accuracy, MSE, and returns their confidence intervals using bootstraping and other methods. 
+This is a standardized evaluation tool that computes common machine learning metrics like Accuracy, MSE, and returns their confidence intervals using bootstrapping and other methods.
 
 # Why do we need Confidence Interval for reliable AI Model evaluation?
 
@@ -18,9 +20,9 @@ That mindset—treating evaluation as statistical inference, not a single-point 
 
 ## The motivation
 
- Computing Confidence Intervals when providing performance estimates has not been sufficiently studied. Over the years, researchers have proposed multiple CI estimation methods in different fields, including medical statistics, AutoML, and text classification. Each method has specific assumptions, strengths, and limitations. However, most approaches are designed for a single metric or a narrow class of models, which limits their applicability. 
- 
- We have developed a standardized evaluation tool that computes model performance metrics with their confidence intervals (CIs), including multiple CI calculation methods (bootstrapping, Wald, Wilson, etc.), and generating clear visualization graphs. It supports ML, CV, LLMs. 
+ Computing Confidence Intervals when providing performance estimates has not been sufficiently studied. Over the years, researchers have proposed multiple CI estimation methods in different fields, including medical statistics, AutoML, and text classification. Each method has specific assumptions, strengths, and limitations. However, most approaches are designed for a single metric or a narrow class of models, which limits their applicability.
+
+ We have developed a standardized evaluation tool that computes model performance metrics with their confidence intervals (CIs), including multiple CI calculation methods (bootstrapping, Wald, Wilson, etc.), and generating clear visualization graphs. It supports ML, CV, LLMs.
 
 
 ## Installation
@@ -28,7 +30,7 @@ That mindset—treating evaluation as statistical inference, not a single-point 
 ### From PyPI (Recommended)
 
 ```bash
-pip install infer-ci
+pip install -U infer-ci
 ```
 
 ### From Source (Development)
@@ -39,6 +41,8 @@ cd infer-ci
 pip install -e ".[dev]"
 ```
 
+For virtual environment setup, see [Installation](docs/getting-started/installation.md).
+
 ## Getting started
 
 ```python
@@ -48,6 +52,9 @@ from infer_ci import accuracy_score, precision_score, tpr_score, f1_score
 from infer_ci import mae, mse, rmse, r2_score, iou
 
 # Classification example:
+y_true = [0, 1, 1, 0, 1]
+y_pred = [0, 1, 0, 0, 1]
+
 evaluator = MetricEvaluator()
 
 accuracy, ci = evaluator.evaluate(
@@ -56,25 +63,25 @@ accuracy, ci = evaluator.evaluate(
     task='classification',
     metric='accuracy',
     method='wilson'
-    # plot=True  # Supported in Bootstrap methods
 )
 ```
 
-## All methods can do an analytical computation, but do a bootsrapping computation by default
-By default all the methods return an Bootstrap Bias-Corrected and Accelerated computation of the confidence intervals (CI). It is an advanced version of the basic bootstrap method that corrects for both bias and skewness in the estimate.
+## Confidence interval methods and defaults
 
-For other computation of the CI for any of the methods below, just specify `method='jackknife_ci'`, or `method='bootstrap_percentile'`. These are different ways of doing the bootstrapping, but `method='bootstrap_bca'` is the generalibly reccomended method.
+`MetricEvaluator.evaluate()` uses `method='bootstrap_bca'` by default. BCa bootstrap intervals adjust for bias and skewness. Direct metric functions have their own defaults: `accuracy_score()` uses Wilson, while `f1_score()` uses the Takahashi method. Not every metric supports every CI method.
+
+Use a method supported by the chosen metric, such as `method='wilson'` for accuracy or `method='bootstrap_percentile'` for bootstrap resampling. Regression metrics also support `method='jackknife'`. Set `random_state` for reproducible bootstrap results with the same data and library versions.
 
 ## Supported Methods
 - **Analytical Methods**: Wilson, Normal, Agresti-Coull, Beta, Jeffreys, Binomial test
-- **Bootstrap Methods**: Bootstrap Basic, Bootstrap Percentile, Bootstrap Bias-Corrected and Accelerated (Default)
+- **Bootstrap Methods**: Bootstrap Basic, Bootstrap Percentile, Bootstrap Bias-Corrected and Accelerated (default for `MetricEvaluator.evaluate()`)
 - **Jackknife Method**: Jackknife
 
 **Core Metrics Available via MetricEvaluator:**
 
 **Classification:**
 - `accuracy`: Overall classification accuracy
-- `precision`: Positive Predictive Value (PPV) 
+- `precision`: Positive Predictive Value (PPV)
 - `recall`: True Positive Rate/Sensitivity (TPR)
 - `specificity`: True Negative Rate (TNR)
 - `npv`: Negative Predictive Value
@@ -102,23 +109,15 @@ For other computation of the CI for any of the methods below, just specify `meth
 
 📚 **Try Online version** [https://infer.humblebee.ai](https://infer.humblebee.ai)
 
-You can also get available methods and metrics programmatically
+You can also inspect the available methods and metrics. The lists are task-level summaries; support can vary by metric.
 
 ```python
-# Get available methods
-classification_methods = evaluator.get_available_methods('classification')
-regression_methods = evaluator.get_available_methods('regression')
+from infer_ci import MetricEvaluator
 
-print("Classification methods:", classification_methods)
-print("Regression methods:", regression_methods)
-
-# Get available metrics
-classification_metrics = evaluator.get_available_metrics('classification')
-regression_metrics = evaluator.get_available_metrics('regression')
-
-print("Classification metrics:", classification_metrics)
-print("Regression metrics:", regression_metrics)
-
+evaluator = MetricEvaluator()
+for task in ['classification', 'regression', 'detection']:
+    print(f"{task} methods:", evaluator.get_available_methods(task))
+    print(f"{task} metrics:", evaluator.get_available_metrics(task))
 ```
 
 The analytical computation here is using the (amazing) 2022 paper of Takahashi et al (reference below). The paper derived recall and precision only for micro averaging. We derive the recall and precision confidence intervals for macro F1 as well using the delta method.
@@ -127,7 +126,7 @@ The analytical computation here is using the (amazing) 2022 paper of Takahashi e
 ## Get a Classification Report
 
 The `classification_report_with_ci` function builds a text report showing the main classification metrics and their confidence intervals.
-Each class will be first treated as a binary classification problem, the default CI for P and R used being Wilson, and Takahashi-binary for F1. Then the 
+Each class will be first treated as a binary classification problem, the default CI for P and R used being Wilson, and Takahashi-binary for F1. Then the
 micro and macro multi-class metric will be calculated using the Takahashi-methods.
 
 ```python
@@ -137,7 +136,11 @@ y_true = [0, 1, 2, 2, 2, 1, 1, 1, 0, 2, 2, 1, 0, 2, 2, 1, 2, 2, 1, 1]
 y_pred = [0, 1, 0, 0, 2, 1, 1, 1, 0, 2, 2, 1, 0, 1, 2, 1, 2, 2, 1, 1]
 
 classification_report_with_ci(y_true, y_pred)
+```
 
+Example output:
+
+```text
      Class  Precision  Recall  F1-Score    Precision CI       Recall CI     F1-Score CI  Support
 0  Class 0      0.600   1.000     0.750  (0.231, 0.882)    (0.439, 1.0)  (0.408, 1.092)        3
 1  Class 1      0.889   1.000     0.941   (0.565, 0.98)    (0.676, 1.0)  (0.796, 1.086)        8
@@ -146,14 +149,28 @@ classification_report_with_ci(y_true, y_pred)
 4    macro      0.830   0.889     0.830  (0.702, 0.958)  (0.775, 1.002)  (0.548, 1.113)       20
 ```
 
-## Support for binary, macro and micro averaging for F1, Precision and Recall.
-```python
-from infer_ci import precision_score, recall_score, f1_score
-binary_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='binary')
-macro_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='macro')
-micro_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='micro')
-bootstrap_binary_f1, ci = f1_score(y_true, y_pred, confidence_interval=0.95, average='binary', method='bootstrap_bca', n_resamples=5000)
+## Binary, macro and micro averaging for F1
 
+Use binary labels for `average='binary'`. Precision and recall also support averaging; check the selected metric's method requirements.
+
+```python
+from infer_ci import f1_score
+
+# Synthetic data for demonstrating the averaging API.
+y_true = [0, 1, 1, 0, 1, 0, 1, 0] * 10
+y_pred = [0, 1, 0, 0, 1, 1, 1, 0] * 10
+
+for average in ['binary', 'macro', 'micro']:
+    value, ci = f1_score(
+        y_true, y_pred, confidence_level=0.95,
+        average=average, method='takahashi'
+    )
+    print(f"{average}: {value:.3f} [{ci[0]:.3f}, {ci[1]:.3f}]")
+
+bootstrap_binary_f1, ci = f1_score(
+    y_true, y_pred, confidence_level=0.95, average='binary',
+    method='bootstrap_bca', n_resamples=5000, random_state=42
+)
 ```
 
 
