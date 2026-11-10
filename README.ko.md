@@ -1,7 +1,6 @@
-
-[English](README.md) | [한국어](README.ko.md)
-
 # 평가 지표를 위한 신뢰구간 (Confidence Intervals for evaluation metrics)
+
+**Language / 언어:** [English](README.md) | **한국어**
 ![logo](docs/images/infer.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -29,7 +28,7 @@
 ### PyPI를 통한 설치 (권장)
 
 ```bash
-pip install infer-ci
+pip install -U infer-ci
 
 ```
 
@@ -172,38 +171,6 @@ bootstrap_binary_f1, ci = f1_score(
     method='bootstrap_bca', n_resamples=5000, random_state=42
 )
 ```
-
-## 스크립트 (Scripts)
-
-이 문서는 본 프로젝트에 포함된 다음 스크립트들에 대한 개요와 사용 방법을 제공합니다:
-
-* **[`clean.sh`](docs/dev/scripts/clean.sh.md)**
-* **[`get-version.sh`](docs/dev/scripts/get-version.sh.md)**
-* **[`test.sh`](docs/dev/scripts/test.sh.md)**
-* **[`bump-version.sh`](docs/dev/scripts/bump-version.sh.md)**
-* **[`build.sh`](docs/dev/scripts/build.sh.md)**
-* **[`release.sh`](docs/dev/scripts/release.sh.md)**
-* **[`changelog.sh`](docs/dev/scripts/changelog.sh.md)**
-* **[`diagrams.sh`](docs/dev/scripts/diagrams.sh.md)**
-* **[`docs.sh`](docs/dev/scripts/docs.sh.md)**
-
-모든 스크립트는 **`scripts`** 디렉터리에 위치해 있습니다:
-
-```txt
-scripts/
-├── build.sh
-├── bump-version.sh
-├── changelog.sh
-├── clean.sh
-├── diagrams.sh
-├── docs.sh
-├── get-version.sh
-├── release.sh
-└── test.sh
-
-```
-
-이 스크립트들은 Linux 또는 macOS 환경에서 사용하도록 설계되었습니다. Windows 환경에서도 적절한 도구를 설치하면 작동할 수 있지만, 정상적인 동작을 완벽히 보장하지는 않습니다.
 
 ---
 

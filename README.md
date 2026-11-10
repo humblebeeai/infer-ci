@@ -30,7 +30,7 @@ That mindset—treating evaluation as statistical inference, not a single-point 
 ### From PyPI (Recommended)
 
 ```bash
-pip install infer-ci
+pip install -U infer-ci
 ```
 
 ### From Source (Development)
