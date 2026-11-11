@@ -19,6 +19,6 @@ def test_compute_ground_truth_statistics(ground_truth):
 
     order, label_1_count, ordered_sample_weight = compute_ground_truth_statistics(ground_truth=ground_truth, sample_weight=sample_weight)
 
-    assert set(expected_order) == set(order)
+    assert np.array_equal(expected_order, order)
     assert expected_label_1_count == label_1_count
     assert np.array_equal(expected_ordered_sample_weight, ordered_sample_weight)
