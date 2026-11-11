@@ -171,5 +171,5 @@ def test_pipeline(path, ground_truth):
 
 if __name__ == "__main__":
     path = "datasets/housing.csv"
-    ground_truth = "price"  # <--- 이 부분을 'price'로 일치시켜 줍니다.
+    ground_truth = "price"
     test_pipeline(path, ground_truth)

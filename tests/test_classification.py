@@ -45,7 +45,7 @@ def load_data(path, ground_truth):
 
     return x, y
 
-@pytest.mark.parametrize("path, ground_truth", [('datasets/breast_cancer.csv', 'target')])  # <--- 이 줄을 추가합니다.
+@pytest.mark.parametrize("path, ground_truth", [('datasets/breast_cancer.csv', 'target')])
 def test_binary_classification_ci(path, ground_truth):
     """
     Test confidence intervals for binary classification metrics.
