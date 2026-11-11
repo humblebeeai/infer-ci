@@ -1,5 +1,3 @@
-import matplotlib
-matplotlib.use('Agg')  # GUI 창을 띄우지 않고 백그라운드에서 처리하도록 설정
 import pandas as pd
 import numpy as np
 import pytest
