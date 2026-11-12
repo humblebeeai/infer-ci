@@ -5,6 +5,7 @@ repo_name: humblebeeai/infer-ci
 repo_url: https://github.com/humblebeeai/infer-ci
 theme:
   name: material
+  custom_dir: overrides
   # name: readthedocs
   language: en
   font:
@@ -105,10 +106,13 @@ extra:
     provider: mike
 
 nav:
-  - Home: index.md
+  - Home (English): README.md
+  - 홈 (한국어): README.ko.md
   - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quickstart.md
+    - Installation (English): getting-started/installation.md
+    - 설치 (한국어): getting-started/installation.ko.md
+    - Quick Start (English): getting-started/quickstart.md
+    - 빠른 시작 (한국어): getting-started/quickstart.ko.md
     - Examples: getting-started/examples.md
   - User Guide:
     - Classification Metrics: getting-started/classification.md

@@ -1,6 +1,10 @@
 import logging
 
+import matplotlib
 import pytest
+
+# Use a non-interactive backend so plotting tests run without a display.
+matplotlib.use('Agg')
 
 
 logger = logging.getLogger(__name__)
