@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Callable, List, Tuple, Optional
 from .delong import delong_roc_variance
+from .utils import _clip_unit_interval
 import sklearn.metrics
 from scipy.stats import norm
 
@@ -39,7 +40,7 @@ def roc_auc_score(y_true: List,
         alpha = 1 - confidence_level
         z = norm.ppf(1 - alpha / 2)
         ci = auc - z * np.sqrt(variance), auc + z * np.sqrt(variance)
-        return auc, ci
+        return auc, _clip_unit_interval(ci)
     elif method in bootstrap_methods:
         return roc_auc_score_bootstrap(
             y_true, y_pred, confidence_level, method, *args, **kwargs)
