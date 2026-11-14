@@ -71,7 +71,8 @@ Available metrics:
 metrics = evaluator.get_available_metrics('regression')
 print(metrics)
 # ['mae', 'mse', 'rmse', 'r2', 'mape', 'iou', 'med_abs_err', 'mean_bia_dev',
-#  'huber_loss', 'exp_var_score', 'sym_mean_abs_per_error']
+#  'huber_loss', 'exp_var_score', 'sym_mean_abs_per_error', 'rmse_log',
+#  'adjusted_r2_score']
 ```
 
 Available metrics:
@@ -86,6 +87,13 @@ Available metrics:
 - `huber_loss`: Huber Loss (set the threshold with `delta=...`, default 1.0)
 - `exp_var_score`: Explained Variance Score
 - `sym_mean_abs_per_error`: Symmetric Mean Absolute Percentage Error (SMAPE)
+- `rmse_log`: Root Mean Squared Logarithmic Error (RMSLE). Values must be greater than -1.
+- `adjusted_r2_score`: Adjusted R². Needs the number of model features:
+
+```python
+evaluate_metric(y_true, y_pred, task='regression', metric='adjusted_r2_score',
+                num_features=3)
+```
 
 ### Detection Task
 
