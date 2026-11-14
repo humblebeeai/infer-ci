@@ -70,7 +70,8 @@ Available metrics:
 # Get all available regression metrics
 metrics = evaluator.get_available_metrics('regression')
 print(metrics)
-# ['mae', 'mse', 'rmse', 'r2', 'mape', 'iou']
+# ['mae', 'mse', 'rmse', 'r2', 'mape', 'iou', 'med_abs_err', 'mean_bia_dev',
+#  'huber_loss', 'exp_var_score', 'sym_mean_abs_per_error']
 ```
 
 Available metrics:
@@ -80,6 +81,11 @@ Available metrics:
 - `r2`: R² Score
 - `mape`: Mean Absolute Percentage Error
 - `iou`: Intersection over Union
+- `med_abs_err`: Median Absolute Error
+- `mean_bia_dev`: Mean Bias Deviation (mean of `y_pred - y_true`)
+- `huber_loss`: Huber Loss (set the threshold with `delta=...`, default 1.0)
+- `exp_var_score`: Explained Variance Score
+- `sym_mean_abs_per_error`: Symmetric Mean Absolute Percentage Error (SMAPE)
 
 ### Detection Task
 

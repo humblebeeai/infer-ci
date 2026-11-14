@@ -21,7 +21,9 @@ from .auc import roc_auc_score
 
 # Import regression metrics
 from .regression_metrics import (
-    mae, mse, rmse, r2_score, mape, iou, regression_conf_methods
+    mae, mse, rmse, r2_score, mape, iou, regression_conf_methods,
+    med_abs_err, mean_bia_dev, huber_loss, exp_var_score,
+    sym_mean_abs_per_error
 )
 
 # Import detection metrics
@@ -64,6 +66,11 @@ class MetricEvaluator:
         - r2 (Coefficient of Determination)
         - mape (Mean Absolute Percentage Error)
         - iou (Intersection over Union)
+        - med_abs_err (Median Absolute Error)
+        - mean_bia_dev (Mean Bias Deviation)
+        - huber_loss (Huber Loss, pass delta=...)
+        - exp_var_score (Explained Variance Score)
+        - sym_mean_abs_per_error (Symmetric Mean Absolute Percentage Error)
 
     Detection:
         - map (mAP@0.5:0.95 with CI)
@@ -126,7 +133,12 @@ class MetricEvaluator:
             'rmse': rmse,         # Root Mean Squared Error
             'r2': r2_score,       # Coefficient of Determination
             'mape': mape,         # Mean Absolute Percentage Error
-            'iou': iou            # Intersection over Union
+            'iou': iou,           # Intersection over Union
+            'med_abs_err': med_abs_err,                        # Median Absolute Error
+            'mean_bia_dev': mean_bia_dev,                      # Mean Bias Deviation
+            'huber_loss': huber_loss,                          # Huber Loss (pass delta=...)
+            'exp_var_score': exp_var_score,                    # Explained Variance Score
+            'sym_mean_abs_per_error': sym_mean_abs_per_error,  # Symmetric MAPE
         }
 
         # Detection metrics mapping
