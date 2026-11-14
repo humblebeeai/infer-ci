@@ -7,7 +7,7 @@ from typing import List, Callable, Tuple, Union, Optional
 from functools import partial
 import numpy as np
 from scipy.stats import norm
-from .utils import get_positive_negative_counts
+from .utils import get_positive_negative_counts, _clip_unit_interval
 from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
 from .binary_metrics import tpr_score, ppv_score
 
@@ -71,7 +71,7 @@ def precision_score_takahashi(y_true: List[int],
             z = norm.ppf(1 - alpha / 2)
             ci = precision - z * \
                 np.sqrt(variance), precision + z * np.sqrt(variance)
-            return precision, ci
+            return precision, _clip_unit_interval(ci)
         else:
             return precision
     elif average == 'macro':
@@ -104,7 +104,7 @@ def precision_score_takahashi(y_true: List[int],
                 np.sqrt(delta_method_variance), precision_macro + \
                 z * np.sqrt(delta_method_variance)
 
-            return precision_macro, ci
+            return precision_macro, _clip_unit_interval(ci)
         else:
             return precision_macro
 
@@ -254,7 +254,7 @@ def recall_score_takahashi(y_true: List[int],
             alpha = 1 - confidence_level
             z = norm.ppf(1 - alpha / 2)
             ci = recall - z * np.sqrt(variance), recall + z * np.sqrt(variance)
-            return recall, ci
+            return recall, _clip_unit_interval(ci)
         else:
             return recall
     elif average == 'macro':
@@ -288,7 +288,7 @@ def recall_score_takahashi(y_true: List[int],
                 np.sqrt(delta_method_variance), recall_macro + \
                 z * np.sqrt(delta_method_variance)
 
-            return recall_macro, ci
+            return recall_macro, _clip_unit_interval(ci)
         else:
             return recall_macro
     else:
@@ -432,7 +432,7 @@ def binary_f1_score_takahashi(y_true: List[int],
         z = norm.ppf(1 - alpha / 2)
         ci = f1 - z * np.sqrt(delta_method_variance), f1 + \
             z * np.sqrt(delta_method_variance)
-        return f1, ci
+        return f1, _clip_unit_interval(ci)
     return f1
 
 
@@ -489,7 +489,7 @@ def macro_f1_score_takahashi(y_true: List[int],
         z = norm.ppf(1 - alpha / 2)
         ci = f1 - z * np.sqrt(variance), f1 + z * np.sqrt(variance)
 
-        return f1, ci
+        return f1, _clip_unit_interval(ci)
     else:
         return f1
 
