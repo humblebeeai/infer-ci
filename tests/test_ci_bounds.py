@@ -17,8 +17,6 @@ def event_vectors(tp, fp, fn, tn=0):
 @pytest.mark.parametrize('counts', [(14, 3, 1, 0), (19, 0, 1, 2), (1, 9, 9, 5)])
 def test_takahashi_ci_stays_in_unit_interval(metric, average, counts):
     y_true, y_pred = event_vectors(*counts)
-    if average == 'binary' and metric is not f1_score:
-        pytest.skip('binary precision/recall do not support method="takahashi" (they use proportion CIs)')
     value, (lower, upper) = metric(y_true, y_pred, average=average, method='takahashi')
     assert 0.0 <= lower <= value <= upper <= 1.0
 
@@ -50,3 +48,14 @@ def test_delong_auc_ci_stays_in_unit_interval():
     value, (lower, upper) = roc_auc_score(y_true, scores, method='delong')
     assert 0.0 <= lower <= value <= upper <= 1.0
 
+
+@pytest.mark.parametrize('metric', [precision_score, recall_score])
+def test_binary_precision_recall_default_method(metric):
+    # The default method is 'takahashi'; for average='binary' it must fall
+    # back to the Wilson interval instead of raising an AssertionError.
+    y_true, y_pred = event_vectors(14, 3, 1)
+    default = metric(y_true, y_pred, average='binary')
+    wilson = metric(y_true, y_pred, average='binary', method='wilson')
+    assert default[0] == pytest.approx(wilson[0])
+    assert default[1] == pytest.approx(wilson[1])
+    assert metric(y_true, y_pred, average='binary', compute_ci=False) == pytest.approx(wilson[0])

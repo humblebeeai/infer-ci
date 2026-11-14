@@ -180,6 +180,9 @@ def precision_score(y_true: List[int],
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
+        With average='binary', 'takahashi' falls back to 'wilson', and the
+        proportion methods ('wilson', 'normal', 'agresti_coull', 'beta',
+        'jeffreys', 'binom_test') are also accepted.
     compute_ci : bool, optional
         If tue, the confidence level will be computed as well, otherwise only the metric.
         By default True
@@ -191,7 +194,14 @@ def precision_score(y_true: List[int],
     """
 
     if average == 'binary':
-        return ppv_score(y_true, y_pred, confidence_level, method, **kwargs)
+        # Binary precision/recall is a single proportion. The delta method
+        # would give the normal (Wald) interval, which covers badly for small
+        # samples and values near 0 or 1 (Brown, Cai & DasGupta, 2001), so
+        # use the Wilson interval instead.
+        if method == 'takahashi':
+            method = 'wilson'
+        return ppv_score(y_true, y_pred, confidence_level, method,
+                         compute_ci=compute_ci, **kwargs)
 
     if method in bootstrap_methods:
         return precision_score_bootstrap(
@@ -364,6 +374,9 @@ def recall_score(y_true: List[int],
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
+        With average='binary', 'takahashi' falls back to 'wilson', and the
+        proportion methods ('wilson', 'normal', 'agresti_coull', 'beta',
+        'jeffreys', 'binom_test') are also accepted.
     compute_ci : bool, optional
         If tue, the confidence level will be computed as well, otherwise only the metric.
         By default True
@@ -374,7 +387,14 @@ def recall_score(y_true: List[int],
         The metric, and (optionally) the confidence interval low, high tuple.
     """
     if average == 'binary':
-        return tpr_score(y_true, y_pred, confidence_level, method, **kwargs)
+        # Binary precision/recall is a single proportion. The delta method
+        # would give the normal (Wald) interval, which covers badly for small
+        # samples and values near 0 or 1 (Brown, Cai & DasGupta, 2001), so
+        # use the Wilson interval instead.
+        if method == 'takahashi':
+            method = 'wilson'
+        return tpr_score(y_true, y_pred, confidence_level, method,
+                         compute_ci=compute_ci, **kwargs)
 
     if method in bootstrap_methods:
         return recall_score_bootstrap(
