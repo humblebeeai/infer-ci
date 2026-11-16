@@ -21,7 +21,9 @@ from .auc import roc_auc_score
 
 # Import regression metrics
 from .regression_metrics import (
-    mae, mse, rmse, r2_score, mape, iou, regression_conf_methods
+    mae, mse, rmse, r2_score, mape, iou, regression_conf_methods,
+    med_abs_err, mean_bia_dev, huber_loss, exp_var_score,
+    sym_mean_abs_per_error, rmse_log, adjusted_r2_score
 )
 
 # Import detection metrics
@@ -64,6 +66,13 @@ class MetricEvaluator:
         - r2 (Coefficient of Determination)
         - mape (Mean Absolute Percentage Error)
         - iou (Intersection over Union)
+        - med_abs_err (Median Absolute Error)
+        - mean_bia_dev (Mean Bias Deviation)
+        - huber_loss (Huber Loss, pass delta=...)
+        - exp_var_score (Explained Variance Score)
+        - sym_mean_abs_per_error (Symmetric Mean Absolute Percentage Error)
+        - rmse_log (Root Mean Squared Logarithmic Error)
+        - adjusted_r2_score (Adjusted R², pass num_features=...)
 
     Detection:
         - map (mAP@0.5:0.95 with CI)
@@ -126,7 +135,14 @@ class MetricEvaluator:
             'rmse': rmse,         # Root Mean Squared Error
             'r2': r2_score,       # Coefficient of Determination
             'mape': mape,         # Mean Absolute Percentage Error
-            'iou': iou            # Intersection over Union
+            'iou': iou,           # Intersection over Union
+            'med_abs_err': med_abs_err,                        # Median Absolute Error
+            'mean_bia_dev': mean_bia_dev,                      # Mean Bias Deviation
+            'huber_loss': huber_loss,                          # Huber Loss (pass delta=...)
+            'exp_var_score': exp_var_score,                    # Explained Variance Score
+            'sym_mean_abs_per_error': sym_mean_abs_per_error,  # Symmetric MAPE
+            'rmse_log': rmse_log,                              # Root Mean Squared Log Error
+            'adjusted_r2_score': adjusted_r2_score,            # Adjusted R² (pass num_features=...)
         }
 
         # Detection metrics mapping
@@ -354,6 +370,9 @@ class MetricEvaluator:
                 available = ', '.join(self.regression_metrics.keys())
                 raise ValueError(f"Unknown regression metric: {metric}. Available: {available}")
             metric_func = self.regression_metrics[metric]
+
+            if metric == 'adjusted_r2_score' and 'num_features' not in kwargs:
+                raise ValueError("adjusted_r2_score needs num_features=<number of model features>")
 
             # Validate method for regression
             if method not in self.regression_methods:

@@ -388,7 +388,22 @@ def adjusted_r2_score(num_features: int,
     -------
     Union[float, Tuple[float, Tuple[float, float]]]
         The Adjusted R² score and optionally the confidence interval.
+
+    Raises
+    ------
+    ValueError
+        If num_features is not a non-negative integer, or if there are not
+        more than num_features + 1 samples (the formula divides by
+        n - num_features - 1).
     """
+    if isinstance(num_features, bool) or not isinstance(num_features, (int, np.integer)) or num_features < 0:
+        raise ValueError(f"num_features must be a non-negative integer, got {num_features!r}")
+    n_samples = len(y_true)
+    if n_samples <= num_features + 1:
+        raise ValueError(
+            f"Adjusted R² needs more than num_features + 1 samples: got {n_samples} samples "
+            f"and num_features={num_features}")
+
     def adjusted_r2_metric(y_true, y_pred):
         y_true_arr = np.array(y_true)
         y_pred_arr = np.array(y_pred)
@@ -452,8 +467,8 @@ def sym_mean_abs_per_error(
         **kwargs
     )
 
-def rmse_log(y_pred: List[float],
-             y_true: List[float],
+def rmse_log(y_true: List[float],
+             y_pred: List[float],
              confidence_level: float = 0.95,
              method: str = 'bootstrap_bca',
              compute_ci: bool = True,
@@ -463,10 +478,10 @@ def rmse_log(y_pred: List[float],
 
     Parameters
     ----------
-    y_pred: List[float]
-        The predicted target values.
     y_true: List[float]
         The ground truth target values.
+    y_pred: List[float]
+        The predicted target values.
     confidence_level: float, optional
         The confidence interval level, by default 0.95
     method: str, optional
