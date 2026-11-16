@@ -7,7 +7,7 @@ from typing import List, Callable, Tuple, Union, Optional
 from functools import partial
 import numpy as np
 from scipy.stats import norm
-from .utils import get_positive_negative_counts
+from .utils import get_positive_negative_counts, _clip_unit_interval
 from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
 from .binary_metrics import tpr_score, ppv_score
 
@@ -71,7 +71,7 @@ def precision_score_takahashi(y_true: List[int],
             z = norm.ppf(1 - alpha / 2)
             ci = precision - z * \
                 np.sqrt(variance), precision + z * np.sqrt(variance)
-            return precision, ci
+            return precision, _clip_unit_interval(ci)
         else:
             return precision
     elif average == 'macro':
@@ -85,14 +85,15 @@ def precision_score_takahashi(y_true: List[int],
 
         if compute_ci:
             # The variance
-            derivative = np.diag((1 - P_i) / len(p))
+            derivative = np.diag(
+                (1 - P_i) / (len(p) * total_detected_as_each_category))
             for i in range(len(p)):
                 indices = [j for j in range(len(p)) if i != j]
                 derivative[indices, i] -= P_i[i] / \
                     (len(p) * total_detected_as_each_category[i])
             p = p.flatten()
             derivative = derivative.flatten()
-            variance = np.diag(p) - p * p.transpose()
+            variance = np.diag(p) - np.outer(p, p)
 
             delta_method_variance = derivative.transpose().dot(variance).dot(derivative)
             delta_method_variance = delta_method_variance / len(y_true)
@@ -103,7 +104,7 @@ def precision_score_takahashi(y_true: List[int],
                 np.sqrt(delta_method_variance), precision_macro + \
                 z * np.sqrt(delta_method_variance)
 
-            return precision_macro, ci
+            return precision_macro, _clip_unit_interval(ci)
         else:
             return precision_macro
 
@@ -179,6 +180,9 @@ def precision_score(y_true: List[int],
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
+        With average='binary', 'takahashi' falls back to 'wilson', and the
+        proportion methods ('wilson', 'normal', 'agresti_coull', 'beta',
+        'jeffreys', 'binom_test') are also accepted.
     compute_ci : bool, optional
         If tue, the confidence level will be computed as well, otherwise only the metric.
         By default True
@@ -190,7 +194,14 @@ def precision_score(y_true: List[int],
     """
 
     if average == 'binary':
-        return ppv_score(y_true, y_pred, confidence_level, method, **kwargs)
+        # Binary precision/recall is a single proportion. The delta method
+        # would give the normal (Wald) interval, which covers badly for small
+        # samples and values near 0 or 1 (Brown, Cai & DasGupta, 2001), so
+        # use the Wilson interval instead.
+        if method == 'takahashi':
+            method = 'wilson'
+        return ppv_score(y_true, y_pred, confidence_level, method,
+                         compute_ci=compute_ci, **kwargs)
 
     if method in bootstrap_methods:
         return precision_score_bootstrap(
@@ -253,7 +264,7 @@ def recall_score_takahashi(y_true: List[int],
             alpha = 1 - confidence_level
             z = norm.ppf(1 - alpha / 2)
             ci = recall - z * np.sqrt(variance), recall + z * np.sqrt(variance)
-            return recall, ci
+            return recall, _clip_unit_interval(ci)
         else:
             return recall
     elif average == 'macro':
@@ -268,14 +279,15 @@ def recall_score_takahashi(y_true: List[int],
 
         if compute_ci:
             # The variance
-            derivative = np.diag((1 - R_i) / len(p))
+            derivative = np.diag(
+                (1 - R_i) / (len(p) * total_from_each_category))
             for i in range(len(p)):
                 indices = [j for j in range(len(p)) if i != j]
                 derivative[i, indices] -= R_i[i] / \
                     (len(p) * total_from_each_category[i])
             p = p.flatten()
             derivative = derivative.flatten()
-            variance = np.diag(p) - p * p.transpose()
+            variance = np.diag(p) - np.outer(p, p)
 
             delta_method_variance = derivative.transpose().dot(variance).dot(derivative)
             delta_method_variance = delta_method_variance / len(y_true)
@@ -286,7 +298,7 @@ def recall_score_takahashi(y_true: List[int],
                 np.sqrt(delta_method_variance), recall_macro + \
                 z * np.sqrt(delta_method_variance)
 
-            return recall_macro, ci
+            return recall_macro, _clip_unit_interval(ci)
         else:
             return recall_macro
     else:
@@ -362,6 +374,9 @@ def recall_score(y_true: List[int],
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
+        With average='binary', 'takahashi' falls back to 'wilson', and the
+        proportion methods ('wilson', 'normal', 'agresti_coull', 'beta',
+        'jeffreys', 'binom_test') are also accepted.
     compute_ci : bool, optional
         If tue, the confidence level will be computed as well, otherwise only the metric.
         By default True
@@ -372,7 +387,14 @@ def recall_score(y_true: List[int],
         The metric, and (optionally) the confidence interval low, high tuple.
     """
     if average == 'binary':
-        return tpr_score(y_true, y_pred, confidence_level, method, **kwargs)
+        # Binary precision/recall is a single proportion. The delta method
+        # would give the normal (Wald) interval, which covers badly for small
+        # samples and values near 0 or 1 (Brown, Cai & DasGupta, 2001), so
+        # use the Wilson interval instead.
+        if method == 'takahashi':
+            method = 'wilson'
+        return tpr_score(y_true, y_pred, confidence_level, method,
+                         compute_ci=compute_ci, **kwargs)
 
     if method in bootstrap_methods:
         return recall_score_bootstrap(
@@ -421,9 +443,8 @@ def binary_f1_score_takahashi(y_true: List[int],
     if compute_ci:
         derivative = np.array(
             [0, -f1 / denom, -f1 / denom, 2 * (1 - f1) / denom])
-        derivative = np.float32(derivative)
         p = p.flatten()
-        variance = np.diag(p) - p * p.transpose()
+        variance = np.diag(p) - np.outer(p, p)
         delta_method_variance = derivative.transpose().dot(variance).dot(derivative)
         delta_method_variance = delta_method_variance / len(y_true)
 
@@ -431,7 +452,7 @@ def binary_f1_score_takahashi(y_true: List[int],
         z = norm.ppf(1 - alpha / 2)
         ci = f1 - z * np.sqrt(delta_method_variance), f1 + \
             z * np.sqrt(delta_method_variance)
-        return f1, ci
+        return f1, _clip_unit_interval(ci)
     return f1
 
 
@@ -466,16 +487,20 @@ def macro_f1_score_takahashi(y_true: List[int],
         # Breaking down the equation for Var(MACROF1) in 3.2
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8936911/#APP1
 
-        a = (TP + FP + TP + FN - 2 * TP)
-        b = (TP + FP + TP + FN + 1e-7)
-        first_term = f1i * a / (b**2) + (f1i / 2 + a / b)
+        # Takahashi et al. (2022), eq. for Var(maF1), with cell
+        # proportions p_ij (not counts):
+        # a_i = p_i. + p_.i - 2 p_ii, b_i = p_i. + p_.i
+        n = CM.sum()
+        a = (FP + FN) / n
+        b = (TP + FP + TP + FN) / n + 1e-7
+        first_term = f1i * a / (b**2) * (f1i / 2 + a / b)
 
         second_term = 0
         for i in range(CM.shape[0]):
             for j in range(CM.shape[1]):
                 if i == j:
                     continue
-                second_term += CM[j][i] * f1i[i] * f1i[j] / (b[i] + b[j])
+                second_term += (CM[j][i] / n) * f1i[i] * f1i[j] / (b[i] * b[j])
 
         variance = 2 * (first_term.sum() + second_term) / (len(f1i) ** 2)
         variance = variance / len(y_true)
@@ -484,7 +509,7 @@ def macro_f1_score_takahashi(y_true: List[int],
         z = norm.ppf(1 - alpha / 2)
         ci = f1 - z * np.sqrt(variance), f1 + z * np.sqrt(variance)
 
-        return f1, ci
+        return f1, _clip_unit_interval(ci)
     else:
         return f1
 
