@@ -220,6 +220,8 @@ def test_binary_classification_ci():
     success_rate = (success_count / total_count) * 100
     print(f"\nOverall Success Rate: {success_count}/{total_count} ({success_rate:.1f}%)")
 
+    assert all_coverage_success
+
 if __name__ == "__main__":
 
-    test_passed = test_binary_classification_ci()
+    test_binary_classification_ci()

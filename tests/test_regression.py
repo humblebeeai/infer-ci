@@ -167,7 +167,8 @@ def test_pipeline(path, ground_truth):
         }
 
 
-    return results
+    assert isinstance(results, dict)
+    assert len(results) > 0
 
 if __name__ == "__main__":
     path = "datasets/housing.csv"
