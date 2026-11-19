@@ -54,7 +54,11 @@ def load_california_housing_data():
 
     return x, y
 
-@pytest.mark.parametrize("x, y", [(np.arange(100).reshape(-1, 1), np.arange(100))])
+rng = np.random.default_rng(42)
+_x = np.linspace(0, 10, 100).reshape(-1, 1)
+_y = 2 * _x.squeeze() + rng.normal(0, 1.0, 100)
+
+@pytest.mark.parametrize("x, y", [(_x, _y)])
 def test_regression_ci_single_experiment(x, y, dataset_name="Dataset"):
     """
     Test confidence intervals for regression metrics with a single experiment.
@@ -236,7 +240,7 @@ def test_regression_ci_single_experiment(x, y, dataset_name="Dataset"):
     print("Classification methods:", classification_methods)
     print("Regression methods:", regression_methods)
 
-    return all_coverage_success, results
+    assert all_coverage_success
 
 
 if __name__ == "__main__":
@@ -252,9 +256,10 @@ if __name__ == "__main__":
             x_housing, y_housing = load_california_housing_data()
 
             # Single experiment test
-            housing_success, _ = test_regression_ci_single_experiment(
+            test_regression_ci_single_experiment(
                 x_housing, y_housing, "California Housing"
             )
+            housing_success = True
 
         except Exception as e:
             print(f" California Housing test failed: {str(e)}")
