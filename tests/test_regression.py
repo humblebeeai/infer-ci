@@ -167,8 +167,14 @@ def test_pipeline(path, ground_truth):
         }
 
 
-    assert isinstance(results, dict)
-    assert len(results) > 0
+    # Every metric is evaluated, and each score lies inside its own finite
+    # interval. (Validation coverage is printed above but not asserted: on
+    # this dataset the validation score often falls outside the test interval.)
+    assert set(results) == set(metrics)
+    for metric in metrics:
+        for value, (lower, upper), _ in (lr_results[metric], xgb_results[metric]):
+            assert np.isfinite(lower) and np.isfinite(upper)
+            assert lower <= value <= upper
 
 if __name__ == "__main__":
     path = "datasets/housing.csv"
