@@ -4,6 +4,7 @@
 
 from typing import List, Callable, Tuple, Union, Optional
 
+import warnings
 from functools import partial
 import numpy as np
 from scipy.stats import norm
@@ -12,6 +13,19 @@ from .methods import bootstrap_ci, bootstrap_methods, BootstrapParams
 from .binary_metrics import tpr_score, ppv_score
 
 from sklearn.metrics import confusion_matrix
+
+
+def _default_average(y_true, y_pred, average: Optional[str]) -> str:
+    """Return the averaging mode to use when ``average`` is not given.
+
+    Labels that contain only 0 and 1 are treated as binary data and use
+    ``'binary'`` (the score of class 1). All other labels use ``'micro'``.
+    An explicit ``average`` is returned unchanged.
+    """
+    if average is not None:
+        return average
+    labels = np.union1d(np.unique(np.asarray(y_true)), np.unique(np.asarray(y_pred)))
+    return 'binary' if set(labels.tolist()) <= {0, 1} else 'micro'
 
 
 def precision_score_takahashi(y_true: List[int],
@@ -160,7 +174,7 @@ def precision_score_bootstrap(y_true: List[int],
 def precision_score(y_true: List[int],
                     y_pred: List[int],
                     confidence_level: float = 0.95,
-                    average: str = 'micro',
+                    average: Optional[str] = None,
                     method: str = 'takahashi',
                     compute_ci: bool = True,
                     **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
@@ -175,8 +189,9 @@ def precision_score(y_true: List[int],
     confidence_level : float, optional
         The confidence level , by default 0.95
     average : str, optional
-        The avarging method accross multiple categories., by default 'micro'.
-        Supports binary / micro
+        The averaging method: 'binary', 'micro' or 'macro'. By default None:
+        'binary' (the score of class 1) when y_true and y_pred contain only
+        0 and 1, and 'micro' otherwise.
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
@@ -192,6 +207,8 @@ def precision_score(y_true: List[int],
     Union[float, Tuple[float, Tuple[float, float]]]
         The metric, and (optionally) the confidence interval low, high tuple.
     """
+
+    average = _default_average(y_true, y_pred, average)
 
     if average == 'binary':
         # Binary precision/recall is a single proportion. The delta method
@@ -354,7 +371,7 @@ def recall_score_bootstrap(y_true: List[int],
 def recall_score(y_true: List[int],
                  y_pred: List[int],
                  confidence_level: float = 0.95,
-                 average: str = 'micro',
+                 average: Optional[str] = None,
                  method: str = 'takahashi',
                  compute_ci: bool = True,
                  **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
@@ -369,8 +386,9 @@ def recall_score(y_true: List[int],
     confidence_level : float, optional
         The confidence level , by default 0.95
     average : str, optional
-        The avarging method accross multiple categories., by default 'micro'.
-        Supports binary / micro
+        The averaging method: 'binary', 'micro' or 'macro'. By default None:
+        'binary' (the score of class 1) when y_true and y_pred contain only
+        0 and 1, and 'micro' otherwise.
     method : str, optional
         The method for the confidence interval. If one of the bootstrap methods, bootstrap will be used.
         The values supported are 'takahashi', 'bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic'.
@@ -386,6 +404,9 @@ def recall_score(y_true: List[int],
     Union[float, Tuple[float, Tuple[float, float]]]
         The metric, and (optionally) the confidence interval low, high tuple.
     """
+
+    average = _default_average(y_true, y_pred, average)
+
     if average == 'binary':
         # Binary precision/recall is a single proportion. The delta method
         # would give the normal (Wald) interval, which covers badly for small
@@ -593,7 +614,7 @@ def macro_f1_score_bootstrap(y_true: List[int],
 def f1_score(y_true: List[int],
              y_pred: List[int],
              confidence_level: float = 0.95,
-             average: str = 'micro',
+             average: Optional[str] = None,
              method: str = 'takahashi',
              compute_ci: bool = True,
              **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
@@ -612,9 +633,15 @@ def f1_score(y_true: List[int],
     confidence_level : float, optional
         _description_, by default 0.95
     average : str, optional
-        _description_, by default 'micro'
+        The averaging method: 'binary', 'micro' or 'macro'. By default None:
+        'binary' (the F1 of class 1) when y_true and y_pred contain only 0 and 1,
+        and 'micro' otherwise. For 0/1 labels, micro F1 equals accuracy.
     method : str, optional
-        _description_, by default 'takahashi'
+        The method for the confidence interval, by default 'takahashi'.
+        A bootstrap method ('bootstrap_bca', 'bootstrap_percentile',
+        'bootstrap_basic') uses bootstrap. With average='binary', any other
+        method uses the delta method, and a method other than 'takahashi'
+        is ignored with a warning.
     compute_ci : bool, optional
         _description_, by default True
 
@@ -624,8 +651,9 @@ def f1_score(y_true: List[int],
         The F1 score, and (optionally) the confidence interval low, high tuple.
     """
 
+    average = _default_average(y_true, y_pred, average)
     assert average in ['micro', 'macro',
-                       'binary'], 'average method {average} not supported'
+                       'binary'], f'average method {average} not supported'
 
     if method in bootstrap_methods:
         # Filter out parameters that bootstrap functions don't accept
@@ -654,6 +682,12 @@ def f1_score(y_true: List[int],
                 f'average method {average} not supported')
     else:
         if average == 'binary':
+            if method != 'takahashi':
+                warnings.warn(
+                    f"method='{method}' is ignored for binary F1: the confidence "
+                    "interval uses the delta method. Choose a bootstrap method "
+                    "(for example 'bootstrap_bca') to use bootstrap instead.",
+                    UserWarning, stacklevel=2)
             return binary_f1_score_takahashi(y_true=y_true,
                                              y_pred=y_pred,
                                              confidence_level=confidence_level,
