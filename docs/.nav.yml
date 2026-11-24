@@ -2,6 +2,7 @@ nav:
   - Home (English): README.md
   - 홈 (한국어): README.ko.md
   - Getting Started: getting-started/
+  - Examples: examples/
   - API Documentation: api-docs/
   - Development: dev/
   - Research: research/
