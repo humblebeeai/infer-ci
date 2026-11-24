@@ -1,9 +1,10 @@
 nav:
-  - Home: README.md
-  - Getting Started: getting-started/
-  - API Documentation: api-docs/
-  - Development: dev/
-  - Research: research/
+- Home: README.md
+- Getting Started: getting-started/
+- Examples: examples/
+- API Documentation: api-docs/
+- Development: dev/
+- Research: research/
   # - "*"
-  - Release Notes: release-notes.md
-  - About: about/
+- Release Notes: release-notes.md
+- About: about/
