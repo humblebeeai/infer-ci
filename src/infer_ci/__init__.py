@@ -13,7 +13,8 @@ from .binary_metrics import accuracy_score, \
     npv_score, \
     tpr_score, \
     fpr_score, \
-    tnr_score
+    tnr_score, \
+    jaccard_score
 from .takahashi_methods import precision_score, \
     recall_score, \
     f1_score
@@ -50,7 +51,7 @@ __all__ = [
     # Classification metrics
     'accuracy_score', 'ppv_score', 'npv_score', 'tpr_score',
     'fpr_score', 'tnr_score', 'precision_score', 'recall_score',
-    'f1_score', 'roc_auc_score', 'classification_report_with_ci',
+    'f1_score', 'roc_auc_score', 'jaccard_score', 'classification_report_with_ci',
 
     # Regression metrics
     'mae', 'mse', 'rmse', 'r2_score', 'mape', 'adjusted_r2_score',

@@ -106,7 +106,7 @@ def accuracy_score_bootstrap(y_true: List[int],
     accuracy_score_no_ci = partial(
         accuracy_score_binomial_ci,
         compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -187,7 +187,7 @@ def ppv_score_bootstrap(y_true: List[int],
                         random_state: Optional[np.random.RandomState] = None,
                         plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     ppv_score_no_ci = partial(ppv_score_binomial_ci, compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -248,7 +248,7 @@ def npv_score_bootstrap(y_true: List[int],
                         random_state: Optional[np.random.RandomState] = None,
                         plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     npv_score_no_ci = partial(npv_score_binomial_ci, compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -309,7 +309,7 @@ def tpr_score_bootstrap(y_true: List[int],
                         random_state: Optional[np.random.RandomState] = None,
                         plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     tpr_score_no_ci = partial(tpr_score_binomial_ci, compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -370,7 +370,7 @@ def fpr_score_bootstrap(y_true: List[int],
                         random_state: Optional[np.random.RandomState] = None,
                         plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     fpr_score_no_ci = partial(fpr_score_binomial_ci, compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -431,7 +431,7 @@ def tnr_score_bootstrap(y_true: List[int],
                         random_state: Optional[np.random.RandomState] = None,
                         plot: bool = False) -> Tuple[float, Tuple[float, float]]:
     tnr_score_no_ci = partial(tnr_score_binomial_ci, compute_ci=False)
-    
+
     return bootstrap_with_plot(
         y_true=y_true,
         y_pred=y_pred,
@@ -457,3 +457,87 @@ def tnr_score(y_true: List[int],
     else:
         return tnr_score_binomial_ci(
             y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, method=method, compute_ci=compute_ci)
+
+
+def jaccard_score_binomial_ci(y_true: List[int],
+                             y_pred: List[int],
+                             confidence_level: float = 0.95,
+                             method: str = 'wilson',
+                             compute_ci: bool = True) -> Union[float, Tuple[float, Tuple[float, float]]]:
+    """Compute the Jaccard score (TP / (TP + FP + FN)) and optionally the confidence interval using binomial proportion methods."""
+    if len(y_true) == 0 or len(y_pred) == 0:
+        raise ValueError("Input arrays y_true and y_pred must not be empty.")
+
+    y_true_arr = np.asarray(y_true)
+    y_pred_arr = np.asarray(y_pred)
+
+    if not set(np.unique(y_true_arr)).issubset({0, 1}) or not set(np.unique(y_pred_arr)).issubset({0, 1}):
+        raise ValueError("Inputs y_true and y_pred must contain only binary values (0 or 1).")
+
+    assert method in proportion_conf_methods, f'Proportion CI method {method} not in {proportion_conf_methods}'
+    assert 0 <= confidence_level <= 1, f'confidence_level has to be between 0 and 1 but is {confidence_level}'
+
+    FP, FN, TP, TN, CM = get_positive_negative_counts(y_true, y_pred)
+    TP, FP, FN = TP[1], FP[1], FN[1]
+
+    trials = TP + FP + FN
+
+    if trials == 0:
+        raise ValueError("TP + FP + FN is 0. Cannot compute Jaccard score when there are no positives or positive predictions.")
+
+    result = float(TP / trials)
+    if compute_ci:
+        interval = proportion_confint(
+            TP, trials, alpha=1 - confidence_level, method=method)
+        return result, (float(interval[0]), float(interval[1]))
+    else:
+        return result
+
+
+def jaccard_score_bootstrap(y_true: List[int],
+                            y_pred: List[int],
+                            confidence_level: float = 0.95,
+                            method: str = 'bootstrap_bca',
+                            n_resamples: int = 9999,
+                            random_state: Optional[np.random.RandomState] = None,
+                            plot: bool = False) -> Tuple[float, Tuple[float, float]]:
+    """Compute the Jaccard score confidence interval using the bootstrap method."""
+    def jaccard_no_ci(yt, yp):
+        yt_arr = np.asarray(yt)
+        yp_arr = np.asarray(yp)
+        tp = np.sum((yt_arr == 1) & (yp_arr == 1))
+        fp = np.sum((yt_arr == 0) & (yp_arr == 1))
+        fn = np.sum((yt_arr == 1) & (yp_arr == 0))
+        denom = tp + fp + fn
+        return float(tp / denom) if denom > 0 else 0.0
+
+    return bootstrap_with_plot(
+        y_true=y_true,
+        y_pred=y_pred,
+        metric_func=jaccard_no_ci,
+        metric_name="jaccard",
+        confidence_level=confidence_level,
+        method=method,
+        n_resamples=n_resamples,
+        random_state=random_state,
+        plot=plot
+    )
+
+
+def jaccard_score(y_true: List[int],
+                  y_pred: List[int],
+                  confidence_level: float = 0.95,
+                  method: str = 'wilson',
+                  compute_ci: bool = True,
+                  **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
+    """Compute the Jaccard score and optionally the confidence interval."""
+    if not compute_ci:
+        return jaccard_score_binomial_ci(
+            y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, method='wilson', compute_ci=False)
+
+    if method in bootstrap_methods:
+        return jaccard_score_bootstrap(
+            y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, method=method, **kwargs)
+    else:
+        return jaccard_score_binomial_ci(
+            y_true=y_true, y_pred=y_pred, confidence_level=confidence_level, method=method, compute_ci=True)
