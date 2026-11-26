@@ -8,4 +8,4 @@ matplotlib==3.10.6
 seaborn==0.13.2
 tqdm==4.67.1
 PyYAML==6.0.2
-pytest==9.0.3
+pytest==9.2.0
