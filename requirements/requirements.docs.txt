@@ -7,5 +7,5 @@ mike>=2.1.3,<3.0.0
 # pymdown-extensions 12 changed the pymdownx.highlight API. mkdocstrings
 # supports it from 1.0.7, which needs Python 3.11+, so Python 3.10 (the
 # newest mkdocstrings there is 1.0.6) keeps pymdown-extensions below 12.
-pymdown-extensions>=10.2,<12.0.0; python_version < "3.11"
+pymdown-extensions>=10.2,<13.0.0; python_version < "3.11"
 pymdown-extensions>=10.2,<14.0.0; python_version >= "3.11"
