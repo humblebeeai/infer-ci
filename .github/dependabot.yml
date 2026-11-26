@@ -2,8 +2,28 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
+    # Version updates go to dev; main only receives releases from dev.
+    target-branch: "dev"
+    # Only bump when the current range excludes the new release, so a
+    # release that already fits the range doesn't open a PR.
+    versioning-strategy: "increase-if-necessary"
     labels:
       - "dependency"
     open-pull-requests-limit: 10
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    groups:
+      docs:
+        patterns: ["mkdocs*", "mkdocstrings*", "pymdown-extensions", "mike"]
+      build-tooling:
+        patterns: ["setuptools*", "wheel", "build", "twine"]
+      test:
+        patterns: ["pytest*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "dev"
+    labels:
+      - "dependency"
+    schedule:
+      interval: "weekly"
