@@ -1,7 +1,11 @@
+import hashlib
 import io
+import json
+import subprocess
 import tarfile
 
 import pandas as pd
+import pytest
 
 from notebooks.chokepoint import chokepoint_data as data
 
@@ -50,29 +54,39 @@ def test_loader_preserves_days_cameras_ids_and_pass_boundaries(tmp_path):
     ]
 
 
-def test_download_resumes_partial_and_extracts_both_levels(tmp_path, monkeypatch):
-    def archive(name, payload):
-        result = io.BytesIO()
-        with tarfile.open(fileobj=result, mode="w:xz") as tar:
-            member = tarfile.TarInfo(name)
-            member.size = len(payload)
-            tar.addfile(member, io.BytesIO(payload))
-        return result.getvalue()
+def archive(name, payload):
+    result = io.BytesIO()
+    with tarfile.open(fileobj=result, mode="w:xz") as tar:
+        member = tarfile.TarInfo(name)
+        member.size = len(payload)
+        tar.addfile(member, io.BytesIO(payload))
+    return result.getvalue()
 
+
+def checksum_response(command, content):
+    checksum = hashlib.md5(content, usedforsecurity=False).hexdigest()
+    metadata = {"files": [{"key": "sample.tar.xz", "checksum": f"md5:{checksum}"}]}
+    return subprocess.CompletedProcess(command, 0, stdout=json.dumps(metadata))
+
+
+def test_download_resumes_partial_and_extracts_both_levels(tmp_path, monkeypatch):
     content = archive("sample/C1.tar.xz", archive("C1/frame.jpg", b"fake-frame"))
     partial = tmp_path / "sample.tar.xz.part"
     partial.write_bytes(content[:30])
     calls = []
 
-    def fake_curl(command, *, check):
+    def fake_curl(command, *, check, **kwargs):
         assert check
+        calls.append(command)
+        if command[-1] == "https://zenodo.org/api/records/815657":
+            assert kwargs == {"capture_output": True, "text": True}
+            return checksum_response(command, content)
         assert command[command.index("--continue-at") + 1] == "-"
         path = command[command.index("--output") + 1]
         assert path == str(partial)
         with partial.open("ab") as file:
             assert file.tell() == 30
             file.write(content[30:])
-        calls.append(command)
 
     monkeypatch.setattr(data.subprocess, "run", fake_curl)
     data.download_chokepoint(["sample.tar.xz"], tmp_path)
@@ -81,8 +95,47 @@ def test_download_resumes_partial_and_extracts_both_levels(tmp_path, monkeypatch
     assert not partial.exists()
     (tmp_path / "sample/C1/frame.jpg").write_bytes(b"existing")
     data.download_chokepoint(["sample.tar.xz"], tmp_path)
-    assert len(calls) == 1
+    assert [call[-1] for call in calls] == [
+        "https://zenodo.org/api/records/815657",
+        "https://zenodo.org/records/815657/files/sample.tar.xz?download=1",
+    ]
     assert (tmp_path / "sample/C1/frame.jpg").read_bytes() == b"existing"
+
+
+def test_download_rejects_bad_checksum_before_publishing_and_can_retry(tmp_path, monkeypatch):
+    valid = archive("frame.jpg", b"correct frame")
+    payload = archive("frame.jpg", b"corrupt frame")
+
+    def fake_curl(command, *, check, **kwargs):
+        if command[-1] == "https://zenodo.org/api/records/815657":
+            return checksum_response(command, valid)
+        (tmp_path / "sample.tar.xz.part").write_bytes(payload)
+
+    monkeypatch.setattr(data.subprocess, "run", fake_curl)
+    with pytest.raises(ValueError, match=r"MD5 mismatch for sample.tar.xz"):
+        data.download_chokepoint("sample.tar.xz", tmp_path)
+    assert list(tmp_path.iterdir()) == []
+
+    payload = valid
+    data.download_chokepoint("sample.tar.xz", tmp_path)
+    assert (tmp_path / "frame.jpg").read_bytes() == b"correct frame"
+
+
+@pytest.mark.parametrize("failed_step", ["metadata", "download"])
+def test_download_keeps_partial_after_network_error(tmp_path, monkeypatch, failed_step):
+    partial = tmp_path / "sample.tar.xz.part"
+    partial.write_bytes(b"resumable bytes")
+
+    def fake_curl(command, *, check, **kwargs):
+        if command[-1] == "https://zenodo.org/api/records/815657" and failed_step == "download":
+            return checksum_response(command, b"complete archive")
+        raise subprocess.CalledProcessError(28, command)
+
+    monkeypatch.setattr(data.subprocess, "run", fake_curl)
+    with pytest.raises(subprocess.CalledProcessError, match="exit status 28"):
+        data.download_chokepoint("sample.tar.xz", tmp_path)
+    assert partial.read_bytes() == b"resumable bytes"
+    assert list(tmp_path.iterdir()) == [partial]
 
 
 def test_loader_keeps_person_with_only_one_labelled_eye(tmp_path):
