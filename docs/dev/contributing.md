@@ -60,9 +60,8 @@ This project adheres to a code of conduct that all contributors are expected to 
    This installs the package in editable mode with all development dependencies including:
    - pytest (testing framework)
    - pytest-cov (coverage reporting)
-   - black (code formatting)
-   - flake8 (linting)
-   - mypy (type checking)
+   - pyright (type checking)
+   - pre-commit (runs black, flake8 and the other checks, see [Pre-commit Hooks](#pre-commit-hooks))
    - mkdocs and plugins (documentation)
 
 3. **Install pre-commit hooks** (optional but recommended):
@@ -106,7 +105,7 @@ The project includes a convenience script for running tests:
 ```bash
 ./scripts/test.sh        # Run all tests
 ./scripts/test.sh -c     # Run with coverage
-./scripts/test.sh -l     # Run linting checks
+./scripts/test.sh -l     # Show log output
 ```
 
 ## Code Style
@@ -115,31 +114,31 @@ This project follows strict code quality standards:
 
 ### Formatting
 
-We use **Black** for code formatting with a line length of 100:
+We use **Black** for code formatting, with its default line length (88). It runs as a pre-commit hook:
 
 ```bash
-black src/infer_ci tests
+pre-commit run black --all-files
 ```
 
 ### Linting
 
-We use **flake8** for linting:
+We use **flake8** for linting, with a maximum line length of 120. It runs as a pre-commit hook:
 
 ```bash
-flake8 src/infer_ci tests
+pre-commit run flake8 --all-files
 ```
 
 ### Type Checking
 
-We use **mypy** for static type checking:
+We use **pyright** for static type checking:
 
 ```bash
-mypy src/infer_ci
+python -m pyright src/infer_ci
 ```
 
 ### Pre-commit Hooks
 
-Pre-commit hooks automatically check code quality before each commit. If you installed them, they will run automatically. To run manually:
+Pre-commit hooks automatically check code quality before each commit: Black, flake8, pyright, and checks such as large files (over 2.5 MB) and commits to `main`. If you installed them, they will run automatically. To run manually:
 
 ```bash
 pre-commit run --all-files
@@ -160,92 +159,80 @@ First, identify which category your metric belongs to:
 
 Create your metric function in the appropriate module:
 
-**For classification metrics**: Add to `src/infer_ci/binary_metrics.py` or `src/infer_ci/multiclass_metrics.py`
+**For classification metrics**: Add to `src/infer_ci/binary_metrics.py` (proportion-based metrics) or `src/infer_ci/takahashi_methods.py` (precision, recall, F1)
 
 **For regression metrics**: Add to `src/infer_ci/regression_metrics.py`
 
-**Example template**:
+**Example template** (a regression metric, using the shared helper in `regression_metrics.py`):
 
 ```python
-from typing import Tuple, Optional
-import numpy as np
-from .methods import compute_ci
+from typing import List, Tuple, Union
 
-def my_new_metric(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    method: str = 'bootstrap_bca',
-    confidence_interval: float = 0.95,
-    n_resamples: int = 2000,
-    compute_ci: bool = True,
-    random_state: Optional[int] = None,
-    **kwargs
-) -> Tuple[float, Tuple[float, float]]:
+import numpy as np
+
+
+def my_new_metric(y_true: List[float],
+                  y_pred: List[float],
+                  confidence_level: float = 0.95,
+                  method: str = 'bootstrap_bca',
+                  compute_ci: bool = True,
+                  **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
-    Compute my new metric with confidence interval.
+    Compute my new metric and optionally the confidence interval.
 
     Parameters
     ----------
-    y_true : np.ndarray
-        Ground truth labels
-    y_pred : np.ndarray
-        Predicted labels
-    method : str, default='bootstrap_bca'
-        Method for computing confidence interval
-    confidence_interval : float, default=0.95
-        Confidence level (0 < CI < 1)
-    n_resamples : int, default=2000
-        Number of bootstrap resamples
-    compute_ci : bool, default=True
-        Whether to compute confidence interval
-    random_state : int, optional
-        Random seed for reproducibility
+    y_true : List[float]
+        The ground truth target values.
+    y_pred : List[float]
+        The predicted target values.
+    confidence_level : float, optional
+        The confidence interval level, by default 0.95
+    method : str, optional
+        The bootstrap method, by default 'bootstrap_bca'
+    compute_ci : bool, optional
+        If True return the confidence interval as well as the metric value, by default True
+    **kwargs
+        Passed on to the bootstrap, for example n_resamples or random_state.
 
     Returns
     -------
-    metric_value : float
-        The computed metric value
-    ci : Tuple[float, float]
-        Confidence interval (lower, upper)
+    Union[float, Tuple[float, Tuple[float, float]]]
+        The metric value, or (value, (lower, upper)) if compute_ci is True.
 
     Examples
     --------
-    >>> y_true = np.array([0, 1, 1, 0, 1])
-    >>> y_pred = np.array([0, 1, 1, 0, 0])
-    >>> value, ci = my_new_metric(y_true, y_pred)
-    >>> print(f"Metric: {value:.3f}, CI: [{ci[0]:.3f}, {ci[1]:.3f}]")
+    >>> y_true = [3.0, 5.0, 2.5, 7.0]
+    >>> y_pred = [2.5, 5.0, 3.0, 8.0]
+    >>> value, (lower, upper) = my_new_metric(y_true, y_pred, random_state=0)
     """
-    # Your metric computation logic here
-    def metric_func(y_true, y_pred):
-        # Calculate your metric
-        return result
+    def my_new_metric_func(y_true, y_pred):
+        # Calculate your metric from the two arrays
+        return np.mean(np.abs(np.array(y_true) - np.array(y_pred)))
 
-    metric_value = metric_func(y_true, y_pred)
-
-    if not compute_ci:
-        return metric_value, (np.nan, np.nan)
-
-    ci = compute_ci(
+    return _compute_metric_with_optional_ci(
         y_true=y_true,
         y_pred=y_pred,
-        metric_func=metric_func,
+        metric_func=my_new_metric_func,
+        confidence_level=confidence_level,
         method=method,
-        confidence_interval=confidence_interval,
-        n_resamples=n_resamples,
-        random_state=random_state,
+        compute_ci=compute_ci,
         **kwargs
     )
-
-    return metric_value, ci
 ```
 
 ### 3. Register the Metric in MetricEvaluator
 
-Add your metric to `src/infer_ci/evaluator.py`:
+Import your metric at the top of `src/infer_ci/evaluator.py` and add it to the matching dictionary in `MetricEvaluator.__init__` (`classification_metrics`, `regression_metrics` or `detection_metrics`). Without this step, `evaluate_metric(..., metric='my_new_metric')` raises "Unknown metric".
 
 ```python
-# In the appropriate task section (classification/regression/detection)
-CLASSIFICATION_METRICS = {
+from .regression_metrics import (
+    # ... existing imports ...
+    my_new_metric,
+)
+
+# in MetricEvaluator.__init__
+self.regression_metrics = {
     # ... existing metrics ...
     'my_new_metric': my_new_metric,
 }
@@ -256,7 +243,7 @@ CLASSIFICATION_METRICS = {
 Add your metric to `src/infer_ci/__init__.py`:
 
 ```python
-from .binary_metrics import (
+from .regression_metrics import (
     # ... existing imports ...
     my_new_metric,
 )
@@ -275,48 +262,36 @@ Create comprehensive tests in the appropriate test file:
 # tests/test_my_metric.py
 import numpy as np
 import pytest
-from infer_ci import my_new_metric, MetricEvaluator
+from infer_ci import my_new_metric, evaluate_metric
+
+
+def _data():
+    rng = np.random.RandomState(0)
+    y_true = rng.uniform(1, 10, size=60)
+    y_pred = y_true + rng.normal(0, 1, size=60)  # realistic data, with noise
+    return y_true, y_pred
+
 
 def test_my_new_metric_basic():
     """Test basic functionality."""
-    y_true = np.array([0, 1, 1, 0, 1])
-    y_pred = np.array([0, 1, 1, 0, 0])
+    y_true, y_pred = _data()
+    value, (lower, upper) = my_new_metric(y_true, y_pred, random_state=0)
+    assert lower <= value <= upper
 
-    value, ci = my_new_metric(y_true, y_pred)
 
-    assert isinstance(value, float)
-    assert len(ci) == 2
-    assert ci[0] <= value <= ci[1]
+def test_my_new_metric_unified_interface():
+    """evaluate_metric gives the same result as the direct call."""
+    y_true, y_pred = _data()
+    unified = evaluate_metric(y_true, y_pred, task='regression', metric='my_new_metric',
+                              compute_ci=False)
+    assert unified == pytest.approx(my_new_metric(y_true, y_pred, compute_ci=False))
 
-def test_my_new_metric_evaluator():
-    """Test through MetricEvaluator interface."""
-    evaluator = MetricEvaluator()
-    y_true = np.array([0, 1, 1, 0, 1])
-    y_pred = np.array([0, 1, 1, 0, 0])
-
-    value, ci = evaluator.evaluate(
-        y_true=y_true,
-        y_pred=y_pred,
-        task='classification',
-        metric='my_new_metric',
-        method='wilson'
-    )
-
-    assert value > 0
 
 def test_my_new_metric_edge_cases():
     """Test edge cases."""
     # Perfect predictions
-    y_true = np.array([1, 1, 1, 1])
-    y_pred = np.array([1, 1, 1, 1])
-    value, _ = my_new_metric(y_true, y_pred, compute_ci=False)
-    assert value == 1.0
-
-    # All wrong
-    y_true = np.array([0, 0, 0, 0])
-    y_pred = np.array([1, 1, 1, 1])
-    value, _ = my_new_metric(y_true, y_pred, compute_ci=False)
-    assert value == 0.0
+    y = np.array([1.0, 2.0, 3.0, 4.0])
+    assert my_new_metric(y, y, compute_ci=False) == 0.0
 ```
 
 ### 6. Add Documentation
@@ -379,22 +354,23 @@ Then visit `http://127.0.0.1:8000` in your browser.
 
 ## Pull Request Process
 
-1. **Create a feature branch** from `main`:
+1. **Create a branch in your fork**, starting from the latest `dev`:
    ```bash
-   git checkout -b feature/my-new-feature
+   git fetch upstream
+   git checkout -b feature/my-new-feature upstream/dev
    ```
+   Don't work on `main`, and don't create branches in the `humblebeeai` repository.
 
 2. **Make your changes** following the code style guidelines
 
-3. **Write or update tests** to maintain coverage above 80%
+3. **Write or update tests** for your change. Every test needs at least one `assert`.
 
-4. **Update documentation** as needed
+4. **Update documentation** as needed. If you change an English page that has a Korean version (`*.ko.md`), update both.
 
 5. **Run tests and checks**:
    ```bash
-   pytest --cov=infer_ci
-   black src/infer_ci tests
-   flake8 src/infer_ci tests
+   python -m pytest tests/
+   pre-commit run --all-files
    ```
 
 6. **Commit your changes** following the commit message guidelines
@@ -404,15 +380,24 @@ Then visit `http://127.0.0.1:8000` in your browser.
    git push origin feature/my-new-feature
    ```
 
-8. **Open a Pull Request** on GitHub with:
+8. **Open a Pull Request** to **`humblebeeai/infer-ci`, base branch `dev`** (not `main`). Check both on the GitHub "Open a pull request" page before you create it. Fill in the PR template with:
    - Clear title describing the change
    - Description of what changed and why
    - Reference to any related issues
    - Screenshots/examples if applicable
 
-9. **Address review feedback** if requested
+9. **Address review feedback** if requested. If a reviewer pushed commits to your branch, run `git pull` before you push again.
 
-10. **Wait for CI checks** to pass before merging
+10. **Wait for CI checks** to pass before merging. CI runs only part of the test suite, so always run `python -m pytest tests/` locally too.
+
+### Before you open a PR
+
+- One issue per PR. Put unrelated work, such as a new notebook, in its own PR.
+- Describe only what the diff changes.
+- Don't commit large files such as model weights (the pre-commit hook blocks files over 2.5 MB).
+- Put notebooks in `notebooks/`, with no spaces in file names.
+- Read AI-generated text and code before you commit it.
+- Set `random_state` in examples and tests so results can be reproduced.
 
 ## Commit Message Guidelines
 
@@ -480,11 +465,13 @@ micro averaging for F1 score computation.
 
 ### Test Organization
 
-- `tests/test_classification.py` - Classification metrics
-- `tests/test_regression.py` - Regression metrics
-- `tests/test_detection.py` - Detection metrics
-- `tests/test_methods.py` - CI calculation methods
-- `tests/test_evaluator.py` - MetricEvaluator interface
+- `tests/test_core_api_compatibility.py` - Core API checks (Wilson, scikit-learn agreement, F1 averaging, errors)
+- `tests/test_sklearn_equality.py` - Metric values compared with scikit-learn
+- `tests/test_delong.py` - DeLong AUC method
+- `tests/test_classification.py`, `tests/test_binary_classification_ci.py` - Classification pipelines
+- `tests/test_regression.py`, `tests/test_regression_ci.py` - Regression pipelines
+- `tests/test_object_detection_ci.py` - Detection with a YOLO model (needs `ultralytics` and `datasets/coco128`)
+- `tests/conftest.py` - Shared settings (Matplotlib `Agg` backend)
 
 ## Questions?
 

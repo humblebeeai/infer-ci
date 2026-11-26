@@ -19,6 +19,8 @@ python --version
 
 [NOTE] On some systems (for example macOS), the command is `python3` instead of `python`. Use whichever prints a version of 3.10 or newer, and use the same command in the steps below.
 
+[NOTE] On recent macOS versions, use Python 3.11 or newer. The newest SciPy for Python 3.10 (1.15.3) fails to import there with an `ImportError` from `scipy.sparse.linalg`, so `import infer_ci` fails too.
+
 ## 1. 🧪 Create and activate a virtual environment
 
 A virtual environment keeps infer-ci and its dependencies separate from other Python projects. Create one inside your project directory:

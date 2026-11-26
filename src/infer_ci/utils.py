@@ -23,3 +23,14 @@ def get_positive_negative_counts(y_true: List,
     TP = np.diag(cm)
     TN = cm.sum() - (FP + FN + TP)
     return FP, FN, TP, TN, cm
+
+
+def _clip_unit_interval(ci):
+    """Clip a confidence interval to [0, 1].
+
+    Normal-approximation (Wald / delta-method) intervals are symmetric around the
+    estimate, so for metrics bounded in [0, 1] (precision, recall, F1, AUC) they can
+    cross the boundary when the estimate is close to 0 or 1 and the sample is small.
+    """
+    lower, upper = ci
+    return np.clip(lower, 0.0, 1.0), np.clip(upper, 0.0, 1.0)

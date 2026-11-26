@@ -208,7 +208,9 @@ def test_binary_classification_ci(path, ground_truth):
     success_rate = (success_count / total_count) * 100
     print(f"\nOverall Success Rate: {success_count}/{total_count} ({success_rate:.1f}%)")
 
+    assert all_coverage_success
+
 if __name__ == "__main__":
     path = 'datasets/breast_cancer.csv'
     ground_truth = 'target'
-    test_passed = test_binary_classification_ci(path, ground_truth)
+    test_binary_classification_ci(path, ground_truth)

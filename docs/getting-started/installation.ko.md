@@ -20,6 +20,8 @@ python --version
 
 [NOTE] macOS 등 일부 환경에서는 `python` 대신 `python3` 명령을 사용합니다. 3.10 이상의 버전이 출력되는 명령을 사용하고, 아래 단계에서도 같은 명령을 사용하세요.
 
+[NOTE] 최신 macOS에서는 Python 3.11 이상을 사용하세요. Python 3.10에서 쓸 수 있는 최신 SciPy(1.15.3)는 이 환경에서 `scipy.sparse.linalg`의 `ImportError`로 불러오지 못하므로, `import infer_ci`도 실패합니다.
+
 ## 1. 🧪 가상환경 만들기와 활성화
 
 가상환경을 사용하면 infer-ci와 의존 패키지를 다른 Python 프로젝트와 분리해서 관리할 수 있습니다. 프로젝트 디렉터리에서 가상환경을 만듭니다.
