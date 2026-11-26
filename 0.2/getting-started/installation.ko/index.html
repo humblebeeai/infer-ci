@@ -2405,6 +2405,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>--version
 </span></code></pre></div>
 <p>[NOTE] macOS 등 일부 환경에서는 <code>python</code> 대신 <code>python3</code> 명령을 사용합니다. 3.10 이상의 버전이 출력되는 명령을 사용하고, 아래 단계에서도 같은 명령을 사용하세요.</p>
+<p>[NOTE] 최신 macOS에서는 Python 3.11 이상을 사용하세요. Python 3.10에서 쓸 수 있는 최신 SciPy(1.15.3)는 이 환경에서 <code>scipy.sparse.linalg</code>의 <code>ImportError</code>로 불러오지 못하므로, <code>import infer_ci</code>도 실패합니다.</p>
 <h2 id="1">1. 🧪 가상환경 만들기와 활성화</h2>
 <p>가상환경을 사용하면 infer-ci와 의존 패키지를 다른 Python 프로젝트와 분리해서 관리할 수 있습니다. 프로젝트 디렉터리에서 가상환경을 만듭니다.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv

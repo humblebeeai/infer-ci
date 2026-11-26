@@ -2405,6 +2405,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>--version
 </span></code></pre></div>
 <p>[NOTE] On some systems (for example macOS), the command is <code>python3</code> instead of <code>python</code>. Use whichever prints a version of 3.10 or newer, and use the same command in the steps below.</p>
+<p>[NOTE] On recent macOS versions, use Python 3.11 or newer. The newest SciPy for Python 3.10 (1.15.3) fails to import there with an <code>ImportError</code> from <code>scipy.sparse.linalg</code>, so <code>import infer_ci</code> fails too.</p>
 <h2 id="1-create-and-activate-a-virtual-environment">1. 🧪 Create and activate a virtual environment</h2>
 <p>A virtual environment keeps infer-ci and its dependencies separate from other Python projects. Create one inside your project directory:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
