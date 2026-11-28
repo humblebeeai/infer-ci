@@ -14,7 +14,7 @@ from datetime import datetime
 
 # Import classification metrics
 from .binary_metrics import (
-    accuracy_score, ppv_score, npv_score, tnr_score, tpr_score, fpr_score, proportion_conf_methods
+    accuracy_score, ppv_score, npv_score, tnr_score, tpr_score, fpr_score, proportion_conf_methods, jaccard_score
 )
 from .takahashi_methods import precision_score, recall_score, f1_score
 from .auc import roc_auc_score
@@ -42,7 +42,7 @@ class TaskType(Enum):
 class MetricEvaluator:
     """
     Unified evaluator for classification and regression metrics with confidence intervals.
-    
+
     This class provides a clean interface to compute various metrics with confidence intervals
     for both classification and regression tasks without needing to import individual metrics.
 
@@ -79,41 +79,41 @@ class MetricEvaluator:
         - map50 (mAP@0.5 with CI)
         - precision (Precision with CI)
         - recall (Recall with CI)
-    
+
     Example:
     --------
     >>> evaluator = MetricEvaluator()
-    >>> 
+    >>>
     >>> # For regression
     >>> result = evaluator.evaluate(
-    ...     y_true=[1, 2, 3, 4, 5], 
+    ...     y_true=[1, 2, 3, 4, 5],
     ...     y_pred=[1.1, 2.2, 2.8, 4.1, 4.9],
     ...     task='regression',
     ...     metric='mae',
     ...     method='bootstrap_bca',
     ...     plot=True
-    ... ) 
-    ... # Specific metric function can also be called directly:  
+    ... )
+    ... # Specific metric function can also be called directly:
     >>> mae_val, ci = evaluator.mae(
-    ...     y_true=[1, 2, 3, 4, 5], 
+    ...     y_true=[1, 2, 3, 4, 5],
     ...     y_pred=[1.1, 2.2, 2.8, 4.1, 4.9],
     ...     confidence_level=0.95,
     ...     method='jackknife'
     ... )
-    >>> 
-    >>> # For classification  
+    >>>
+    >>> # For classification
     >>> result = evaluator.evaluate(
-    ...     y_true=[0, 1, 1, 0, 1], 
+    ...     y_true=[0, 1, 1, 0, 1],
     ...     y_pred=[0, 1, 0, 0, 1],
     ...     task='classification',
     ...     metric='accuracy',
     ...     method='wilson'
     ... )
     """
-    
+
     def __init__(self):
         """Initialize the MetricEvaluator with available metrics and methods."""
-        
+
         # Classification metrics mapping
         self.classification_metrics = {
             'accuracy': accuracy_score,
@@ -125,9 +125,10 @@ class MetricEvaluator:
             'f1': f1_score,          # F1 Score (Takahashi method)
             'precision_takahashi': precision_score,  # Takahashi precision
             'recall_takahashi': recall_score,        # Takahashi recall
-            'auc': roc_auc_score     # ROC AUC Score
+            'auc': roc_auc_score,    # ROC AUC Score
+            'jaccard': jaccard_score # Jaccard Score
         }
-        
+
         # Regression metrics mapping
         self.regression_metrics = {
             'mae': mae,           # Mean Absolute Error
@@ -158,7 +159,7 @@ class MetricEvaluator:
         self.regression_methods = regression_conf_methods
         # Detection uses bootstrap methods
         self.detection_methods = ['bootstrap_bca', 'bootstrap_percentile', 'bootstrap_basic']
-        
+
         # Expose individual metric functions as instance methods
         # Classification metrics
         self.accuracy_score = accuracy_score
@@ -171,7 +172,8 @@ class MetricEvaluator:
         self.precision_score = precision_score
         self.recall_score = recall_score
         self.roc_auc_score = roc_auc_score
-        
+        self.jaccard_score = jaccard_score
+
         # Regression metrics
         self.mae = mae
         self.mse = mse
@@ -185,16 +187,16 @@ class MetricEvaluator:
         self.map50 = map50
         self.precision = precision
         self.recall = recall
-        
+
     def get_available_metrics(self, task: Union[str, TaskType]) -> List[str]:
         """
         Get list of available metrics for a given task type.
-        
+
         Parameters:
         -----------
         task : str or TaskType
             The task type ('classification' or 'regression')
-            
+
         Returns:
         --------
         List[str]: List of available metric names
@@ -209,16 +211,16 @@ class MetricEvaluator:
             return list(self.detection_metrics.keys())
         else:
             raise ValueError(f"Unknown task type: {task}. Use 'classification', 'regression', or 'detection'")
-    
+
     def get_available_methods(self, task: Union[str, TaskType]) -> List[str]:
         """
         Get list of available confidence interval methods for a given task type.
-        
+
         Parameters:
         -----------
         task : str or TaskType
             The task type ('classification' or 'regression')
-            
+
         Returns:
         --------
         List[str]: List of available method names
@@ -233,7 +235,7 @@ class MetricEvaluator:
             return self.detection_methods
         else:
             raise ValueError(f"Unknown task type: {task}. Use 'classification', 'regression', or 'detection'")
-    
+
     def evaluate(self,
                  y_true: Optional[List[Union[int, float]]] = None,
                  y_pred: Optional[List[Union[int, float]]] = None,
@@ -398,10 +400,10 @@ class MetricEvaluator:
 
         except Exception as e:
             raise RuntimeError(f"Error computing {metric} with method {method}: {str(e)}")
-    
+
     def evaluate_multiple(self,
-                         y_true: List[Union[int, float]], 
-                         y_pred: List[Union[int, float]], 
+                         y_true: List[Union[int, float]],
+                         y_pred: List[Union[int, float]],
                          task: Union[str, TaskType],
                          metrics: List[str],
                          method: str = 'bootstrap_bca',
@@ -411,19 +413,19 @@ class MetricEvaluator:
                          **kwargs) -> Dict[str, Union[float, Tuple[float, Tuple[float, float]]]]:
         """
         Evaluate multiple metrics at once.
-        
+
         Parameters:
         -----------
         y_true, y_pred, task, method, confidence_level, compute_ci, plot, **kwargs
             Same as evaluate() method
         metrics : List[str]
             List of metric names to evaluate
-            
+
         Returns:
         --------
         Dict[str, Union[float, Tuple[float, Tuple[float, float]]]]
             Dictionary with metric names as keys and results as values
-            
+
         Example:
         --------
         >>> evaluator = MetricEvaluator()
@@ -451,7 +453,7 @@ class MetricEvaluator:
                 **kwargs
             )
         return results
-    
+
     def info(self) -> Dict[str, Any]:
         """
         Get information about available tasks, metrics, and methods.
@@ -475,7 +477,7 @@ class MetricEvaluator:
                 'methods': self.detection_methods
             }
         }
-    
+
     def print_info(self):
         """Print formatted information about available options."""
         print("MetricEvaluator - Available Options")
@@ -510,8 +512,8 @@ class MetricEvaluator:
 
 
 # Convenience function for direct evaluation
-def evaluate_metric(y_true: List[Union[int, float]], 
-                   y_pred: List[Union[int, float]], 
+def evaluate_metric(y_true: List[Union[int, float]],
+                   y_pred: List[Union[int, float]],
                    task: Union[str, TaskType],
                    metric: str,
                    method: str = 'bootstrap_bca',
@@ -521,27 +523,27 @@ def evaluate_metric(y_true: List[Union[int, float]],
                    **kwargs) -> Union[float, Tuple[float, Tuple[float, float]]]:
     """
     Convenience function to evaluate a single metric with confidence intervals.
-    
+
     This is a shortcut for MetricEvaluator().evaluate() for quick one-off evaluations.
-    
+
     Parameters and returns are the same as MetricEvaluator.evaluate()
-    
+
     Example:
     --------
     >>> from confidenceinterval import evaluate_metric
-    >>> 
-    >>> # Quick regression evaluation  
+    >>>
+    >>> # Quick regression evaluation
     >>> mae_val, ci = evaluate_metric(
     ...     y_true=[1, 2, 3, 4, 5],
     ...     y_pred=[1.1, 2.1, 2.9, 4.1, 4.9],
-    ...     task='regression', 
+    ...     task='regression',
     ...     metric='mae'
     ... )
     """
     evaluator = MetricEvaluator()
     return evaluator.evaluate(
         y_true=y_true,
-        y_pred=y_pred, 
+        y_pred=y_pred,
         task=task,
         metric=metric,
         method=method,
