@@ -191,6 +191,70 @@ def test_resolve_seed():
         resolve_seed(True)
 
 
+def test_fresh_seed_is_safe_for_json_and_javascript():
+    # JavaScript parses JSON numbers as doubles; seeds must stay well below 2**53.
+    assert all(0 <= resolve_seed(None) < 2**32 for _ in range(50))
+
+
+def test_pos_label_not_among_labels_raises():
+    with pytest.raises(ValueError, match="pos_label"):
+        bootstrap_binary_metric(["ok", "defect"], ["ok", "defect"], "recall", n_resamples=5)
+    # A single label is allowed: everything is simply negative.
+    res = bootstrap_binary_metric(["ok", "ok"], ["ok", "ok"], "specificity",
+                                  n_resamples=5, seed=0, pos_label="defect")
+    assert res.estimate == 1.0
+
+
+def test_results_compare_by_identity():
+    y, p = make_data()
+    a = bootstrap_binary_metric(y, p, "f1", n_resamples=20, seed=0)
+    b = bootstrap_binary_metric(y, p, "f1", n_resamples=20, seed=0)
+    assert a == a and a != b  # must not raise "truth value of an array is ambiguous"
+
+
+def test_automatic_chunk_size_gives_the_same_draws():
+    y, p = make_data(n=20_000, seed=1)  # automatic chunk: 4_000_000 // 20_000 = 200
+    auto = bootstrap_binary_metric(y, p, "f1", n_resamples=450, seed=3)
+    fixed = bootstrap_binary_metric(y, p, "f1", n_resamples=450, seed=3, chunk_size=500)
+    assert np.array_equal(auto.distribution, fixed.distribution)
+
+
+def test_grouped_binary_path_matches_row_weight_path():
+    y, p = make_data(n=300, seed=2)
+    groups = np.random.default_rng(0).integers(0, 40, size=300)
+    fast = bootstrap_binary_metrics(y, p, n_resamples=500, seed=4, groups=groups)
+    names = list(fast)
+
+    def stat(weights):
+        from infer_ci.bootstrap_engine import binary_metrics_from_counts, confusion_indicators
+        return binary_metrics_from_counts(weights @ confusion_indicators(y, p), names)
+
+    est, dist, _ = bootstrap_weighted(stat, 300, n_resamples=500, seed=4, groups=groups)
+    for j, name in enumerate(names):
+        assert fast[name].estimate == pytest.approx(est[j], abs=1e-12)
+        np.testing.assert_allclose(fast[name].distribution, dist[:, j], atol=1e-12,
+                                   equal_nan=True)
+
+
+def test_progress_with_bad_chunk_size_raises_value_error():
+    with pytest.raises(ValueError, match="chunk_size"):
+        bootstrap_weighted(lambda w: w.sum(axis=1), 5, n_resamples=10, seed=0,
+                           chunk_size=0, show_progress=True)
+
+
+def test_peak_memory_is_bounded_for_large_inputs():
+    import tracemalloc
+
+    y, p = make_data(n=200_000, prevalence=0.1, seed=0)
+    tracemalloc.start()
+    try:
+        bootstrap_binary_metrics(y, p, n_resamples=200, seed=0)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert peak < 400e6
+
+
 @pytest.mark.slow
 def test_runtime_on_largest_prototype_input():
     y, p = make_data(n=10_000, prevalence=0.1, seed=0)
