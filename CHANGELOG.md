@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `infer_ci.bootstrap_engine`: a vectorized percentile bootstrap that draws resample counts per unit (row or group) in chunks and computes binary metrics from weighted confusion counts. It records the seed actually used and the number of valid resamples, returns NaN instead of 0 for undefined metrics, and has no progress bar by default. About 0.4 s for 4 metrics on 10,000 rows x 9,999 resamples on Apple Silicon, versus about 11 s for f1 alone with `bootstrap_ci` (INF-61). Timing script: `benchmarks/bench_bootstrap_engine.py`.
+
 ### Changed
 - **BREAKING**: Migrated all imports from `confidenceinterval` to `infer_ci`
 - **BREAKING**: Package now only supports `infer_ci` import path
